@@ -4,6 +4,8 @@
 #include <glad/glad.h>
 #include "utility.h"
 
+
+
 struct gl_shader
 {
 public:
@@ -101,4 +103,37 @@ struct gl_mesh
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ebo);
 	}
 };
+template<typename... Args>
+void gl_vao_data(const Args&... args)
+{
+	int size = 0, offset = 0, target = 0;
+	get_vectors_size(size, args...);
+	glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
+	gl_vao_data(target, offset, args...);
+}
+template<typename T>
+void gl_vao_data(int &target, int &offset, const T &t)
+{
+	if (t.size())
+	{
+		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
+		glEnableVertexAttribArray(target);
+		GLenum type = GL_FLOAT;
+		if (typeid(t[0][0]) == typeid(unsigned int))
+			type = GL_UNSIGNED_INT;
+		glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)(long)offset);
+		offset += sizeof(t[0])*t.size();
+	}
+	target++;
+}
+template<typename T, typename... Args>
+void gl_vao_data(int &target, int &offset, const T &t, const Args&... args)
+{
+	gl_vao_data(target, offset, t);
+	gl_vao_data(target, offset, args...);
+}
+void gl_ebo_data(const vector<unsigned int> &ids)
+{
+	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
+}
 #endif

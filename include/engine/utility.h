@@ -36,5 +36,15 @@ void vector_from_file(const string &path, int beg, int count, vector<T> &content
 	}
 	throw(errno);
 }
-
+template<typename T>
+void get_vectors_size(int &size, const T &t)
+{
+	size += sizeof(t[0]) * t.size();
+}
+template<typename T, typename... Args>
+void get_vectors_size(int &size, const T &t, const Args&... args)
+{
+	get_vectors_size(size, t);
+	get_vectors_size(size, args...);
+}
 #endif

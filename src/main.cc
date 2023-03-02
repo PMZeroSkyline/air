@@ -12,7 +12,7 @@ int main()
     mesh quad = make_quad();
     string vs, fs;
     string_from_file("../res/vs.glsl", vs);
-    string_from_file("../res/fs1.glsl", fs);
+    string_from_file("../res/fs.glsl", fs);
     gl_shader glvs(GL_VERTEX_SHADER), glfs(GL_FRAGMENT_SHADER);
     glvs.compile(vs.c_str());
     glfs.compile(fs.c_str());
@@ -21,14 +21,8 @@ int main()
     glUseProgram(glprog.id);
     gl_mesh glm;
     glm.bind();
-    glBufferData(GL_ARRAY_BUFFER, sizeof(float)*5*quad.p.size(), NULL, GL_STATIC_DRAW);
-    glBufferSubData(GL_ARRAY_BUFFER, 0, sizeof(float)*3*quad.p.size(), &(quad.p[0]));
-    glBufferSubData(GL_ARRAY_BUFFER, sizeof(float)*3*quad.p.size(), sizeof(float)*2*quad.uv.size(), &quad.uv[0]);
-    glEnableVertexAttribArray(0);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float)*3, (void*)0);
-    glEnableVertexAttribArray(3);
-    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, sizeof(float)*2, (void*)(sizeof(float)*3*quad.p.size()));
-    glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(unsigned int)*quad.ids.size(), &quad.ids[0], GL_STATIC_DRAW);
+    gl_vao_data(quad.p, quad.n, quad.t, quad.uv);
+    gl_ebo_data(quad.ids);
 
     while (get_current_context()->is_open())
     {
