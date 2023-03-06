@@ -3,23 +3,7 @@
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
-#ifdef __APPLE__
-#include "CoreFoundation/CoreFoundation.h"
-#endif
-void cd_apple_dir()
-{
-	#ifdef __APPLE__    
-	CFBundleRef mainBundle = CFBundleGetMainBundle();
-	CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-	char path[PATH_MAX];
-	if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
-	{
-		std::cout << "apple path err" << std::endl;
-	}
-	CFRelease(resourcesURL);
-	chdir(path);
-	#endif
-}
+
 struct key
 {
 	bool press = false;
@@ -39,7 +23,6 @@ struct window
 	{
 		if (glfwGetCurrentContext() == nullptr)
 		{
-			cd_apple_dir();
 
 			glfwInit();
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
@@ -50,7 +33,6 @@ struct window
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		#endif
 		}
-
 		glfw_window = glfwCreateWindow(w, h, title, NULL, NULL);
 		if (glfw_window == NULL)
 		{

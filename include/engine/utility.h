@@ -6,6 +6,26 @@
 #include <iostream>
 using std::string;
 using std::vector;
+using std::cout;
+using std::endl;
+
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+#endif
+void cd_apple_dir()
+{
+	#ifdef __APPLE__    
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+	char path[PATH_MAX];
+	if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
+	{
+		std::cout << "apple path err" << std::endl;
+	}
+	CFRelease(resourcesURL);
+	chdir(path);
+	#endif
+}
 
 // 以下IO函数使用了快速读取方法 https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
 void string_from_file(const string &path, string &contents)
@@ -37,14 +57,15 @@ void vector_from_file(const string &path, int beg, int count, vector<T> &content
 	throw(errno);
 }
 template<typename T>
-void get_vectors_size(int &size, const T &t)
+void vector_sizeof(int &size, const T &t)
 {
 	size += sizeof(t[0]) * t.size();
 }
 template<typename T, typename... Args>
-void get_vectors_size(int &size, const T &t, const Args&... args)
+void vector_sizeof(int &size, const T &t, const Args&... args)
 {
-	get_vectors_size(size, t);
-	get_vectors_size(size, args...);
+	vector_sizeof(size, t);
+	vector_sizeof(size, args...);
 }
+
 #endif

@@ -3,10 +3,10 @@
 
 #include <glad/glad.h>
 #include "utility.h"
+#include "res.h"
 
 
-
-struct gl_shader
+struct gl_shader : res
 {
 public:
 	unsigned int id=-1;
@@ -32,7 +32,7 @@ public:
 		}
 	}
 };
-struct gl_program
+struct gl_program : res
 {
 	unsigned int id=-1;
 	gl_program()
@@ -58,39 +58,39 @@ struct gl_program
 		}
 	}
 };
-struct gl_texture
+struct gl_texture2D : res
 {
 	unsigned int id = -1;
-	gl_texture(GLenum target, GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool gen_mipmap)
+	gl_texture2D(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool gen_mipmap)
 	{
 		glGenTextures(1, &id);		
-		glBindTexture(target, id);
+		glBindTexture(GL_TEXTURE_2D, id);
 
-		glTexParameteri(target, GL_TEXTURE_WRAP_S, wrap_s);
-		glTexParameteri(target, GL_TEXTURE_WRAP_T, wrap_t);
-		glTexParameteri(target, GL_TEXTURE_MIN_FILTER, min_filter);
-		glTexParameteri(target, GL_TEXTURE_MAG_FILTER, mag_filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
 		if (gen_mipmap)
-			glGenerateMipmap(target);
+			glGenerateMipmap(GL_TEXTURE_2D);
 
-		glTexImage2D(target,0,internalformat,width,height,0,format,type,pixels);
+		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
 	}
-	~gl_texture()
+	~gl_texture2D()
 	{
 		glDeleteTextures(1, &id);
 	}
 };
-struct gl_mesh
+struct gl_verts : res
 {
 	unsigned int vao = -1, vbo = -1, ebo = -1;
-	gl_mesh()
+	gl_verts()
 	{
 		glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ebo);
 	}
-	~gl_mesh()
+	~gl_verts()
 	{
 		glDeleteVertexArrays(1, &vao);
 		glDeleteBuffers(1, &vbo);
@@ -107,7 +107,7 @@ template<typename... Args>
 void gl_vao_data(const Args&... args)
 {
 	int size = 0, offset = 0, target = 0;
-	get_vectors_size(size, args...);
+	vector_sizeof(size, args...);
 	glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
 	gl_vao_data(target, offset, args...);
 }
@@ -136,4 +136,7 @@ void gl_ebo_data(const vector<unsigned int> &ids)
 {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 }
+
+
+
 #endif

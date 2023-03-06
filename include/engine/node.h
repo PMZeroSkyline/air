@@ -4,6 +4,8 @@
 #include <string>
 using std::vector;
 using std::string;
+#include "math.h"
+
 struct node;
 struct comp
 {
@@ -18,15 +20,21 @@ struct node
 	vector<node*> cs;
 	vector<comp*> comps;
 	string name;
+	transform local;
+	mat4 world;
 	virtual ~node()
 	{
 		for (int i = 0; i < comps.size(); i++)
 		{
 			comps[i]->o = nullptr;
 			delete comps[i];
+			comps[i] = nullptr;
 		}
 		for (int i = 0; i < cs.size(); i++)
+		{
 			delete cs[i];
+			cs[i] = nullptr;
+		}
 	}
 	virtual void start(){}
 	virtual void tick(){}
@@ -38,12 +46,10 @@ struct node
 		comps.push_back(c);
 		return c;
 	}
-	template<typename T>
-	T* add_comp(T *c)
+	void add_comp(comp *c)
 	{
-		((comp*)c)->o = this;
+		c->o = this;
 		comps.push_back(c);
-		return c;
 	}
 	template<typename T>
 	T* get_comp()
@@ -64,12 +70,25 @@ struct node
 		cs.push_back(c);
 		return c;
 	}
-	template<typename T>
-	T* add_child(T *c)
+	void add_child(node *c)
 	{
-		((node*)c)->p = this;
+		c->p = this;
 		cs.push_back(c);
-		return c;
+	}
+	void tick_world_matrix()
+	{
+		if (p)
+		{
+			world = p->world * local.to_matrix();
+		}
+		else
+		{
+			world = local.to_matrix();
+		}
+		for (int i = 0; i < cs.size(); i++)
+		{
+			cs[i]->tick_world_matrix();
+		}
 	}
 };
 comp::~comp()
@@ -78,26 +97,6 @@ comp::~comp()
 		for (int i = 0; i < o->comps.size(); i++)
 			if (o->comps[i] == this)
 				o->comps.erase(o->comps.begin()+i);
-}
-void node_each(node* &n, void (*node_callback)(node* &n), void (*comp_callback)(comp* &c))
-{
-	if (n)
-	{
-		node_callback(n);
-		for (int i = 0; i < n->comps.size(); i++)
-			comp_callback(n->comps[i]);
-		for (int i = 0; i < n->cs.size(); i++)
-			node_each(n->cs[i], node_callback, comp_callback);
-	}
-}
-void node_each(node* &n, void (*node_callback)(node* &n))
-{
-	if (n)
-	{
-		node_callback(n);
-		for (int i = 0; i < n->cs.size(); i++)
-			node_each(n->cs[i], node_callback);
-	}
 }
 void destroy(node* &p)
 {
@@ -109,4 +108,26 @@ void destroy(comp* &p)
 	delete p;
 	p = nullptr;
 }
+
+void tree_each(node* &n, void (*node_callback)(node* &n))
+{
+	if (n)
+	{
+		node_callback(n);
+		for (int i = 0; i < n->cs.size(); i++)
+			tree_each(n->cs[i], node_callback);
+	}
+}
+void tree_each(node* &n, void (*node_callback)(node* &n), void (*comp_callback)(comp* &c))
+{
+	if (n)
+	{
+		node_callback(n);
+		for (int i = 0; i < n->comps.size(); i++)
+			comp_callback(n->comps[i]);
+		for (int i = 0; i < n->cs.size(); i++)
+			tree_each(n->cs[i], node_callback, comp_callback);
+	}
+}
+
 #endif

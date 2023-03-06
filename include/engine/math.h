@@ -29,12 +29,102 @@ int sgn(float val)
     return (0 < val) - (val < 0);
 }
 
+struct ivec4
+{
+	int x,y,z,w;
+	ivec4() : x(0), y(0), z(0), w(0){}
+    ivec4(int v) : x(v), y(v), z(v), w(v){}
+	ivec4(int _x, int _y, int _z, int _w) : x(_x), y(_y), z(_z), w(_w){}
+	ivec4(const int (&v)[4])
+	{
+		memcpy(&(*this)[0], &v[0], sizeof(int)*4);
+	}
+	ivec4 &operator=(const ivec4 &v)
+	{
+		memcpy(this, &v, sizeof(int)*4);
+		return *this;
+	}
+	int &operator[](size_t i)
+	{
+		return *(((int*)this)+i);
+	}
+	const int &operator[](size_t i) const
+	{
+		return *(((int*)this)+i);
+	}
+	friend ostream &operator<<(ostream &os, const ivec4 &v)
+	{
+		for (size_t i = 0; i < 4; i++)
+			os << v[i] << ",";
+		return os;
+	}
+	friend bool operator==(const ivec4 &u, const ivec4 &v)
+	{
+		for (int i = 0; i < 4; i++)
+			if (u[i] != v[i])
+				return false;
+		return true;
+	}
+	friend bool operator!=(const ivec4 &u, const ivec4 &v)
+	{
+		return (!(u == v));
+	}
+	const ivec4 operator-() const
+	{
+		return ivec4(-x, -y, -z, -w);
+	}
+    ivec4 &operator+=(const ivec4 &v)
+    {
+		for (int i = 0; i < 4; i++)
+			(*this)[i] += v[i];
+        return *this;
+    }
+	ivec4 &operator-=(const ivec4 &v)
+    {
+		for (int i = 0; i < 4; i++)
+			(*this)[i] -= v[i];
+        return *this;
+    }
+	ivec4 &operator*=(const ivec4 &v)
+    {
+		for (int i = 0; i < 4; i++)
+			(*this)[i] *= v[i];
+        return *this;
+    }
+	ivec4 &operator/=(const ivec4 &v)
+    {
+		for (int i = 0; i < 4; i++)
+			(*this)[i] /= v[i];
+        return *this;
+    }
+	inline friend ivec4 operator+(const ivec4 &u, const ivec4 &v)
+	{
+		return ivec4(u.x + v.x, u.y + v.y, u.z + v.z, u.w + v.w);
+	}
+	inline friend ivec4 operator-(const ivec4 &u, const ivec4 &v)
+	{
+		return ivec4(u.x - v.x, u.y - v.y, u.z - v.z, u.w - v.w);
+	}
+	inline friend ivec4 operator*(const ivec4 &u, const ivec4 &v)
+	{
+		return ivec4(u.x * v.x, u.y * v.y, u.z * v.z, u.w * v.w);
+	}
+	inline friend ivec4 operator/(const ivec4 &u, const ivec4 &v)
+	{
+		return ivec4(u.x / v.x, u.y / v.y, u.z / v.z, u.w / v.w);
+	}
+};
+
 struct vec2
 {
 	float x,y;
 	vec2() : x(0), y(0){}
     vec2(float v) : x(v), y(v){}
 	vec2(float _x, float _y) : x(_x), y(_y){}
+	vec2(const float (&v)[2])
+	{
+		memcpy(&(*this)[0], &v[0], sizeof(float)*2);
+	}
 	vec2 &operator=(const vec2 &v)
 	{
 		memcpy(this, &v, sizeof(float)*2);
@@ -53,6 +143,17 @@ struct vec2
 		for (size_t i = 0; i < 2; i++)
 			os << v[i] << ",";
 		return os;
+	}
+	friend bool operator==(const vec2 &u, const vec2 &v)
+	{
+		for (int i = 0; i < 2; i++)
+			if (u[i] != v[i])
+				return false;
+		return true;
+	}
+	friend bool operator!=(const vec2 &u, const vec2 &v)
+	{
+		return (!(u == v));
 	}
 	const vec2 operator-() const
 	{
@@ -119,6 +220,10 @@ struct vec3
 	vec3() : x(0), y(0), z(0){}
 	vec3(float v) : x(v), y(v), z(v) {}
 	vec3(float _x, float _y, float _z) : x(_x), y(_y), z(_z){}
+	vec3(const float (&v)[3])
+	{
+		memcpy(&(*this)[0], &v[0], sizeof(float)*3);
+	}
 	vec3(const vec4 &v);
 	vec3 &operator=(const vec3 &v)
 	{
@@ -169,11 +274,22 @@ struct vec3
 		r.z = mod(z, v);
         return r;
     }
-	friend ostream &operator<<(ostream &os, const vec3 v)
+	friend ostream &operator<<(ostream &os, const vec3 &v)
 	{
 		for (size_t i = 0; i < 3; i++)
 			os << v[i] << ",";
 		return os;
+	}
+	friend bool operator==(const vec3 &u, const vec3 &v)
+	{
+		for (int i = 0; i < 3; i++)
+			if (u[i] != v[i])
+				return false;
+		return true;
+	}
+	friend bool operator!=(const vec3 &u, const vec3 &v)
+	{
+		return (!(u == v));
 	}
 	inline friend vec3 operator+(const vec3 &u, const vec3 &v)
 	{
@@ -231,6 +347,10 @@ struct vec4
 	vec4() : x(0), y(0), z(0), w(0){}
     vec4(float v) : x(v), y(v), z(v), w(v){}
 	vec4(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w){}
+	vec4(const float (&v)[4])
+	{
+		memcpy(&(*this)[0], &v[0], sizeof(float)*4);
+	}
 	vec4 &operator=(const vec4 &v)
 	{
 		memcpy(this, &v, sizeof(float)*4);
@@ -272,11 +392,22 @@ struct vec4
 			(*this)[i] /= v[i];
         return *this;
     }
- 	friend ostream &operator<<(ostream &os, const vec4 v)
+ 	friend ostream &operator<<(ostream &os, const vec4 &v)
 	{
 		for (size_t i = 0; i < 4; i++)
 			os << v[i] << ",";
 		return os;
+	}
+	friend bool operator==(const vec4 &u, const vec4 &v)
+	{
+		for (int i = 0; i < 4; i++)
+			if (u[i] != v[i])
+				return false;
+		return true;
+	}
+	friend bool operator!=(const vec4 &u, const vec4 &v)
+	{
+		return (!(u == v));
 	}
 	inline friend vec4 operator+(const vec4 &u, const vec4 &v)
 	{
@@ -315,8 +446,12 @@ struct mat3;
 struct quat
 {
 	float x,y,z,w;
-	quat() : x(0),y(0),z(0),w(0){}
+	quat() : x(0),y(0),z(0),w(1){}
 	quat(float _x, float _y, float _z, float _w) : x(_x), y(_y), z(_z), w(_w){}
+	quat(const float (&q)[4])
+	{
+		memcpy(&(*this)[0], &q[0], sizeof(float)*4);
+	}
 	quat(const vec3 &axis, float angle)
 	{
 		x = axis.x * sin(angle / 2);
@@ -371,11 +506,22 @@ struct quat
 	{
 		return quat(q.x/v, q.y/v, q.z/v, q.w/v);
 	}
-	friend ostream &operator<<(ostream &os, const quat q)
+	friend ostream &operator<<(ostream &os, const quat &q)
 	{
 		for (size_t i = 0; i < 4; i++)
 			os << q[i] << ",";
 		return os;
+	}
+	friend bool operator==(const quat &u, const quat &v)
+	{
+		for (int i = 0; i < 4; i++)
+			if (u[i] != v[i])
+				return false;
+		return true;
+	}
+	friend bool operator!=(const quat &u, const quat &v)
+	{
+		return (!(u == v));
 	}
 	vec3 euler() const
 	{
@@ -451,6 +597,10 @@ struct mat3
 			for (int j = 0; j < 3; j++)
 				row[i][j] = *(l.begin()+i*3 + j);
     }
+	mat3(const float (&m)[9])
+	{
+		memcpy(&(*this)[0], &m[9], sizeof(float)*9);
+	}
 	mat3(const quat &q)
 	{
 		// 两种方法任选一种即可
@@ -486,6 +636,17 @@ struct mat3
 		for (int i = 0; i < 3; i++)
 			os << m.row[i] << endl;
 		return os;
+	}
+	friend bool operator==(const mat3 &u, const mat3 &v)
+	{
+		for (int i = 0; i < 9; i++)
+			if (*(((float*)&u[0])+i) != *(((float*)&v[0])+i))
+				return false;
+		return true;
+	}
+	friend bool operator!=(const mat3 &u, const mat3 &v)
+	{
+		return (!(u == v));
 	}
 	friend mat3 operator*(const mat3 &u, const mat3 &v)
 	{
@@ -577,7 +738,6 @@ quat::quat(const mat3 &m)
 		w = root * (m[j][k] - m[k][j]);
 	}
 }
-
 struct mat4
 {
 	vec4 row[4];
@@ -592,6 +752,10 @@ struct mat4
 			for (int j = 0; j < 4; j++)
 				row[i][j] = *(l.begin()+i*4 + j);
     }
+	mat4(const float (&m)[16])
+	{
+		memcpy(&(*this)[0], &m[0], sizeof(float)*16);
+	}
 	mat4() 
 	{
 		for (int i = 0; i < 4; i++)
@@ -622,7 +786,18 @@ struct mat4
 			os << m[i] << endl;
 		return os;
 	}
-	friend mat4 operator*(const mat4 &u, const mat4 v)
+	friend bool operator==(const mat4 &u, const mat4 &v)
+	{
+		for (int i = 0; i < 16; i++)
+			if (*(((float*)&u[0])+i) != *(((float*)&v[0])+i))
+				return false;
+		return true;
+	}
+	friend bool operator!=(const mat4 &u, const mat4 &v)
+	{
+		return (!(u == v));
+	}
+	friend mat4 operator*(const mat4 &u, const mat4 &v)
 	{
 		mat4 m;
 		for (int i = 0; i < 4; i++)
@@ -667,7 +842,7 @@ mat3::mat3(const mat4 &m)
 	for (int i = 0; i < 3; i++)
 		(*this)[i] = m[i];
 }
-mat4 T(const vec3 p)
+mat4 T(const vec3 &p)
 {
 	mat4 m = {
 		{1	,0	,0	,p.x},
@@ -677,7 +852,7 @@ mat4 T(const vec3 p)
 	};
 	return m;
 }
-mat4 RX(float rad)
+mat4 Rx(float rad)
 {
 	float c = cos(rad);
 	float s = sin(rad);
@@ -689,7 +864,7 @@ mat4 RX(float rad)
 	};
 	return m;
 }
-mat4 RY(float rad)
+mat4 Ry(float rad)
 {
 	float c = cos(rad);
 	float s = sin(rad);
@@ -701,7 +876,7 @@ mat4 RY(float rad)
 	};
 	return m;
 }
-mat4 RZ(float rad)
+mat4 Rz(float rad)
 {
 	float c = cos(rad);
 	float s = sin(rad);
@@ -727,9 +902,9 @@ mat4 S(const vec3 &s)
 struct transform
 {
 	vec3 p;
-	quat q;
+	quat r;
 	vec3 s;
-	transform() = default;
+	transform() : s(1) {};
 	transform(const mat4 mtx)
 	{
 		mat4 m = mtx.normalize();
@@ -745,14 +920,19 @@ struct transform
 			for (int i = 0; i < 3; i++)
 				r[i] *= -1;
 		}
-		q = quat(quat(r).euler()*-1);
+		r = quat(quat(r).euler()*-1);
 	}
 	friend ostream &operator<<(ostream &os, const transform &t)
 	{
 		os << "p\t" << t.p << endl;
-		os << "q\t" << degrees(t.q.euler()) << endl;
+		os << "q\t" << degrees(t.r.euler()) << endl;
 		os << "s\t" << t.s << endl;
 		return os;
 	}
+	mat4 to_matrix()
+	{
+		return T(p) * mat4(r) * S(s);
+	}
 };
+
 #endif
