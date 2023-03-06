@@ -1,10 +1,14 @@
-#ifndef MATH_H
+﻿#ifndef MATH_H
 #define MATH_H
 #include <iostream>
 #include <cmath>
 #include <initializer_list>
 using std::ostream;
 using std::endl;
+
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 inline float lerp(float a, float b, float w)
 {

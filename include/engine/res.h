@@ -4,6 +4,7 @@
 #include <map>
 using std::map;
 #include <string>
+#include <memory>
 using std::string;
 using std::shared_ptr;
 using std::weak_ptr;

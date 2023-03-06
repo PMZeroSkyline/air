@@ -4,11 +4,14 @@
 #include <vector>
 using std::vector;
 using std::pair;
+#include <memory>
+using std::shared_ptr;
 
 #include "math.h"
 #include "res.h"
 #include "gl.h"
 #include "image.h"
+
 
 struct sampler2D : res
 {

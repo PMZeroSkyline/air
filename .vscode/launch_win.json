@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "AirV2 MSVC c++20",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}/bin/main.exe",
+            "args": [],
+            "stopAtEntry": false,
+            "cwd": "${fileDirname}",
+            "environment": [],
+            "console": "externalTerminal",
+            "preLaunchTask": "AirV2 MSVC c++20"
+        }
+    ],
+    "version": "2.0.0"
+}

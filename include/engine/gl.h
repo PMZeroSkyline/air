@@ -50,7 +50,7 @@ struct gl_program : res
 		glLinkProgram(id);
 		int succ;
 		char info[1024];
-		glGetShaderiv(id, GL_LINK_STATUS, &succ);
+		glGetProgramiv(id, GL_LINK_STATUS, &succ);
 		if (!succ)
 		{
 			glGetProgramInfoLog(id, 1024, NULL, info);
@@ -121,7 +121,7 @@ void gl_vao_data(int &target, int &offset, const T &t)
 		GLenum type = GL_FLOAT;
 		if (typeid(t[0][0]) == typeid(unsigned int))
 			type = GL_UNSIGNED_INT;
-		glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)(long)offset);
+		glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)static_cast<size_t>(offset));
 		offset += sizeof(t[0])*t.size();
 	}
 	target++;
