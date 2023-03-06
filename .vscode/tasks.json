@@ -1,0 +1,87 @@
+{
+    "tasks": [
+        {
+            "type": "cppbuild",
+            "label": "AirV2 Win MSVC c++20",
+            "command": "cl.exe",
+            "args": [
+                "/Zi",
+                "/EHsc",
+                "/std:c++20",
+                "/nologo",
+                "/I",
+                "${workspaceFolder}/include",
+                "/I",
+                "${workspaceFolder}/lib",
+                "/Fe:",
+                "${workspaceFolder}/bin/",
+                "/Fd:",
+                "${workspaceFolder}/bin/",
+                "/Fo:",
+                "${workspaceFolder}/bin/",
+                "${workspaceFolder}/src/*.cc",
+                "${workspaceFolder}/src/*.c",
+                "/MD",
+                "/link",
+                "/LIBPATH:${workspaceFolder}/lib",
+                "glfw3.lib",
+                "opengl32.lib",
+                "user32.lib",
+                "gdi32.lib",
+                "shell32.lib",
+                "vcruntime.lib",
+                "msvcrt.lib"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": false
+            },
+            "detail": "AirV2 Win MSVC c++20"
+        },
+        {
+            "type": "cppbuild",
+            "label": "AirV2 Mac Clang++ c++20",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-std=c++20",
+                "-fdiagnostics-color=always",
+                "-I${workspaceFolder}/include",
+                "-L${workspaceFolder}/lib",
+                "-g",
+                "${workspaceFolder}/src/*.*",
+                "${workspaceFolder}/lib/*.dylib",
+                "-o",
+                "${workspaceFolder}/bin/main",
+                "-framework",
+                "OpenGL",
+                "-framework",
+                "Cocoa",
+                "-framework",
+                "IOKit",
+                "-framework",
+                "CoreVideo",
+                "-framework",
+                "CoreFoundation",
+                "-Wno-deprecated"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "AirV2 Mac Clang++ c++20"
+        }
+    ],
+    "version": "2.0.0"
+}
