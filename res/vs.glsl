@@ -6,6 +6,8 @@ layout(location = 2) in vec4 T;
 layout(location = 3) in vec2 C;
 layout(location = 4) in vec2 UV;
 layout(location = 5) in vec2 UV1;
+layout(location = 6) in ivec4 J;
+layout(location = 7) in vec4 JW;
 
 out V2F
 {

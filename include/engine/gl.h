@@ -1,24 +1,23 @@
 #ifndef GL_H
 #define GL_H
 
-#include <glad/glad.h>
-#include "utility.h"
-#include "res.h"
+#include "Core.h"
 
-
-struct gl_shader : res
+struct GLShader
 {
 public:
 	unsigned int id=-1;
-	gl_shader(GLenum t)
+	GLShader(GLenum t)
 	{
 		id = glCreateShader(t);
+		LOG("create shader");
 	}
-	~gl_shader()
+	~GLShader()
 	{
 		glDeleteShader(id);
+		LOG("delete shader");
 	}
-	void compile(const char *code)
+	bool compile(const char *code)
 	{
 		glShaderSource(id, 1, &code, NULL);
 		glCompileShader(id);
@@ -28,22 +27,25 @@ public:
 		if (!succ)
 		{
 			glGetShaderInfoLog(id, 1024, NULL, info);
-			std::cout << "compile gl_shader failed : " << info << std::endl;
+			LOG("compile shader failed ! : " << info)
+			return false;
 		}
+		LOG("compile shader succeed")
+		return true;
 	}
 };
-struct gl_program : res
+struct GLProgram
 {
 	unsigned int id=-1;
-	gl_program()
+	GLProgram()
 	{
 		id = glCreateProgram();
 	}
-	~gl_program()
+	~GLProgram()
 	{
 		glDeleteProgram(id);
 	}
-	void link(unsigned int a, unsigned int b)
+	bool link(unsigned int a, unsigned int b)
 	{
 		glAttachShader(id, a);
 		glAttachShader(id, b);
@@ -54,14 +56,17 @@ struct gl_program : res
 		if (!succ)
 		{
 			glGetProgramInfoLog(id, 1024, NULL, info);
-			std::cout << "link gl_shader failed : " << info << std::endl;
+			LOG("link GLShader failed : " << info)
+			return false;
 		}
+		LOG("link program succeed")
+		return true;
 	}
 };
-struct gl_texture2D : res
+struct GLTexture2D
 {
 	unsigned int id = -1;
-	gl_texture2D(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool gen_mipmap)
+	GLTexture2D(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
 	{
 		glGenTextures(1, &id);		
 		glBindTexture(GL_TEXTURE_2D, id);
@@ -71,26 +76,25 @@ struct gl_texture2D : res
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 
-		if (gen_mipmap)
-			glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GL_TEXTURE_2D);
 
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
 	}
-	~gl_texture2D()
+	~GLTexture2D()
 	{
 		glDeleteTextures(1, &id);
 	}
 };
-struct gl_verts : res
+struct GLPrimitive
 {
 	unsigned int vao = -1, vbo = -1, ebo = -1;
-	gl_verts()
+	GLPrimitive()
 	{
 		glGenVertexArrays(1, &vao);
         glGenBuffers(1, &vbo);
         glGenBuffers(1, &ebo);
 	}
-	~gl_verts()
+	~GLPrimitive()
 	{
 		glDeleteVertexArrays(1, &vao);
 		glDeleteBuffers(1, &vbo);
@@ -104,39 +108,37 @@ struct gl_verts : res
 	}
 };
 template<typename... Args>
-void gl_vao_data(const Args&... args)
+void GLVaoData(const Args&... args)
 {
 	int size = 0, offset = 0, target = 0;
 	vector_sizeof(size, args...);
 	glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
-	gl_vao_data(target, offset, args...);
+	GLVaoData(target, offset, args...);
 }
 template<typename T>
-void gl_vao_data(int &target, int &offset, const T &t)
+void GLVaoData(int &target, int &offset, const T &t)
 {
 	if (t.size())
 	{
 		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
 		glEnableVertexAttribArray(target);
 		GLenum type = GL_FLOAT;
-		if (typeid(t[0][0]) == typeid(unsigned int))
-			type = GL_UNSIGNED_INT;
+		if (typeid(t[0][0]) == typeid(int))
+			type = GL_INT;
 		glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)static_cast<size_t>(offset));
 		offset += sizeof(t[0])*t.size();
 	}
 	target++;
 }
 template<typename T, typename... Args>
-void gl_vao_data(int &target, int &offset, const T &t, const Args&... args)
+void GLVaoData(int &target, int &offset, const T &t, const Args&... args)
 {
-	gl_vao_data(target, offset, t);
-	gl_vao_data(target, offset, args...);
+	GLVaoData(target, offset, t);
+	GLVaoData(target, offset, args...);
 }
-void gl_ebo_data(const vector<unsigned int> &ids)
+void GLEboData(const vector<unsigned int> &ids)
 {
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 }
-
-
 
 #endif

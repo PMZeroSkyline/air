@@ -1,26 +1,26 @@
 #ifndef IMAGE_H
 #define IMAGE_H
 
+#include "Core.h"
+
 #define STB_IMAGE_IMPLEMENTATION
 #include <stb/stb_image.h>
-#include <iostream>
-#include <string>
-using std::cout;
-using std::endl;
-using std::string;
-#include "res.h"
 
-struct image : res
+class Image
 {
+public:
 	unsigned char *d;
 	int w = 0, h = 0, n = 0;
-	image(const string path)
+	Image(const string path)
 	{
 		d = stbi_load(path.c_str(), &w, &h, &n, 0);
 		if (!d)
-			std::cout << "failed to load image " + path << std::endl;
+		{
+			LOG("failed to load Image !");
+		}
+		LOG("load Image succeed");
 	}
-	~image()
+	~Image()
 	{
 		stbi_image_free(d);
 	}

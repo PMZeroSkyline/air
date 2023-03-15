@@ -1,25 +1,24 @@
 #ifndef WINDOW_H
 #define WINDOW_H
-#include <glad/glad.h>
-#include <GLFW/glfw3.h>
-#include <iostream>
 
-struct key
+#include "Core.h"
+
+struct Key
 {
-	bool press = false;
-	bool down = false;
-	bool up = false;
-	float press_dur = 0;
-	float down_tm = 0;
-	float down_dt = FLT_MAX;
+	bool pressing = false;
+	bool pressDown = false;
+	bool liftUp = false;
+	float pressDur = 0;
+	float downTime = 0;
+	float downDeltaTime = FLT_MAX;
 };
-struct window
+class Window
 {
+public:
 	GLFWwindow* glfw_window;
-	float tm = 0, dt = 0;
-	key keys[GLFW_KEY_LAST];
-
-	window(int w, int h, const char *title)
+	float time = 0, deltaTime = 0;
+	Key keys[GLFW_KEY_LAST];
+	Window(int w = 800, int h = 600, const char *title = "window")
 	{
 		if (glfwGetCurrentContext() == nullptr)
 		{
@@ -36,78 +35,81 @@ struct window
 		glfw_window = glfwCreateWindow(w, h, title, NULL, NULL);
 		if (glfw_window == NULL)
 		{
-			std::cout << "Failed to create GLFW window" << std::endl;
+			LOG("Failed to create GLFW window")
 			glfwTerminate();
 		}
+		LOG("create window succeed")
 		glfwMakeContextCurrent(glfw_window);
 		glfwSetWindowUserPointer(glfw_window, this);
         
 		glfwSetFramebufferSizeCallback(glfw_window, [](GLFWwindow *w, int width, int height){
-			reinterpret_cast<window*>(glfwGetWindowUserPointer(w))->framebuffer_size_callback(w, width, height);
+			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->FramebufferSizeCallback(w, width, height);
 		});
 		glfwSetKeyCallback(glfw_window, [](GLFWwindow* w, int key, int scancode, int action, int mods){
-			reinterpret_cast<window*>(glfwGetWindowUserPointer(w))->key_callback(w, key, scancode, action, mods);
+			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
 		});
 		
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     	{
-        	std::cout << "Failed to initialize GLAD" << std::endl;
+        	LOG("Failed to initialize GLAD !")
     	}    
+		LOG("load glad succeed")
 	}
-	~window()
+	~Window()
 	{
 	    glfwTerminate();
+		LOG("delete window")
 	}
-	bool is_open()
+	bool IsOpen()
 	{
 		return !glfwWindowShouldClose(glfw_window);
 	}
-	void tick()
+	void Tick()
 	{
-		dt = glfwGetTime() - tm;
-		tm = glfwGetTime();
+		deltaTime = glfwGetTime() - time;
+		time = glfwGetTime();
 
 		for (int i = 0; i < GLFW_KEY_LAST; i++)
 		{
-			key &k = keys[i];
-			k.down = false;
-			k.up = false;
-			if (k.press)
-				k.press_dur += dt;
+			Key &k = keys[i];
+			k.pressDown = false;
+			k.liftUp = false;
+			if (k.pressing)
+				k.pressDur += deltaTime;
 			else
-				k.press_dur = 0;
+				k.pressDur = 0;
 		}
 		glfwSwapBuffers(glfw_window);
         glfwPollEvents();
 	}
-	void framebuffer_size_callback(GLFWwindow* w, int width, int height)
+	void FramebufferSizeCallback(GLFWwindow* w, int width, int height)
 	{
     	glViewport(0, 0, width, height);
 	}
-	void key_callback(GLFWwindow* w, int id, int scancode, int action, int mods)
+	void KeyCallback(GLFWwindow* w, int id, int scancode, int action, int mods)
 	{
-		key& k = keys[id];
+		Key& k = keys[id];
 
-		if (action == 1) // event key down
+		if (action == 1) // event key pressDown
 		{
-			k.press=true;
-			k.down=true;
-			k.down_dt = glfwGetTime() - k.down_tm;
-			k.down_tm = glfwGetTime();
+			k.pressing=true;
+			k.pressDown=true;
+			k.downDeltaTime = glfwGetTime() - k.downTime;
+			k.downTime = glfwGetTime();
 		}
-		else if (action == 0) // event key up
+		else if (action == 0) // event key liftUp
 		{
-			k.press=false;
-			k.up=true;
+			k.pressing=false;
+			k.liftUp=true;
 		}	
 	}
-	void close()
+	void Close()
 	{
 		glfwSetWindowShouldClose(glfw_window, true);
 	}
 };
-window* get_current_context()
+Window* GetCurrentContext()
 {
-    return (window*)glfwGetWindowUserPointer(glfwGetCurrentContext());
+    return (Window*)glfwGetWindowUserPointer(glfwGetCurrentContext());
 }
 #endif

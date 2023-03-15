@@ -55,6 +55,7 @@
                 "-L${workspaceFolder}/lib",
                 "-g",
                 "${workspaceFolder}/src/*.*",
+                "${workspaceFolder}/include/imgui/*.cpp",
                 "${workspaceFolder}/lib/*.dylib",
                 "-o",
                 "${workspaceFolder}/bin/main",
