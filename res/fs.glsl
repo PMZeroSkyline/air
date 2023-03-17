@@ -105,7 +105,6 @@ void mainImage( out vec4 fragColor, in vec2 fragCoord )
     vec3 worldDir = (V * vec4(viewDir, 0.)).xyz;
     vec3 dirLightDir = normalize(vec3(1.));
 
-    
     ray r; 
     r.p = cameraPos;
     r.d = worldDir;

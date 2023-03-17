@@ -31,6 +31,7 @@ public:
 		#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		#endif
+		
 		}
 		glfw_window = glfwCreateWindow(w, h, title, NULL, NULL);
 		if (glfw_window == NULL)
@@ -52,17 +53,41 @@ public:
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     	{
         	LOG("Failed to initialize GLAD !")
-    	}    
+    	}
 		LOG("load glad succeed")
+
+		IMGUI_CHECKVERSION();
+		ImGui::CreateContext();
+		ImGuiIO &io = ImGui::GetIO();
+    	(void)io;
+    	//io.Fonts->AddFontFromFileTTF("../res/SourceHanSansCN-Normal.otf", 16.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
+    	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+    	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
+    	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    	ImGui::StyleColorsLight();
+    	ImGui_ImplGlfw_InitForOpenGL(glfw_window, true);
+    	ImGui_ImplOpenGL3_Init("#version 150");
+    	
 	}
 	~Window()
 	{
+		ImGui_ImplOpenGL3_Shutdown();
+    	ImGui_ImplGlfw_Shutdown();
+    	ImGui::DestroyContext();
+		LOG("delete ImGui")
+
 	    glfwTerminate();
 		LOG("delete window")
 	}
 	bool IsOpen()
 	{
 		return !glfwWindowShouldClose(glfw_window);
+	}
+	void TickUI()
+	{
+		ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
 	}
 	void Tick()
 	{
@@ -79,6 +104,10 @@ public:
 			else
 				k.pressDur = 0;
 		}
+
+		ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		
 		glfwSwapBuffers(glfw_window);
         glfwPollEvents();
 	}

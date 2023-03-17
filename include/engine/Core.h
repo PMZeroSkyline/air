@@ -15,6 +15,8 @@ using std::list;
 using std::shared_ptr;
 using std::make_shared;
 using std::weak_ptr;
+using std::ostream;
+using std::to_string;
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -29,6 +31,31 @@ using std::weak_ptr;
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
 using namespace glm;
+ostream &operator<<(ostream &os, const vec3 v)
+{
+	for (size_t i = 0; i < 3; i++)
+		os << v[i] << ",";
+	return os;
+}
+ostream &operator<<(ostream &os, const vec4 v)
+{
+	for (size_t i = 0; i < 4; i++)
+		os << (v[i] < 0.00001 ? 0 : v[i]) << ",";
+	return os;
+}
+ostream &operator<<(ostream &os, const quat v)
+{
+	for (size_t i = 0; i < 4; i++)
+		os << (v[i] < 0.00001 ? 0 : v[i]) << ",";
+	return os;
+}
+ostream &operator<<(ostream &os, const mat4 &m)
+{
+	mat4 t = transpose(m);
+	for (int i = 0; i < 4; i++)
+		os << t[i] << endl;
+	return os;
+}
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -36,6 +63,10 @@ using namespace glm;
 
 #include "json/json.hpp"
 using namespace nlohmann;
+
+#include "imgui/imgui.h"
+#include "imgui/imgui_impl_glfw.h"
+#include "imgui/imgui_impl_opengl3.h"
 
 #define LOG(arg) cout << arg << endl;
 
