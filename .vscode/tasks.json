@@ -21,6 +21,7 @@
                 "${workspaceFolder}/bin/",
                 "${workspaceFolder}/src/*.cc",
                 "${workspaceFolder}/src/*.c",
+                "${workspaceFolder}/include/imgui/*.cpp",
                 "/MD",
                 "/link",
                 "/LIBPATH:${workspaceFolder}/lib",
@@ -40,7 +41,7 @@
             ],
             "group": {
                 "kind": "build",
-                "isDefault": false
+                "isDefault": true
             },
             "detail": "AirV2 Win MSVC c++20"
         },
@@ -79,7 +80,7 @@
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": false
             },
             "detail": "AirV2 Mac Clang++ c++20"
         }

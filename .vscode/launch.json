@@ -1,30 +1,30 @@
 {
     "configurations": [
-        // {
-        //     "name": "AirV2 Win MSVC c++20",
-        //     "type": "cppvsdbg",
-        //     "request": "launch",
-        //     "program": "${workspaceFolder}/bin/main",
-        //     "args": [],
-        //     "stopAtEntry": false,
-        //     "cwd": "${fileDirname}",
-        //     "environment": [],
-        //     "console": "externalTerminal",
-        //     "preLaunchTask": "AirV2 Win MSVC c++20",
-        // },
         {
-            "name": "AirV2 Mac Clang++ c++20",
-            "type": "cppdbg",
+            "name": "AirV2 Win MSVC c++20",
+            "type": "cppvsdbg",
             "request": "launch",
             "program": "${workspaceFolder}/bin/main",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
-            "externalConsole": false,
-            "MIMode": "lldb",
-            "preLaunchTask": "AirV2 Mac Clang++ c++20"
-        }
+            "console": "externalTerminal",
+            "preLaunchTask": "AirV2 Win MSVC c++20",
+        },
+        // {
+        //     "name": "AirV2 Mac Clang++ c++20",
+        //     "type": "cppdbg",
+        //     "request": "launch",
+        //     "program": "${workspaceFolder}/bin/main",
+        //     "args": [],
+        //     "stopAtEntry": false,
+        //     "cwd": "${fileDirname}",
+        //     "environment": [],
+        //     "externalConsole": false,
+        //     "MIMode": "lldb",
+        //     "preLaunchTask": "AirV2 Mac Clang++ c++20"
+        // }
     ],
     "version": "2.0.0"
 }
