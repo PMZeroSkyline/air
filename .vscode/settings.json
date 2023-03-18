@@ -74,6 +74,13 @@
 		"algorithm": "cpp",
 		"filesystem": "cpp",
 		"list": "cpp",
-		"set": "cpp"
+		"set": "cpp",
+		"xstring": "cpp",
+		"xmemory": "cpp",
+		"iterator": "cpp",
+		"xhash": "cpp",
+		"xtree": "cpp",
+		"format": "cpp",
+		"xutility": "cpp"
 	}
 }
