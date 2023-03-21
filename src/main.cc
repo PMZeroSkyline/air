@@ -1,6 +1,7 @@
 #include "engine/GL.h"
 #include "engine/Window.h"
-#include "engine/Model.h"
+#include "engine/Mesh.h"
+#include "engine/Transform.h"
 
 int main()
 {    
@@ -16,10 +17,6 @@ int main()
         {
             GetCurrentContext()->Close();
         }
-
-        ImGui::Begin("test");
-        ImGui::Text("hahah");
-        ImGui::End();
 
         glClearColor(.2,.4,.8,1.);
         glClear(GL_COLOR_BUFFER_BIT);

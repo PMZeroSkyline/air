@@ -3,20 +3,30 @@
 
 #include <iostream>
 #include <string>
+#include <fstream>
 #include <vector>
 #include <map>
 #include <list>
+#include <tuple>
 using std::cout;
 using std::endl;
+using std::begin;
+using std::end;
 using std::string;
+using std::ifstream;
 using std::vector;
+using std::tuple;
 using std::map;
 using std::list;
 using std::shared_ptr;
 using std::make_shared;
+using std::unique_ptr;
+using std::make_unique;
 using std::weak_ptr;
 using std::ostream;
 using std::to_string;
+using std::move;
+using std::dynamic_pointer_cast;
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -30,36 +40,81 @@ using std::to_string;
 #include <glm/gtx/quaternion.hpp>
 #include <glm/gtx/euler_angles.hpp>
 #include <glm/gtx/matrix_decompose.hpp>
-using namespace glm;
-ostream &operator<<(ostream &os, const vec3 v)
-{
-	for (size_t i = 0; i < 3; i++)
-		os << v[i] << ",";
-	return os;
-}
-ostream &operator<<(ostream &os, const vec4 v)
-{
-	for (size_t i = 0; i < 4; i++)
-		os << (v[i] < 0.00001 ? 0 : v[i]) << ",";
-	return os;
-}
-ostream &operator<<(ostream &os, const quat v)
-{
-	for (size_t i = 0; i < 4; i++)
-		os << (v[i] < 0.00001 ? 0 : v[i]) << ",";
-	return os;
-}
-ostream &operator<<(ostream &os, const mat4 &m)
-{
-	mat4 t = transpose(m);
-	for (int i = 0; i < 4; i++)
-		os << t[i] << endl;
-	return os;
-}
+// using namespace glm;
+// ostream &operator<<(ostream &os, const vec3 v)
+// {
+// 	for (size_t i = 0; i < 3; i++)
+// 		os << v[i] << ",";
+// 	return os;
+// }
+// ostream &operator<<(ostream &os, const vec4 v)
+// {
+// 	for (size_t i = 0; i < 4; i++)
+// 		os << (v[i] < 0.00001 ? 0 : v[i]) << ",";
+// 	return os;
+// }
+// ostream &operator<<(ostream &os, const quat v)
+// {
+// 	for (size_t i = 0; i < 4; i++)
+// 		os << (v[i] < 0.00001 ? 0 : v[i]) << ",";
+// 	return os;
+// }
+// ostream &operator<<(ostream &os, const mat4 &m)
+// {
+// 	for (int i = 0; i < 4; i++)
+// 		os << m[i] << endl;
+// 	return os;
+// }
+// quat EulerToQuat(float roll, float pitch, float yaw) // roll (x), pitch (Y), yaw (z)
+// {
+// 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
 
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+//     quat q;
+
+//     float cr = cos(roll * 0.5);
+//     float sr = sin(roll * 0.5);
+//     float cp = cos(pitch * 0.5);
+//     float sp = sin(pitch * 0.5);
+//     float cy = cos(yaw * 0.5);
+//     float sy = sin(yaw * 0.5);
+
+//     q.w = cr * cp * cy + sr * sp * sy;
+//     q.x = sr * cp * cy - cr * sp * sy;
+//     q.y = cr * sp * cy + sr * cp * sy;
+//     q.z = cr * cp * sy - sr * sp * cy;
+//     return q;
+// }
+// quat EulerToQuat(const vec3 &v)
+// {
+//     return EulerToQuat(v.x, v.y, v.z);
+// }
+// vec3 QuatToEuler(const quat &q) 
+// {
+// 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
+
+//     vec3 angles;
+
+//     // roll (x-axis rotation)
+//     float sinr_cosp = 2 * (q.w * q.x + q.y * q.z);
+//     float cosr_cosp = 1 - 2 * (q.x * q.x + q.y * q.y);
+//     angles.x = std::atan2(sinr_cosp, cosr_cosp);
+
+//     // pitch (y-axis rotation)
+//     float sinp = std::sqrt(1 + 2 * (q.w * q.y - q.x * q.z));
+//     float cosp = std::sqrt(1 - 2 * (q.w * q.y - q.x * q.z));
+//     angles.y = 2 * std::atan2(sinp, cosp) - M_PI / 2;
+
+//     // yaw (z-axis rotation)
+//     float siny_cosp = 2 * (q.w * q.z + q.x * q.y);
+//     float cosy_cosp = 1 - 2 * (q.y * q.y + q.z * q.z);
+//     angles.z = std::atan2(siny_cosp, cosy_cosp);
+
+//     return angles;
+// }
+
+// #include <assimp/Importer.hpp>
+// #include <assimp/scene.h>
+// #include <assimp/postprocess.h>
 
 #include "json/json.hpp"
 using namespace nlohmann;

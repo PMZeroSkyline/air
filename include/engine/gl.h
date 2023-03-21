@@ -124,7 +124,11 @@ void GLVaoData(int &target, int &offset, const T &t)
 		glEnableVertexAttribArray(target);
 		GLenum type = GL_FLOAT;
 		if (typeid(t[0][0]) == typeid(int))
+			type = GL_FLOAT;
+		else if (typeid(t[0][0]) == typeid(int))
 			type = GL_INT;
+		else
+			LOG("vao data is not support !")
 		glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)static_cast<size_t>(offset));
 		offset += sizeof(t[0])*t.size();
 	}

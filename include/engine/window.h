@@ -36,7 +36,7 @@ public:
 		glfw_window = glfwCreateWindow(w, h, title, NULL, NULL);
 		if (glfw_window == NULL)
 		{
-			LOG("Failed to create GLFW window")
+			LOG("Failed to create GLFW window !")
 			glfwTerminate();
 		}
 		LOG("create window succeed")
