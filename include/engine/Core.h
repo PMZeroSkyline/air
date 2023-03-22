@@ -8,6 +8,7 @@
 #include <map>
 #include <list>
 #include <tuple>
+#include <limits>
 using std::cout;
 using std::endl;
 using std::begin;
@@ -27,6 +28,7 @@ using std::ostream;
 using std::to_string;
 using std::move;
 using std::dynamic_pointer_cast;
+using std::numeric_limits;
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
