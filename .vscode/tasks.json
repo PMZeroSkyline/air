@@ -2,9 +2,10 @@
     "tasks": [
         {
             "type": "cppbuild",
-            "label": "Air Win MSVC c++20",
+            "label": "AirWin",
             "command": "cl.exe",
             "args": [
+                //"/FS",//https://learn.microsoft.com/en-us/cpp/build/reference/fs-force-synchronous-pdb-writes?redirectedfrom=MSDN&view=msvc-170
                 "/Zi",
                 "/EHsc",
                 "/std:c++20",
@@ -41,54 +42,54 @@
             ],
             "group": {
                 "kind": "build",
-                "isDefault": false
-            },
-            "detail": "Air Win MSVC c++20"
-        },
-        {
-            "type": "cppbuild",
-            "label": "Air Mac Clang++ c++20",
-            "command": "/usr/bin/clang++",
-            "args": [
-                "-std=c++20",
-                "-Wall",
-                
-                "-I${workspaceFolder}/include",
-                "-L${workspaceFolder}/lib",
-
-                "-fcolor-diagnostics",
-				"-fansi-escape-codes",
-				"-g",
-
-                "${workspaceFolder}/src/*.*",
-                "${workspaceFolder}/include/imgui/*.cpp",
-                "${workspaceFolder}/lib/*.dylib",
-                "-o",
-                "${workspaceFolder}/bin/main",
-                "-framework",
-                "OpenGL",
-                "-framework",
-                "Cocoa",
-                "-framework",
-                "IOKit",
-                "-framework",
-                "CoreVideo",
-                "-framework",
-                "CoreFoundation",
-                "-Wno-deprecated"
-            ],
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "problemMatcher": [
-                "$gcc"
-            ],
-            "group": {
-                "kind": "build",
                 "isDefault": true
             },
-            "detail": "Air Mac Clang++ c++20"
-        }
+            "detail": "AirWin"
+        },
+        // {
+        //     "type": "cppbuild",
+        //     "label": "Air Mac Clang++ c++20",
+        //     "command": "/usr/bin/clang++",
+        //     "args": [
+        //         "-std=c++20",
+        //         "-Wall",
+                
+        //         "-I${workspaceFolder}/include",
+        //         "-L${workspaceFolder}/lib",
+
+        //         "-fcolor-diagnostics",
+		// 		"-fansi-escape-codes",
+		// 		"-g",
+
+        //         "${workspaceFolder}/src/*.*",
+        //         "${workspaceFolder}/include/imgui/*.cpp",
+        //         "${workspaceFolder}/lib/*.dylib",
+        //         "-o",
+        //         "${workspaceFolder}/bin/main",
+        //         "-framework",
+        //         "OpenGL",
+        //         "-framework",
+        //         "Cocoa",
+        //         "-framework",
+        //         "IOKit",
+        //         "-framework",
+        //         "CoreVideo",
+        //         "-framework",
+        //         "CoreFoundation",
+        //         "-Wno-deprecated"
+        //     ],
+        //     "options": {
+        //         "cwd": "${fileDirname}"
+        //     },
+        //     "problemMatcher": [
+        //         "$gcc"
+        //     ],
+        //     "group": {
+        //         "kind": "build",
+        //         "isDefault": false
+        //     },
+        //     "detail": "Air Mac Clang++ c++20"
+        // }
     ],
     "version": "2.0.0"
 }

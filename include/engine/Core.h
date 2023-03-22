@@ -185,5 +185,32 @@ void VectorSizeof(int &size, const T &t, const Args&... args)
 	VectorSizeof(size, t);
 	VectorSizeof(size, args...);
 }
-
+void SplitToVector(const string &target, const string &splitTag, vector<string> &out)
+{
+    size_t offset = 0;
+    size_t found;
+    while ((found = target.find(splitTag, offset)) != string::npos)
+    {
+        out.push_back(target.substr(offset, found-offset));
+        offset = found+1;
+    }
+    out.push_back(target.substr(offset, target.size()-offset));
+}
+void RemoveSpace(string &str)
+{
+    str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
+}
+void ReadCSV(const string &path, vector<vector<string>> &csv, bool removeSpace = false)
+{
+    ifstream csvFile(path);
+    string line;
+    while (getline(csvFile, line))
+    {
+        if (removeSpace)
+            RemoveSpace(line);
+        vector<string> v;
+        csv.push_back(v);
+        SplitToVector(line, ",", csv.back());
+    }
+}
 #endif
