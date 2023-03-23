@@ -25,11 +25,13 @@ struct vec2
 {
 	float x,y;
 };
+struct vec4;
 struct vec3
 {
 	float x,y,z;
 	vec3() : x(0), y(0), z(0) {};
 	vec3(float v) : x(v), y(v), z(v) {};
+	vec3(const vec4 &v);
 	float &operator[](size_t i);
 
 };
@@ -68,7 +70,12 @@ struct mat4
 	}
 	vec4 &operator[](size_t i) const;
 };
-
+vec3::vec3(const vec4 &v)
+{
+	x = v.x;
+	y = v.y;
+	z = v.z;
+}
 float dot(const vec4 &x, const vec4 &y)
 {
 	return x.x * y.x +
@@ -336,6 +343,11 @@ bool decompose(const mat4 &ModelMatrix, vec3 &Scale, quat &Orientation, vec3 &Tr
 		// No perspective.
 		Perspective = vec4(0, 0, 0, 1);
 	}
-	return false;
+
+	// Next take care of translation (easy).
+	Translation = vec3(LocalMatrix[3]);
+	LocalMatrix[3] = vec4(0, 0, 0, LocalMatrix[3].w);
+
+	vec3 Row[3], Pdum3;
 }
 #endif
