@@ -1,0 +1,3 @@
+[submodule "include/math"]
+	path = include/math
+	url = https://github.com/PMZeroSkyline/math.git

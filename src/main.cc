@@ -9,16 +9,9 @@ int main()
 
     Window window;
 
-    glm::mat4 m(1.f);
-    m = glm::rotate(m, glm::radians(90.0f), glm::vec3(1.0f,0,0));
-    glm::quat q(m);
-    glm::vec3 e = glm::eulerAngles(q);
-    e = glm::degrees(e);
-    cout << e.x << " " << e.y << " " << e.z << endl;    
-
     while (GetCurrentContext()->IsOpen())
     {
-        GetCurrentContext()->TickUI();
+        GetCurrentContext()->TickEditor();
 
         if (GetCurrentContext()->keys[GLFW_KEY_ESCAPE].pressDown)
         {

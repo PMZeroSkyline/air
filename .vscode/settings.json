@@ -81,6 +81,7 @@
 		"xhash": "cpp",
 		"xtree": "cpp",
 		"format": "cpp",
-		"xutility": "cpp"
+		"xutility": "cpp",
+		"utility": "cpp"
 	}
 }
