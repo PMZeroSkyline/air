@@ -2,28 +2,34 @@
 #include "engine/Window.h"
 #include "engine/Mesh.h"
 #include "engine/Transform.h"
+#include "engine/Profiler.h"
 
 int main()
 {    
     CDAppleResourcesDir();
 
-    Window window;
+    Window window(420,280,"GPA metric values calculator");
+    Profiler profiler;
 
-    while (GetCurrentContext()->IsOpen())
+
+    while (window.IsOpen())
     {
-        GetCurrentContext()->TickUI();
+        window.TickEditor();
 
-        if (GetCurrentContext()->keys[GLFW_KEY_ESCAPE].pressDown)
+        profiler.Draw();
+        
+
+        if (window.keys[GLFW_KEY_ESCAPE].pressDown)
         {
-            GetCurrentContext()->Close();
+            window.Close();
         }
 
         glClearColor(.2,.4,.8,1.);
         glClear(GL_COLOR_BUFFER_BIT);
+        
 
-        GetCurrentContext()->Tick();
+        window.Tick();
     }
-    
 
     return 0;
 }

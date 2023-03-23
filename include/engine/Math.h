@@ -290,7 +290,7 @@ bool decompose(const mat4 &ModelMatrix, vec3 &Scale, quat &Orientation, vec3 &Tr
 	if (epsilonEqual(LocalMatrix[3][3], 0, numeric_limits<float>::min()))
 	{
 		LOG("failed to decompose matrix !");
-		return;
+		return false;
 	}
 	for (int i = 0; i < 4; i++)
 	{
@@ -308,7 +308,7 @@ bool decompose(const mat4 &ModelMatrix, vec3 &Scale, quat &Orientation, vec3 &Tr
 	if (epsilonEqual(determinant(PerspectiveMatrix), 0, numeric_limits<float>::epsilon()))
 	{
 		LOG("failed to decompose matrix !");
-		return;
+		return false;
 	}
 	if(
 		epsilonNotEqual(LocalMatrix[0][3], 0, numeric_limits<float>::epsilon()) ||
@@ -336,5 +336,6 @@ bool decompose(const mat4 &ModelMatrix, vec3 &Scale, quat &Orientation, vec3 &Tr
 		// No perspective.
 		Perspective = vec4(0, 0, 0, 1);
 	}
+	return false;
 }
 #endif

@@ -29,6 +29,8 @@ using std::to_string;
 using std::move;
 using std::dynamic_pointer_cast;
 using std::numeric_limits;
+using std::pair;
+using std::make_pair;
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -121,9 +123,11 @@ using std::numeric_limits;
 #include "json/json.hpp"
 using namespace nlohmann;
 
-#include "imgui/imgui.h"
-#include "imgui/imgui_impl_glfw.h"
-#include "imgui/imgui_impl_opengl3.h"
+#include "imgui.h"
+#include "backends/imgui_impl_glfw.h"
+#include "backends/imgui_impl_opengl3.h"
+#include "misc/cpp/imgui_stdlib.h"
+#include "imgui_internal.h"
 
 #define LOG(arg) cout << arg << endl;
 

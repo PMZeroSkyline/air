@@ -18,6 +18,8 @@ public:
 	GLFWwindow* glfw_window;
 	float time = 0, deltaTime = 0;
 	Key keys[GLFW_KEY_LAST];
+	vector<string> dropPaths;
+
 	Window(int w = 800, int h = 600, const char *title = "window")
 	{
 		if (glfwGetCurrentContext() == nullptr)
@@ -49,6 +51,9 @@ public:
 		glfwSetKeyCallback(glfw_window, [](GLFWwindow* w, int key, int scancode, int action, int mods){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
 		});
+		glfwSetDropCallback(glfw_window, [](GLFWwindow* w, int path_count, const char* paths[]){
+			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->DropCallback(w, path_count, paths);
+		});
 		
 		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     	{
@@ -63,7 +68,10 @@ public:
     	//io.Fonts->AddFontFromFileTTF("../res/SourceHanSansCN-Normal.otf", 16.0f, NULL, io.Fonts->GetGlyphRangesChineseSimplifiedCommon());
     	io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
     	io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;
-    	io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+    	//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		#ifdef _WIN32
+		//io.ConfigFlags |= ImGuiConfigFlags_ViewportsEnable; 
+		#endif
     	ImGui::StyleColorsLight();
     	ImGui_ImplGlfw_InitForOpenGL(glfw_window, true);
     	ImGui_ImplOpenGL3_Init("#version 150");
@@ -83,7 +91,7 @@ public:
 	{
 		return !glfwWindowShouldClose(glfw_window);
 	}
-	void TickUI()
+	void TickEditor()
 	{
 		ImGui_ImplOpenGL3_NewFrame();
         ImGui_ImplGlfw_NewFrame();
@@ -107,7 +115,16 @@ public:
 
 		ImGui::Render();
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		
+		#ifdef _WIN32
+		// ImGuiIO& io = ImGui::GetIO(); (void)io;
+        // if (io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable)
+        // {
+        //     GLFWwindow* backup_current_context = glfwGetCurrentContext();
+        //     ImGui::UpdatePlatformWindows();
+        //     ImGui::RenderPlatformWindowsDefault();
+        //     glfwMakeContextCurrent(backup_current_context);
+        // }
+		#endif
 		glfwSwapBuffers(glfw_window);
         glfwPollEvents();
 	}
@@ -131,6 +148,14 @@ public:
 			k.pressing=false;
 			k.liftUp=true;
 		}	
+	}
+	void DropCallback(GLFWwindow* w, int path_count, const char* paths[])
+	{
+		for (int i = 0; i < path_count; i++)
+		{
+			string path = paths[i];
+			dropPaths.push_back(path);
+		}
 	}
 	void Close()
 	{
