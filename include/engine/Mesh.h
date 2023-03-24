@@ -5,7 +5,6 @@
 #include "GL.h"
 #include "Image.h"
 #include "AC.h"
-#include "Transform.h"
 
 struct AccessorResult
 {

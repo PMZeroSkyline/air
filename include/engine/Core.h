@@ -37,6 +37,7 @@ using std::make_pair;
 
 #include <glad/glad.h>
 
+#include "../math/math.h"
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include <glm/gtc/type_ptr.hpp>
@@ -116,9 +117,9 @@ using std::make_pair;
 //     return angles;
 // }
 
-// #include <assimp/Importer.hpp>
-// #include <assimp/scene.h>
-// #include <assimp/postprocess.h>
+#include <assimp/Importer.hpp>
+#include <assimp/scene.h>
+#include <assimp/postprocess.h>
 
 #include "json/json.hpp"
 using namespace nlohmann;

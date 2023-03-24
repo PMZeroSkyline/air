@@ -1,100 +1,104 @@
 {
     "tasks": [
-        {
-            "type": "cppbuild",
-            "label": "AirWin",
-            "command": "cl.exe",
-            "args": [
-                //"/FS",//https://learn.microsoft.com/en-us/cpp/build/reference/fs-force-synchronous-pdb-writes?redirectedfrom=MSDN&view=msvc-170
-                "/Zi",
-                "/EHsc",
-                "/std:c++20",
-                "/nologo",
-                "/I",
-                "${workspaceFolder}/include",
-                "/I",
-                "${workspaceFolder}/include/imgui",
-                "/I",
-                "${workspaceFolder}/lib",
-                "/Fe:",
-                "${workspaceFolder}/bin/",
-                "/Fd:",
-                "${workspaceFolder}/bin/",
-                "/Fo:",
-                "${workspaceFolder}/bin/",
-                "${workspaceFolder}/src/*.cc",
-                "${workspaceFolder}/src/*.c",
-                "${workspaceFolder}/include/imgui/*.cpp",
-                "${workspaceFolder}/include/imgui/backends/imgui_impl_glfw.cpp",
-                "${workspaceFolder}/include/imgui/backends/imgui_impl_opengl3.cpp",
-                "${workspaceFolder}/include/imgui/misc/cpp/*.cpp",
-                "/MD",
-                "/link",
-                "/LIBPATH:${workspaceFolder}/lib",
-                "glfw3.lib",
-                "opengl32.lib",
-                "user32.lib",
-                "gdi32.lib",
-                "shell32.lib",
-                "vcruntime.lib",
-                "msvcrt.lib"
-            ],
-            "options": {
-                "cwd": "${fileDirname}"
-            },
-            "problemMatcher": [
-                "$msCompile"
-            ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
-            "detail": "AirWin"
-        },
         // {
         //     "type": "cppbuild",
-        //     "label": "Air Mac Clang++ c++20",
-        //     "command": "/usr/bin/clang++",
+        //     "label": "AirWin",
+        //     "command": "cl.exe",
         //     "args": [
-        //         "-std=c++20",
-        //         "-Wall",
-                
-        //         "-I${workspaceFolder}/include",
-        //         "-L${workspaceFolder}/lib",
-
-        //         "-fcolor-diagnostics",
-		// 		"-fansi-escape-codes",
-		// 		"-g",
-
-        //         "${workspaceFolder}/src/*.*",
+        //         //"/FS",//https://learn.microsoft.com/en-us/cpp/build/reference/fs-force-synchronous-pdb-writes?redirectedfrom=MSDN&view=msvc-170
+        //         "/Zi",
+        //         "/EHsc",
+        //         "/std:c++20",
+        //         "/nologo",
+        //         "/I",
+        //         "${workspaceFolder}/include",
+        //         "/I",
+        //         "${workspaceFolder}/include/imgui",
+        //         "/I",
+        //         "${workspaceFolder}/lib",
+        //         "/Fe:",
+        //         "${workspaceFolder}/bin/",
+        //         "/Fd:",
+        //         "${workspaceFolder}/bin/",
+        //         "/Fo:",
+        //         "${workspaceFolder}/bin/",
+        //         "${workspaceFolder}/src/*.cc",
+        //         "${workspaceFolder}/src/*.c",
         //         "${workspaceFolder}/include/imgui/*.cpp",
-        //         "${workspaceFolder}/lib/*.dylib",
-        //         "-o",
-        //         "${workspaceFolder}/bin/main",
-        //         "-framework",
-        //         "OpenGL",
-        //         "-framework",
-        //         "Cocoa",
-        //         "-framework",
-        //         "IOKit",
-        //         "-framework",
-        //         "CoreVideo",
-        //         "-framework",
-        //         "CoreFoundation",
-        //         "-Wno-deprecated"
+        //         "${workspaceFolder}/include/imgui/backends/imgui_impl_glfw.cpp",
+        //         "${workspaceFolder}/include/imgui/backends/imgui_impl_opengl3.cpp",
+        //         "${workspaceFolder}/include/imgui/misc/cpp/*.cpp",
+        //         "/MD",
+        //         "/link",
+        //         "/LIBPATH:${workspaceFolder}/lib",
+        //         "glfw3.lib",
+        //         "opengl32.lib",
+        //         "user32.lib",
+        //         "gdi32.lib",
+        //         "shell32.lib",
+        //         "vcruntime.lib",
+        //         "msvcrt.lib"
         //     ],
         //     "options": {
         //         "cwd": "${fileDirname}"
         //     },
         //     "problemMatcher": [
-        //         "$gcc"
+        //         "$msCompile"
         //     ],
         //     "group": {
         //         "kind": "build",
-        //         "isDefault": false
+        //         "isDefault": true
         //     },
-        //     "detail": "Air Mac Clang++ c++20"
-        // }
+        //     "detail": "AirWin"
+        // },
+        {
+            "type": "cppbuild",
+            "label": "Air Mac Clang++ c++20",
+            "command": "/usr/bin/clang++",
+            "args": [
+                "-std=c++20",
+                "-Wall",
+                
+                "-I${workspaceFolder}/include",
+                "-I${workspaceFolder}/include/imgui",
+                "-L${workspaceFolder}/lib",
+
+                "-fcolor-diagnostics",
+				"-fansi-escape-codes",
+				"-g",
+
+                "${workspaceFolder}/src/*.*",
+                "${workspaceFolder}/include/imgui/*.cpp",
+                "${workspaceFolder}/include/imgui/backends/imgui_impl_glfw.cpp",
+                "${workspaceFolder}/include/imgui/backends/imgui_impl_opengl3.cpp",
+                "${workspaceFolder}/include/imgui/misc/cpp/*.cpp",
+                "${workspaceFolder}/lib/*.dylib",
+                "-o",
+                "${workspaceFolder}/bin/main",
+                "-framework",
+                "OpenGL",
+                "-framework",
+                "Cocoa",
+                "-framework",
+                "IOKit",
+                "-framework",
+                "CoreVideo",
+                "-framework",
+                "CoreFoundation",
+                "-Wno-deprecated"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$gcc"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "Air Mac Clang++ c++20"
+        }
     ],
     "version": "2.0.0"
 }

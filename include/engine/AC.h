@@ -2,8 +2,6 @@
 #define AC_H
 
 #include "Core.h"
-#include "Math.h"
-#include "Transform.h"
 
 class Object
 {
