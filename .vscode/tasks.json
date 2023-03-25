@@ -73,8 +73,10 @@
                 "${workspaceFolder}/include/imgui/backends/imgui_impl_opengl3.cpp",
                 "${workspaceFolder}/include/imgui/misc/cpp/*.cpp",
                 "${workspaceFolder}/lib/*.dylib",
+
                 "-o",
                 "${workspaceFolder}/bin/main",
+                
                 "-framework",
                 "OpenGL",
                 "-framework",
