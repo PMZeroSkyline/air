@@ -1,4 +1,8 @@
-﻿bin/*.obj
+﻿.vscode/tasks.json
+.vscode/launch.json
+bin/*.obj
 bin/*.exe
 bin/*.ilk
 bin/*.map
+bin/*.pdb
+bin/*.sbr
