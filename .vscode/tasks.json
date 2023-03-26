@@ -1,56 +1,81 @@
 {
     "tasks": [
-        // {
-        //     "type": "cppbuild",
-        //     "label": "AirWin",
-        //     "command": "cl.exe",
-        //     "args": [
-        //         //"/FS",//https://learn.microsoft.com/en-us/cpp/build/reference/fs-force-synchronous-pdb-writes?redirectedfrom=MSDN&view=msvc-170
-        //         "/Zi",
-        //         "/EHsc",
-        //         "/std:c++20",
-        //         "/nologo",
-        //         "/I",
-        //         "${workspaceFolder}/include",
-        //         "/I",
-        //         "${workspaceFolder}/include/imgui",
-        //         "/I",
-        //         "${workspaceFolder}/lib",
-        //         "/Fe:",
-        //         "${workspaceFolder}/bin/",
-        //         "/Fd:",
-        //         "${workspaceFolder}/bin/",
-        //         "/Fo:",
-        //         "${workspaceFolder}/bin/",
-        //         "${workspaceFolder}/src/*.cc",
-        //         "${workspaceFolder}/src/*.c",
-        //         "${workspaceFolder}/include/imgui/*.cpp",
-        //         "${workspaceFolder}/include/imgui/backends/imgui_impl_glfw.cpp",
-        //         "${workspaceFolder}/include/imgui/backends/imgui_impl_opengl3.cpp",
-        //         "${workspaceFolder}/include/imgui/misc/cpp/*.cpp",
-        //         "/MD",
-        //         "/link",
-        //         "/LIBPATH:${workspaceFolder}/lib",
-        //         "glfw3.lib",
-        //         "opengl32.lib",
-        //         "user32.lib",
-        //         "gdi32.lib",
-        //         "shell32.lib",
-        //         "vcruntime.lib",
-        //         "msvcrt.lib"
-        //     ],
-        //     "options": {
-        //         "cwd": "${fileDirname}"
-        //     },
-        //     "problemMatcher": [
-        //         "$msCompile"
-        //     ],
-        //     "group": {
-        //         "kind": "build",
-        //         "isDefault": true
-        //     },
-        //     "detail": "AirWin"
-        // },
+        {
+            "type": "cppbuild",
+            "label": "AirWin",
+            "command": "cl.exe",
+            "args": [
+                //"/FS",//https://learn.microsoft.com/en-us/cpp/build/reference/fs-force-synchronous-pdb-writes?redirectedfrom=MSDN&view=msvc-170
+
+                "/Zi",
+                "/EHsc",
+                "/std:c++20",
+                "/nologo",
+
+                "/I${workspaceFolder}/engine/include",
+                "/I${workspaceFolder}/game/include",
+                "/I${workspaceFolder}/third/glm",
+                "/I${workspaceFolder}/third/json",
+                "/I${workspaceFolder}/third/stb",
+                "/I${workspaceFolder}/third/glfw/include",
+                "/I${workspaceFolder}/third/glad/include",
+                "/I${workspaceFolder}/third/assimp/include",
+
+                "/I${workspaceFolder}/third/glfw/lib",
+                "/I${workspaceFolder}/third/assimp/lib",
+
+                "${workspaceFolder}/game/src/*.cc",
+                "${workspaceFolder}/third/glad/src/glad.c",
+
+                // /FA, /Fa (Listing File)
+                // Specifying the Pathname
+                // /Fd (Name PDB File)
+                // /Fe (Name EXE File)
+                // /FI (Name Forced Include File)
+                // /Fm (Name Mapfile)
+                // /Fo (Name Object File)
+                // /Fp (Name .pch File)
+                // /FR, /Fr (Create .sbr File)
+                // /FU (Name Forced #using File)
+                // /Fx (Merge Injected Code)
+
+                "/Fe:${workspaceFolder}/bin/",  // .exe
+                "/Fd:${workspaceFolder}/bin/",  // .pdb
+                "/Fm:${workspaceFolder}/bin/",  // .map
+                "/Fo:${workspaceFolder}/bin/",  // .object
+                "/Fp:${workspaceFolder}/bin/",  // .pch
+                "/FR:${workspaceFolder}/bin/",  // .sbr
+                "/FU:${workspaceFolder}/bin/",  // using
+
+                "/MD",
+                "/link",
+
+                "/LIBPATH:${workspaceFolder}/third/glfw/lib",
+                "/LIBPATH:${workspaceFolder}/third/assimp/lib",
+
+                "glfw3.lib",
+                "assimp-vc143-mt.lib",
+
+                "opengl32.lib",
+
+                "user32.lib",
+                "gdi32.lib",
+                "shell32.lib",
+                "vcruntime.lib",
+                "msvcrt.lib"
+            ],
+            "options": {
+                "cwd": "${fileDirname}"
+            },
+            "problemMatcher": [
+                "$msCompile"
+            ],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "detail": "AirWin"
+        },
         {
             "type": "cppbuild",
             "label": "AirMac",
@@ -82,7 +107,7 @@
                 "${workspaceFolder}/third/assimp/lib/libassimp.dylib",
 
                 "-o",
-                "${workspaceFolder}/bin/app",
+                "${workspaceFolder}/bin/main",
                 
                 "-framework",
                 "OpenGL",
@@ -104,7 +129,7 @@
             ],
             "group": {
                 "kind": "build",
-                "isDefault": true
+                "isDefault": false
             },
             "detail": "AirMac"
         }
