@@ -1,17 +1,5 @@
 {
     "configurations": [
-        // {
-        //     "name": "AirWin",
-        //     "type": "cppvsdbg",
-        //     "request": "launch",
-        //     "program": "${workspaceFolder}/bin/main.exe",
-        //     "args": [],
-        //     "stopAtEntry": false,
-        //     "cwd": "${fileDirname}",
-        //     "environment": [],
-        //     "console": "externalTerminal",
-        //     "preLaunchTask": "AirWin",
-        // },
         {
             "name": "AirMac",
             "type": "cppdbg",
@@ -23,7 +11,7 @@
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "AirMac",
+            "preLaunchTask": "AirMac"
         }
     ],
     "version": "2.0.0"
