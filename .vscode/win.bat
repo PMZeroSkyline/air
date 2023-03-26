@@ -1,1 +1,1 @@
-xcopy .\win\*.json .\
+xcopy .\win\*.json .\ /Y
