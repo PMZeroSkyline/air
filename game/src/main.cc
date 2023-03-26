@@ -3,14 +3,12 @@
 #include "Image.h"
 #include "GL.h"
 #include <iostream>
-#include <filesystem>
-namespace fs = std::filesystem;
+
 
 int main()
 {
-	CDAppleResourcesDir();
-	fs::current_path("../res");
-    std::cout << "Current working directory: " << fs::current_path() << '\n'; 
+	CDResourcesDir();
+	
  	// read file via ASSIMP
     Assimp::Importer importer;
     const aiScene* scene = importer.ReadFile("sushi_bar/scene.gltf", aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);

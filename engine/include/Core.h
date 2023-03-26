@@ -9,6 +9,7 @@
 #include <list>
 #include <tuple>
 #include <limits>
+#include <filesystem>
 using std::cout;
 using std::endl;
 using std::begin;
@@ -31,6 +32,7 @@ using std::dynamic_pointer_cast;
 using std::numeric_limits;
 using std::pair;
 using std::make_pair;
+namespace fs = std::filesystem;
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
@@ -114,10 +116,20 @@ void CDAppleResourcesDir()
 	char path[PATH_MAX];
 	if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
 	{
-		LOG("CD Apple Resources Dir")
+		LOG("CD Apple Resources Dir Failed")
 	}
 	CFRelease(resourcesURL);
 	chdir(path);
+	#endif
+}
+void CDResourcesDir()
+{
+	#ifdef __APPLE__    
+		CDAppleResourcesDir();
+		fs::current_path("../game/res");
+	#endif
+	#ifdef _WIN32
+		fs::current_path("../res");
 	#endif
 }
 
