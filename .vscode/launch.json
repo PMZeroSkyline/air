@@ -13,17 +13,17 @@
         //     "preLaunchTask": "AirWin",
         // },
         {
-            "name": "Air Mac Clang++ c++20",
+            "name": "AirMac",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/bin/main",
+            "program": "${workspaceFolder}/bin/app",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${fileDirname}",
             "environment": [],
             "externalConsole": false,
             "MIMode": "lldb",
-            "preLaunchTask": "Air Mac Clang++ c++20",
+            "preLaunchTask": "AirMac",
         }
     ],
     "version": "2.0.0"

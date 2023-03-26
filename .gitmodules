@@ -1,0 +1,9 @@
+[submodule "third/stb"]
+	path = third/stb
+	url = https://github.com/nothings/stb.git
+[submodule "third/glm"]
+	path = third/glm
+	url = https://github.com/g-truc/glm.git
+[submodule "third/json"]
+	path = third/json
+	url = https://github.com/nlohmann/json.git

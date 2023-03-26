@@ -53,29 +53,36 @@
         // },
         {
             "type": "cppbuild",
-            "label": "Air Mac Clang++ c++20",
+            "label": "AirMac",
             "command": "/usr/bin/clang++",
             "args": [
                 "-std=c++20",
                 "-Wall",
-                
-                "-I${workspaceFolder}/include",
-                "-I${workspaceFolder}/include/imgui",
-                "-L${workspaceFolder}/lib",
+
+                "-I${workspaceFolder}/engine/include",
+                "-I${workspaceFolder}/game/include",
+                "-I${workspaceFolder}/third/glm",
+                "-I${workspaceFolder}/third/json",
+                "-I${workspaceFolder}/third/stb",
+                "-I${workspaceFolder}/third/glfw/include",
+                "-I${workspaceFolder}/third/glad/include",
+                "-I${workspaceFolder}/third/assimp/include",
+
+                "-L${workspaceFolder}/third/glfw/lib",
+                "-L${workspaceFolder}/third/assimp/lib",
 
                 "-fcolor-diagnostics",
 				"-fansi-escape-codes",
 				"-g",
+                
+                "${workspaceFolder}/game/src/*.cc",
+                "${workspaceFolder}/third/glad/src/glad.c",
 
-                "${workspaceFolder}/src/*.*",
-                "${workspaceFolder}/include/imgui/*.cpp",
-                "${workspaceFolder}/include/imgui/backends/imgui_impl_glfw.cpp",
-                "${workspaceFolder}/include/imgui/backends/imgui_impl_opengl3.cpp",
-                "${workspaceFolder}/include/imgui/misc/cpp/*.cpp",
-                "${workspaceFolder}/lib/*.dylib",
+                "${workspaceFolder}/third/glfw/lib/libglfw.dylib",
+                "${workspaceFolder}/third/assimp/lib/libassimp.dylib",
 
                 "-o",
-                "${workspaceFolder}/bin/main",
+                "${workspaceFolder}/bin/app",
                 
                 "-framework",
                 "OpenGL",
@@ -99,7 +106,7 @@
                 "kind": "build",
                 "isDefault": true
             },
-            "detail": "Air Mac Clang++ c++20"
+            "detail": "AirMac"
         }
     ],
     "version": "2.0.0"
