@@ -66,6 +66,7 @@ struct GLProgram
 struct GLTexture2D
 {
 	unsigned int id = -1;
+	GLTexture2D(){}
 	GLTexture2D(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool is_gen_mipmap = true)
 	{
 		glGenTextures(1, &id);		
@@ -85,7 +86,8 @@ struct GLTexture2D
 	}
 	~GLTexture2D()
 	{
-		glDeleteTextures(1, &id);
+		if (id != -1)
+			glDeleteTextures(1, &id);
 	}
 };
 struct GLPrimitive
