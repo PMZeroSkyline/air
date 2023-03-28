@@ -64,7 +64,7 @@ int main(int argc, char **argv)
     for (int i = 0; i < dc.size(); i++)
     {
         int count = 0, primcount = 0;
-        if (dc[i][1] == "glDrawElementsInstanced")
+        if (dc[i][1] == "glDrawElements")
         {
             string params = dc[i][2].substr(1, dc[i][2].size()-2);
             vector<string> paramVec;

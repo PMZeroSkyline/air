@@ -6,15 +6,15 @@
 
 int main()
 {
+
 	CDResourcesDir();
 
+	Window window;
 
+	Actor ac;
 	Scenes scenes;
 	scenes.Load("idle/idle.gltf");
-
-	
-
-	Window window;
+	cout << " " << endl;
 	
 	while (window.IsOpen())
 	{

@@ -6,41 +6,41 @@
 namespace gltf{
 struct Accessor
 {
-	int bufferView;
+	int bufferView = -1;
 	int byteOffset = 0;
-	int componentType;
+	int componentType = -1;
 	bool normalized = false;
-	int count;
+	int count = -1;
 	string type;
 	vector<float> min;
 	vector<float> max;
 	
-	
+	Accessor() = default;
 	Accessor(int _componentType, int _count, const string &_type) : componentType(_componentType), count(_count), type(_type){}
 };
 struct AnimationChannelTarget
 {
-	int node;
+	int node = -1;
 	string path;
 	
-	
+	AnimationChannelTarget() = default;
 	AnimationChannelTarget(const string _path) : path(_path){}
 };
 struct AnimationChannel
 {
-	int sampler;
+	int sampler = -1;
 	AnimationChannelTarget target;
 	
-	
+	AnimationChannel() = default;
 	AnimationChannel(int _sampler, const AnimationChannelTarget &_target) : sampler(_sampler), target(_target){}
 };
 struct AnimationSampler
 {
-	int input;
+	int input = -1;
 	string interpolation = "LINEAR";
-	int output;
+	int output = -1;
 	
-	
+	AnimationSampler() = default;
 	AnimationSampler(int _input, int _output) : input(_input), output(_output){}
 };
 struct Animation
@@ -49,7 +49,7 @@ struct Animation
 	vector<AnimationSampler> samplers;
 	string name;
 	
-	
+	Animation() = default;
 	Animation(const vector<AnimationChannel> &_channels, const vector<AnimationSampler> &_samplers) : channels(_channels), samplers(_samplers){}
 };
 struct Asset
@@ -59,48 +59,48 @@ struct Asset
 	string version;
 	string minVersion;
 	
-	
+	Asset() = default;
 	Asset(const string &_version) : version(_version){}
 };
 struct Buffer
 {
 	string uri;
-	int byteLength;
+	int byteLength = -1;
 	string name;
 	
-	
+	Buffer() = default;
 	Buffer(int _byteLength) : byteLength(_byteLength){}
 };
 struct BufferView
 {
-	int buffer;
+	int buffer = -1;
 	int byteOffset = 0;
-	int byteLength;
-	int byteStride;
-	int target;
+	int byteLength = -1;
+	int byteStride = -1;
+	int target = -1;
 	string name;
 	
-	
+	BufferView() = default;
 	BufferView(int _buffer, int _byteLength) : buffer(_buffer), byteLength(_byteLength){}
 };
 struct CameraOrthographic
 {
-	float xmag;
-	float ymag;
-	float zfar;
-	float znear;
+	float xmag = -1;
+	float ymag = -1;
+	float zfar = -1;
+	float znear = -1;
 	
-	
+	CameraOrthographic() = default;
 	CameraOrthographic(float _xmag, float _ymag, float _zfar, float _znear) : xmag(_xmag), ymag(_ymag), zfar(_zfar), znear(_znear) {}
 };
 struct CameraPerspective
 {
-	float aspectRatio;
-	float yfov;
-	float zfar;
-	float znear;
+	float aspectRatio = -1;
+	float yfov = -1;
+	float zfar = -1;
+	float znear = -1;
 	
-	
+	CameraPerspective() = default;
 	CameraPerspective(float _yfov, float _znear) : yfov(_yfov), znear(_znear){}
 };
 struct Camera
@@ -115,18 +115,18 @@ struct Image
 {
 	string uri;
 	string mimeType;
-	int bufferView;
+	int bufferView = -1;
 	string name;
 	
 	
 };
 struct TextureInfo
 {
-	int index;
+	int index = -1;
 	int texCoord = 0;
 	
 	
-	TextureInfo(){index = -1;}
+	TextureInfo() = default;
 	TextureInfo(int _index) : index(_index){}
 };
 struct MaterialPBRMetallicRoughness
@@ -141,22 +141,22 @@ struct MaterialPBRMetallicRoughness
 };
 struct MaterialNormalTextureInfo
 {
-	int index;
+	int index = -1;
 	int texCoord = 0;
 	float scale = 1;
 	
 	
-	MaterialNormalTextureInfo(){index = -1;}
+	MaterialNormalTextureInfo() = default;
 	MaterialNormalTextureInfo(int _index) : index(_index){}
 };
 struct MaterialOcclusionTextureInfo
 {
-	int index;
+	int index = -1;
 	int texCoord = 0;
 	float strength = 1;
 	
 	
-	MaterialOcclusionTextureInfo(){index = -1;};
+	MaterialOcclusionTextureInfo() = default;
 	MaterialOcclusionTextureInfo(int _index) : index(_index){}
 };
 struct Material
@@ -176,12 +176,11 @@ struct Material
 struct MeshPrimitive
 {
 	vector<pair<string, int>> attributes;
-	int indices;
-	int material;
+	int indices = -1;
+	int material = -1;
 	int mode = 4;
-	vector<json> targets;
-	
-	
+
+	MeshPrimitive() = default;
 	MeshPrimitive(const vector<pair<string, int>> _attributes) : attributes(_attributes){}
 };
 struct Mesh
@@ -190,16 +189,16 @@ struct Mesh
 	vector<float> weights;
 	string name;
 	
-	
+	Mesh() = default;
 	Mesh(const vector<MeshPrimitive> _primitives) : primitives(_primitives){}
 };
 struct Node
 {
-	int camera;
+	int camera = -1;
 	vector<int> children;
-	int skin;
+	int skin = -1;
 	float matrix[16] = {1,0,0,0, 0,1,0,0, 0,0,1,0, 0,0,0,1};
-	int mesh;
+	int mesh = -1;
 	float rotation[4] = {0,0,0,1};
 	float scale[3] = {1,1,1};
 	float translation[3] = {0,0,0};
@@ -232,7 +231,7 @@ struct Skin
 	vector<int> joints;
 	string name;
 	
-	
+	Skin() = default;
 	Skin(const vector<int> &_joints) : joints(_joints){}
 };
 struct Texture
@@ -261,7 +260,7 @@ struct glTF
 	vector<Skin> skins;
 	vector<Texture> textures;
 	
-	
+	glTF() = default;
 	glTF(const Asset &_asset) : asset(_asset){}
 };
 
@@ -682,6 +681,20 @@ glTF Load(const string &path)
 		}
 	}
 	return gltf;
+}
+struct AccessResult
+{
+	const Accessor* accessor;
+	const BufferView* bufferView;
+	const Buffer* buffer;
+};
+AccessResult Access(const glTF &gltf, int accessorId)
+{
+	AccessResult result;
+	result.accessor = &(gltf.accessors[accessorId]);
+    result.bufferView = &(gltf.bufferViews[result.accessor->bufferView]);
+    result.buffer = &(gltf.buffers[result.bufferView->buffer]);
+	return result;
 }
 }
 #endif
