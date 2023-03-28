@@ -694,6 +694,7 @@ AccessResult Access(const glTF &gltf, int accessorId)
 	result.accessor = &(gltf.accessors[accessorId]);
     result.bufferView = &(gltf.bufferViews[result.accessor->bufferView]);
     result.buffer = &(gltf.buffers[result.bufferView->buffer]);
+
 	return result;
 }
 }

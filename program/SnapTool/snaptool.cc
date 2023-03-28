@@ -59,8 +59,15 @@ int main(int argc, char **argv)
     }
     int face = 0;
     int inst_face = 0;
+    float shaders_busy = 0;
+    int clocks = 0;
+    int draw = 0;
     int full_face = 0;
     int full_inst_face = 0;
+    float full_shaders_busy = 0;
+    int full_clocks = 0;
+    int full_draw = 0;
+
     for (int i = 0; i < dc.size(); i++)
     {
         int count = 0, primcount = 0;
@@ -98,14 +105,28 @@ int main(int argc, char **argv)
                 }
             }
         }
-
+        
         if (i >= begID && i <= endID)
         {
             face += count * (primcount == 0 ? 1 : primcount);
             inst_face += count;
+            
+            if (dc[i][5] != "")
+            {
+                shaders_busy += stof(dc[i][5]);
+                clocks += stoi(dc[i][6]);
+                draw++;
+            }
         }
         full_face += count * (primcount == 0 ? 1 : primcount);
         full_inst_face += count;
+        
+        if (dc[i][5] != "")
+        {
+            full_shaders_busy += stof(dc[i][5]);
+            full_clocks += stoi(dc[i][6]);
+            full_draw++;
+        }
     }
     LOG("dc size    \t" << dc.size())    
     LOG("dc range\t" << endID - begID)    
@@ -114,6 +135,11 @@ int main(int argc, char **argv)
     LOG("range inst_face\t" << inst_face)
     LOG("full_face\t" << full_face)
     LOG("full_inst_face\t" << full_inst_face)
+    LOG("range clocks\t" << clocks)
+    LOG("full_clocks\t" << full_clocks)
+    LOG("range clocks %\t" << ((float)clocks / (float)full_clocks) * 100.0f)
+    LOG("shaders busy %\t" << shaders_busy / draw)
+    LOG("full busy %\t" << full_shaders_busy / full_draw)
     
     return 0;
 }

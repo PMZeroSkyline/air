@@ -11,9 +11,10 @@ int main()
 
 	Window window;
 
-	Actor ac;
-	Scenes scenes;
-	scenes.Load("idle/idle.gltf");
+	Actor model;
+	ScenesComponent* scenesComponent = model.AddComponent<ScenesComponent>();
+	scenesComponent->Load("idle/idle.gltf");
+	scenesComponent->FieldsExpand();
 	cout << " " << endl;
 	
 	while (window.IsOpen())
