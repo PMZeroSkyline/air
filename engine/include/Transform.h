@@ -16,6 +16,13 @@ public:
         vec4 perspective;
         decompose(m, scaling, rotation, translation, skew, perspective);
     }
+    mat4 ToMatrix()
+    {
+        mat4 T = translate(mat4(1.f), translation);
+        mat4 R = toMat4(rotation);
+        mat4 S = scale(mat4(1.f), scaling);
+        return T * R * S;
+    }
 };
 
 #endif

@@ -50,6 +50,54 @@ public:
     {
         glUseProgram(glProgram.id);
     }
+    void SetBool(const string &name, bool value) const
+    {         
+        glUniform1i(glGetUniformLocation(glProgram.id name.c_str()), (int)value); 
+    }
+    void SetInt(const string &name, int value) const
+    { 
+        glUniform1i(glGetUniformLocation(glProgram.id name.c_str()), value); 
+    }
+    void SetFloat(const string &name, float value) const
+    { 
+        glUniform1f(glGetUniformLocation(glProgram.id name.c_str()), value); 
+    }
+    void SetVec2(const string &name, const glm::vec2 &value) const
+    { 
+        glUniform2fv(glGetUniformLocation(glProgram.id name.c_str()), 1, &value[0]); 
+    }
+    void SetVec2(const string &name, float x, float y) const
+    { 
+        glUniform2f(glGetUniformLocation(glProgram.id name.c_str()), x, y); 
+    }
+    void SetVec3(const string &name, const glm::vec3 &value) const
+    { 
+        glUniform3fv(glGetUniformLocation(glProgram.id name.c_str()), 1, &value[0]); 
+    }
+    void SetVec3(const string &name, float x, float y, float z) const
+    { 
+        glUniform3f(glGetUniformLocation(glProgram.id name.c_str()), x, y, z); 
+    }
+    void SetVec4(const string &name, const glm::vec4 &value) const
+    { 
+        glUniform4fv(glGetUniformLocation(glProgram.id name.c_str()), 1, &value[0]); 
+    }
+    void SetVec4(const string &name, float x, float y, float z, float w) const
+    { 
+        glUniform4f(glGetUniformLocation(glProgram.id name.c_str()), x, y, z, w); 
+    }
+    void SetMat2(const string &name, const glm::mat2 &mat) const
+    {
+        glUniformMatrix2fv(glGetUniformLocation(glProgram.id name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+    void SetMat3(const string &name, const glm::mat3 &mat) const
+    {
+        glUniformMatrix3fv(glGetUniformLocation(glProgram.id name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
+    void SetMat4(const string &name, const glm::mat4 &mat) const
+    {
+        glUniformMatrix4fv(glGetUniformLocation(glProgram.id name.c_str()), 1, GL_FALSE, &mat[0][0]);
+    }
 };
 Blob<Shader> shaderBlob;
 class Material
@@ -58,6 +106,17 @@ public:
     int layer;
     shared_ptr<Shader> shader;
     vector<pair<string, Texture2D*>> textures;
+    void UseDefaultShader()
+    {
+        shared_ptr<Shader> defaultShader = shaderBlob.Get("default");
+        if (!defaultShader)
+        {
+            defaultShader = make_shared<Shader>();
+            defaultShader->Load("shader/default_vs.glsl", "shader/default_fs.glsl");
+            shaderBlob.Set("default", defaultShader);
+        }
+        shader = defaultShader;
+    }
 };
 class MeshAttribute
 {
@@ -95,6 +154,7 @@ public:
     }
     void Draw()
     {
+        glPrimitive.Bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     }
 };
@@ -322,8 +382,8 @@ public:
         for (int i = 0; i < gltf.materials.size(); i++)
         {
             const gltf::Material& gMaterial = gltf.materials[i];
-            Material &material = materials[i];
-
+            Material* material = &materials[i];
+            material->UseDefaultShader();
         }
     }
     void SetupMeshs(const gltf::glTF &gltf)

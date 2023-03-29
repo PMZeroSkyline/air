@@ -313,7 +313,7 @@ glTF Load(const string &path)
 				json MATRIX = NODE["matrix"];
 				for (int j = 0; j < MATRIX.size(); j++)
 				{
-					node.matrix[j] = MATRIX.at(i);
+					node.matrix[j] = MATRIX.at(j);
 				}
 			}
 			node.mesh = NODE.value("mesh", -1);
