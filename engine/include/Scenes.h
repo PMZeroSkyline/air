@@ -52,6 +52,12 @@ public:
     vector<ivec4> JOINTS_0;
     vector<vec4> WEIGHTS_0;
 };
+class BoundingBox
+{
+public:
+    vec3 min = vec3(0.f);
+    vec3 max = vec3(0.f);
+};
 class MeshPrimitive
 {
 public:
@@ -59,6 +65,7 @@ public:
     MeshAttribute attribute;
     vector<unsigned int> indices;
     Material* material;
+    BoundingBox boundingBox;
 };
 class Mesh
 {
@@ -73,6 +80,35 @@ public:
     int skeleton;
     vector<mat4> inverseBindMatrices;
     vector<int> joints;
+};
+class AnimationSampler
+{
+public:
+    vector<float> input;
+	string interpolation;
+    float min;
+    float max;
+	vector<vec3> outputVec3;
+	vector<vec4> outputVec4;
+};
+class AnimationChannelTarget
+{
+public:
+    int node = -1;
+    string path;
+};
+class AnimationChannel
+{
+public:
+    int sampler = -1;
+    AnimationChannelTarget target;
+};
+class Animation
+{
+public:
+    string name;
+    vector<AnimationChannel> channels;
+    vector<AnimationSampler> samplers;
 };
 class Scene
 {
@@ -95,6 +131,7 @@ public:
     vector<Mesh> meshs;
     vector<Skin> skins;
     vector<Scene> scenes;
+    vector<Animation> animations;
     int scene;
     string path;
     string dir;
@@ -106,6 +143,7 @@ public:
         SetupSkins(gltf);
         SetupNodes(gltf);
         SetupMeshs(gltf);
+        SetupAnimations(gltf);
     }
     void SetupPathAndDir(const string &_path)
     {
@@ -223,6 +261,20 @@ public:
         SetupVertexAttributes(gltf, &meshPrimitive->attribute, gMeshPrimitive.attributes);
         SetupMeshIndices(gltf, gMeshPrimitive.indices, meshPrimitive->indices);
         meshPrimitive->material = &materials[gMeshPrimitive.material];
+        SetupMeshPrimitiveBoundingBox(gltf, meshPrimitive, gMeshPrimitive);
+    }
+    void SetupMeshPrimitiveBoundingBox(const gltf::glTF &gltf, MeshPrimitive *meshPrimitive, const gltf::MeshPrimitive &gMeshPrimitive)
+    {
+        vector<pair<string, int>>::const_iterator it = find_if(gMeshPrimitive.attributes.begin(), gMeshPrimitive.attributes.end(), [](pair<string, int> attribute){return attribute.first == "POSITION";});
+        if (it != gMeshPrimitive.attributes.end())
+        {
+            gltf::AccessResult result = gltf::Access(gltf, (*it).second);
+            if (result.accessor->min.size() == 3 && result.accessor->max.size() == 3)
+            {
+                memcpy(&(meshPrimitive->boundingBox.min), &(result.accessor->min[0]), sizeof(float)*3);
+                memcpy(&(meshPrimitive->boundingBox.max), &(result.accessor->max[0]), sizeof(float)*3);
+            }
+        }
     }
     void SetupMeshIndices(const gltf::glTF &gltf, int meshPrimitiveIndicesId, vector<unsigned int> &indices)
     {
@@ -319,7 +371,66 @@ public:
             }
         }
     }
+    void SetupAnimations(const gltf::glTF &gltf)
+    {
+        animations.resize(gltf.animations.size());
+        for (int i = 0; i < gltf.animations.size(); i++)
+        {
+            Animation &animation = animations[i];
+            const gltf::Animation &gAnimation = gltf.animations[i];
+
+            animation.name = gAnimation.name;
+
+            animation.channels.resize(gAnimation.channels.size());
+            for (int j = 0; j < gAnimation.channels.size(); j++)
+            {
+                animation.channels[j].sampler = gAnimation.channels[i].sampler;
+                animation.channels[j].target.node = gAnimation.channels[j].target.node;
+                animation.channels[j].target.path = gAnimation.channels[j].target.path;
+            }
+
+            SetupAnimationSamplers(gltf, &animation, gAnimation);
+        }
+    }
+    void SetupAnimationSamplers(const gltf::glTF &gltf, Animation* animation, const gltf::Animation &gAnimation)
+    {
+        animation->samplers.resize(gAnimation.samplers.size());
+        for (int i = 0; i < gAnimation.samplers.size(); i++)
+        {
+            AnimationSampler &sampler = animation->samplers[i];
+            const gltf::AnimationSampler &gSampler = gAnimation.samplers[i];
+            
+            sampler.interpolation = gSampler.interpolation;
+            
+            gltf::AccessResult result = gltf::Access(gltf, gSampler.input);
+            VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.input);
+            if (result.accessor->min.size() == 1 && result.accessor->max.size() == 1)
+            {
+                sampler.min = result.accessor->min[0];
+                sampler.max = result.accessor->max[0];
+            }
+            else
+            {
+                LOG("not find min max in animation sampler access result !")
+            }
+
+            result = gltf::Access(gltf, gSampler.output);
+            if (result.accessor->type == "VEC3")
+            {
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.outputVec3);
+            }
+            else if (result.accessor->type == "VEC4")
+            {
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.outputVec4);
+            }
+            else
+            {
+                LOG("not find animation sampler output type !")
+            }
+        }
+    }
 };
+
 class MeshComponent : public Component
 {
 public:
@@ -330,6 +441,11 @@ class SkinComponent : public Component
 public:
     vector<Actor*>* actors;
     Skin* skin;
+};
+class AnimationChannelsComponent : public Component
+{
+public:
+    vector<AnimationChannel*> channels;
 };
 Blob<Scenes> scenesBlob;
 class ScenesComponent : public Component
