@@ -4,7 +4,6 @@
 #include "Core.h"
 #include "GL.h"
 #include "AC.h"
-#include "Transform.h"
 #include "GLTF.h"
 #include "Blob.h"
 
@@ -64,6 +63,7 @@ public:
     GLPrimitive glPrimitive;
     MeshAttribute attribute;
     vector<unsigned int> indices;
+    int indicesSize;
     Material* material;
     BoundingBox boundingBox;
 };
@@ -89,7 +89,68 @@ public:
     float min;
     float max;
 	vector<vec3> outputVec3;
-	vector<vec4> outputVec4;
+	vector<quat> outputQuat;
+    bool GetInterpStep(float time, int &beg, int &end, float &interp)
+    {
+        vector<float>::iterator &it = find_if(input.begin(), input.end(), [&time](float inputValue){return inputValue >= time;});
+        if (it != input.end())
+        {
+            end = it - input.begin();
+            if (end = 0)
+            {
+                beg = 0;
+                interp = 0;
+                return true;
+            }
+            else if (end > 0)
+            {
+                float prog = time - input[beg];
+                float range = input[end] - input[beg];
+                interp = prog / range;
+                beg = end - 1;
+            }
+            else
+            {
+                LOG("anim sampler sample input endId < 0 ? ");
+                return false;
+            }
+        }
+        else
+        {
+            LOG("anim sampler sample out of range");
+            return false;
+        }
+    }
+    vec3 SampleVec3(float time)
+	{
+        int beg, end;
+        float interp;
+        if (GetInterpStep(time, beg, end, interp))
+        {
+            vec3 a = outputVec3[beg];
+            vec3 b = outputVec3[end];
+            return mix(a, b, interp);
+        }
+        else
+        {
+            return vec3();
+        }
+	}
+	quat SampleQuat(float time)
+	{
+		int beg, end;
+        float interp;
+        if (GetInterpStep(time, beg, end, interp))
+        {
+            quat a = outputQuat[beg];
+            quat b = outputQuat[end];
+            return slerp(a, b, interp);
+        }
+        else
+        {
+            return quat();
+        }
+	}
 };
 class AnimationChannelTarget
 {
@@ -100,13 +161,15 @@ public:
 class AnimationChannel
 {
 public:
-    int sampler = -1;
+    AnimationSampler* sampler;
     AnimationChannelTarget target;
 };
 class Animation
 {
 public:
     string name;
+    float min;
+    float max;
     vector<AnimationChannel> channels;
     vector<AnimationSampler> samplers;
 };
@@ -123,7 +186,6 @@ class Scenes
 {
 public:
     vector<SceneNode> nodes;
-
     vector<shared_ptr<Image>> images;
     vector<Sampler> samplers;
     vector<shared_ptr<Texture2D>> textures;
@@ -259,9 +321,16 @@ public:
     void SetupMeshPrimitive(const gltf::glTF &gltf, MeshPrimitive *meshPrimitive, const gltf::MeshPrimitive &gMeshPrimitive)
     {
         SetupVertexAttributes(gltf, &meshPrimitive->attribute, gMeshPrimitive.attributes);
-        SetupMeshIndices(gltf, gMeshPrimitive.indices, meshPrimitive->indices);
+        SetupMeshIndices(gltf, gMeshPrimitive.indices, meshPrimitive);
         meshPrimitive->material = &materials[gMeshPrimitive.material];
         SetupMeshPrimitiveBoundingBox(gltf, meshPrimitive, gMeshPrimitive);
+        SetupGLPrimitive(meshPrimitive);
+    }
+    void SetupGLPrimitive(MeshPrimitive *meshPrimitive)
+    {
+        meshPrimitive->glPrimitive.Bind();
+        GLVaoData(meshPrimitive->attribute.POSITION, meshPrimitive->attribute.NORMAL, meshPrimitive->attribute.TANGENT, meshPrimitive->attribute.TEXCOORD_0, meshPrimitive->attribute.TEXCOORD_1, meshPrimitive->attribute.TEXCOORD_2, meshPrimitive->attribute.TEXCOORD_3, meshPrimitive->attribute.JOINTS_0, meshPrimitive->attribute.WEIGHTS_0);
+        GLEboData(meshPrimitive->indices);
     }
     void SetupMeshPrimitiveBoundingBox(const gltf::glTF &gltf, MeshPrimitive *meshPrimitive, const gltf::MeshPrimitive &gMeshPrimitive)
     {
@@ -276,7 +345,7 @@ public:
             }
         }
     }
-    void SetupMeshIndices(const gltf::glTF &gltf, int meshPrimitiveIndicesId, vector<unsigned int> &indices)
+    void SetupMeshIndices(const gltf::glTF &gltf, int meshPrimitiveIndicesId, MeshPrimitive *meshPrimitive)
     {
         gltf::AccessResult result = gltf::Access(gltf, meshPrimitiveIndicesId);
         if (result.accessor->componentType == GL_UNSIGNED_SHORT)
@@ -284,7 +353,8 @@ public:
             vector<unsigned short> u16v;
             VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, u16v);
             vector<unsigned int> u32v(begin(u16v), end(u16v));
-            indices = move(u32v);
+            meshPrimitive->indices = move(u32v);
+            meshPrimitive->indicesSize = meshPrimitive->indices.size();
         }
         else
         {
@@ -306,7 +376,7 @@ public:
     }
     void SetupVertexAttributeVec2(const gltf::glTF &gltf, const vector<pair<string, int>> &attributes, const string &key, vector<vec2> &contents)
     {
-        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [key](pair<string, int> attribute){return attribute.first == key;});
+        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [&key](pair<string, int> attribute){return attribute.first == key;});
         if (it != attributes.end())
         {
             gltf::AccessResult result = gltf::Access(gltf, (*it).second);
@@ -322,7 +392,7 @@ public:
     }
     void SetupVertexAttributeVec3(const gltf::glTF &gltf, const vector<pair<string, int>> &attributes, const string &key, vector<vec3> &contents)
     {
-        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [key](pair<string, int> attribute){return attribute.first == key;});
+        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [&key](pair<string, int> attribute){return attribute.first == key;});
         if (it != attributes.end())
         {
             gltf::AccessResult result = gltf::Access(gltf, (*it).second);
@@ -338,7 +408,7 @@ public:
     }
     void SetupVertexAttributeVec4(const gltf::glTF &gltf, const vector<pair<string, int>> &attributes, const string &key, vector<vec4> &contents)
     {
-        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [key](pair<string, int> attribute){return attribute.first == key;});
+        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [&key](pair<string, int> attribute){return attribute.first == key;});
         if (it != attributes.end())
         {
             gltf::AccessResult result = gltf::Access(gltf, (*it).second);
@@ -354,7 +424,7 @@ public:
     }
     void SetupVertexAttributeIvec4(const gltf::glTF &gltf, const vector<pair<string, int>> &attributes, const string &key, vector<ivec4> &contents)
     {
-        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [key](pair<string, int> attribute){return attribute.first == key;});
+        vector<pair<string, int>>::const_iterator it = find_if(attributes.begin(), attributes.end(), [&key](pair<string, int> attribute){return attribute.first == key;});
         if (it != attributes.end())
         {
             gltf::AccessResult result = gltf::Access(gltf, (*it).second);
@@ -380,16 +450,8 @@ public:
             const gltf::Animation &gAnimation = gltf.animations[i];
 
             animation.name = gAnimation.name;
-
-            animation.channels.resize(gAnimation.channels.size());
-            for (int j = 0; j < gAnimation.channels.size(); j++)
-            {
-                animation.channels[j].sampler = gAnimation.channels[i].sampler;
-                animation.channels[j].target.node = gAnimation.channels[j].target.node;
-                animation.channels[j].target.path = gAnimation.channels[j].target.path;
-            }
-
             SetupAnimationSamplers(gltf, &animation, gAnimation);
+            SetupAnimationChannels(gltf, &animation, gAnimation);
         }
     }
     void SetupAnimationSamplers(const gltf::glTF &gltf, Animation* animation, const gltf::Animation &gAnimation)
@@ -413,7 +475,16 @@ public:
             {
                 LOG("not find min max in animation sampler access result !")
             }
-
+            if (i == 0)
+            {
+                animation->min = sampler.min;
+                animation->max = sampler.max;
+            }
+            else
+            {
+                animation->min = min(animation->min, sampler.min);
+                animation->max = max(animation->max, sampler.max);
+            }
             result = gltf::Access(gltf, gSampler.output);
             if (result.accessor->type == "VEC3")
             {
@@ -421,7 +492,7 @@ public:
             }
             else if (result.accessor->type == "VEC4")
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.outputVec4);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.outputQuat);
             }
             else
             {
@@ -429,8 +500,17 @@ public:
             }
         }
     }
+    void SetupAnimationChannels(const gltf::glTF &gltf, Animation* animation, const gltf::Animation &gAnimation)
+    {
+            animation->channels.resize(gAnimation.channels.size());
+            for (int i = 0; i < gAnimation.channels.size(); i++)
+            {
+                animation->channels[i].sampler = &(animation->samplers[gAnimation.channels[i].sampler]);
+                animation->channels[i].target.node = gAnimation.channels[i].target.node;
+                animation->channels[i].target.path = gAnimation.channels[i].target.path;
+            }
+    }
 };
-
 class MeshComponent : public Component
 {
 public:
@@ -445,7 +525,7 @@ public:
 class AnimationChannelsComponent : public Component
 {
 public:
-    vector<AnimationChannel*> channels;
+    vector<pair<float*, AnimationChannel*>> channelPairs;
 };
 Blob<Scenes> scenesBlob;
 class ScenesComponent : public Component
@@ -453,6 +533,7 @@ class ScenesComponent : public Component
 public:
     vector<Actor*> actors;
     shared_ptr<Scenes> scenes;
+    vector<float> animationWeights;
     void Load(const string &path)
     {
         shared_ptr<Scenes> sharedScenes = scenesBlob.Get(path);
@@ -460,6 +541,7 @@ public:
         {
             sharedScenes = make_shared<Scenes>();
             sharedScenes->Load(path);
+            scenesBlob.Set(path, sharedScenes);
         }
         scenes = sharedScenes;
     }
@@ -470,10 +552,26 @@ public:
         actors.resize(scenes->nodes.size());
         for (int i = 0; i < scene.nodes.size(); i++)
         {
-            NodeExpand(owner, scene.nodes[i]);
+            SceneNodeExpand(owner, scene.nodes[i]);
+        }
+        animationWeights.resize(scenes->animations.size());
+        for (int i = 0; i < scenes->animations.size(); i++)
+        {
+            Animation* animation = &(scenes->animations[i]);
+            for (int j = 0; j < animation->channels.size(); j++)
+            {
+                AnimationChannel* channel = &(animation->channels[j]);
+                Actor* markForAddChannelActor = actors[channel->target.node];
+                AnimationChannelsComponent* channelsComponent = markForAddChannelActor->GetComponent<AnimationChannelsComponent>();
+                if (!channelsComponent)
+                {
+                    channelsComponent = markForAddChannelActor->AddComponent<AnimationChannelsComponent>();
+                }
+                channelsComponent->channelPairs.push_back(make_pair(&animationWeights[i], channel));
+            }
         }
     }
-    void NodeExpand(Actor* parent, int nodeId)
+    void SceneNodeExpand(Actor* parent, int nodeId)
     {
         Actor* actor = parent->AddChild<Actor>();
         actors[nodeId] = actor;
@@ -495,8 +593,9 @@ public:
         }
         for (int i = 0; i < node.children.size(); i++)
         {
-            NodeExpand(actor, node.children[i]);
+            SceneNodeExpand(actor, node.children[i]);
         }
     }
 };
+
 #endif
