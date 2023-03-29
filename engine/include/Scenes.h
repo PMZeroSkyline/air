@@ -32,10 +32,31 @@ public:
     Image* image;
     GLTexture2D glTexture2D;
 };
+class Shader
+{
+public:
+    GLProgram glProgram;
+    void Load(const string &vsPath, const string &fsPath)
+    {
+        GLShader vsShader(GL_VERTEX_SHADER), fsShader(GL_FRAGMENT_SHADER);
+        string vsStr, fsStr;
+        StringFromFile(vsPath, vsStr);
+        StringFromFile(fsPath, fsStr);
+        vsShader.Compile(vsStr.c_str());
+        fsShader.Compile(fsStr.c_str());
+        glProgram.Link(vsShader.id, fsShader.id);
+    }
+    void Use()
+    {
+        glUseProgram(glProgram.id);
+    }
+};
+Blob<Shader> shaderBlob;
 class Material
 {
 public:
-    shared_ptr<GLProgram> glProgram;
+    int layer;
+    shared_ptr<Shader> shader;
     vector<pair<string, Texture2D*>> textures;
 };
 class MeshAttribute
@@ -66,6 +87,16 @@ public:
     int indicesSize;
     Material* material;
     BoundingBox boundingBox;
+    void SetupGLPrimitive()
+    {
+        glPrimitive.Bind();
+        GLVaoData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
+        GLEboData(indices);
+    }
+    void Draw()
+    {
+        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    }
 };
 class Mesh
 {
@@ -92,7 +123,7 @@ public:
 	vector<quat> outputQuat;
     bool GetInterpStep(float time, int &beg, int &end, float &interp)
     {
-        vector<float>::iterator &it = find_if(input.begin(), input.end(), [&time](float inputValue){return inputValue >= time;});
+        vector<float>::iterator it = find_if(input.begin(), input.end(), [time](float inputValue){return inputValue >= time;});
         if (it != input.end())
         {
             end = it - input.begin();
@@ -181,7 +212,6 @@ public:
 };
 Blob<Image> imageBlob;
 Blob<Texture2D> texture2DBlob;
-Blob<GLProgram> glProgramBlob;
 class Scenes
 {
 public:
@@ -294,13 +324,6 @@ public:
             const gltf::Material& gMaterial = gltf.materials[i];
             Material &material = materials[i];
 
-            shared_ptr<GLProgram> glProgram = glProgramBlob.Get("default");
-            if (!glProgram)
-            {
-                glProgram = make_shared<GLProgram>();
-                glProgramBlob.Set("default", glProgram);
-            }
-            material.glProgram = glProgram;
         }
     }
     void SetupMeshs(const gltf::glTF &gltf)
@@ -324,13 +347,7 @@ public:
         SetupMeshIndices(gltf, gMeshPrimitive.indices, meshPrimitive);
         meshPrimitive->material = &materials[gMeshPrimitive.material];
         SetupMeshPrimitiveBoundingBox(gltf, meshPrimitive, gMeshPrimitive);
-        SetupGLPrimitive(meshPrimitive);
-    }
-    void SetupGLPrimitive(MeshPrimitive *meshPrimitive)
-    {
-        meshPrimitive->glPrimitive.Bind();
-        GLVaoData(meshPrimitive->attribute.POSITION, meshPrimitive->attribute.NORMAL, meshPrimitive->attribute.TANGENT, meshPrimitive->attribute.TEXCOORD_0, meshPrimitive->attribute.TEXCOORD_1, meshPrimitive->attribute.TEXCOORD_2, meshPrimitive->attribute.TEXCOORD_3, meshPrimitive->attribute.JOINTS_0, meshPrimitive->attribute.WEIGHTS_0);
-        GLEboData(meshPrimitive->indices);
+        meshPrimitive->SetupGLPrimitive();
     }
     void SetupMeshPrimitiveBoundingBox(const gltf::glTF &gltf, MeshPrimitive *meshPrimitive, const gltf::MeshPrimitive &gMeshPrimitive)
     {

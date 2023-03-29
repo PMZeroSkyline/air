@@ -11,11 +11,17 @@ int main()
 
 	Window window;
 
-	Actor model;
-	ScenesComponent* scenesComponent = model.AddComponent<ScenesComponent>();
-	scenesComponent->Load("idle/idle.gltf");
-	scenesComponent->FieldsExpand();
-	cout << " " << endl;
+	MeshAttribute att;
+	att.POSITION = {{0,0,0}, {1,0,0}, {0,0,1}};
+	MeshPrimitive prim;
+	prim.attribute = att;
+	prim.indices = {0, 1, 2};
+	prim.SetupGLPrimitive();
+	Shader shader;
+	shader.Load("shader/default_vs.glsl", "shader/default_fs.glsl");
+	shader.Use();
+	prim.Draw();
+	
 	
 	while (window.IsOpen())
 	{

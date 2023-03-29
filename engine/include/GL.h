@@ -128,8 +128,8 @@ void GLVaoData(int &target, int &offset, const T &t)
 		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
 		glEnableVertexAttribArray(target);
 		GLenum type = GL_FLOAT;
-		if (typeid(t[0][0]) == typeid(int))
-			type = GL_FLOAT;
+		if (typeid(t[0][0]) == typeid(unsigned int))
+			type = GL_UNSIGNED_INT;
 		else if (typeid(t[0][0]) == typeid(int))
 			type = GL_INT;
 		else
