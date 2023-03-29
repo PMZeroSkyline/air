@@ -12,20 +12,25 @@ int main()
 	Window window;
 
 	MeshAttribute att;
-	att.POSITION = {{0,0,0}, {1,0,0}, {0,0,1}};
+	att.POSITION = {{1, 1, 0}, {1, -1, 0}, {-1, -1, 0}, {-1,  1, 0}};
 	MeshPrimitive prim;
 	prim.attribute = att;
-	prim.indices = {0, 1, 2};
+	prim.indices = {0, 1, 3, 1, 2, 3};
 	prim.SetupGLPrimitive();
 	Shader shader;
 	shader.Load("shader/default_vs.glsl", "shader/default_fs.glsl");
 	shader.Use();
-	prim.Draw();
+	
 	
 	
 	while (window.IsOpen())
 	{
 		window.Tick();
+		
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+        glClear(GL_COLOR_BUFFER_BIT);
+		prim.Draw();
+
 
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
 		{

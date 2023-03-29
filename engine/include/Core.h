@@ -32,6 +32,7 @@ using std::dynamic_pointer_cast;
 using std::numeric_limits;
 using std::pair;
 using std::make_pair;
+using std::forward;
 namespace fs = std::filesystem;
 
 #include <glad/glad.h>
@@ -163,15 +164,15 @@ void VectorFromFile(const string &path, int beg, int count, vector<T> &contents)
 	throw(errno);
 }
 template<typename T>
-void VectorSizeof(int &size, const T &t)
+void VectorSizeof(int &size, T&& t)
 {
 	size += sizeof(t[0]) * t.size();
 }
 template<typename T, typename... Args>
-void VectorSizeof(int &size, const T &t, const Args&... args)
+void VectorSizeof(int &size, T&& t, Args&&... args)
 {
 	VectorSizeof(size, t);
-	VectorSizeof(size, args...);
+	VectorSizeof(size, std::forward<Args>(args)...);
 }
 void SplitToVector(const string &target, const string &splitTag, vector<string> &out)
 {
