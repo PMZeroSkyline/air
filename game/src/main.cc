@@ -7,18 +7,23 @@
 
 int main()
 {
-	CDResourcesDir();
-
 	Window window;
-	Renderer renderer;
+	SetupOpenGL();
+	CDResourcesDir();
 	
-	shared_ptr<Actor> root = make_shared<Actor>();
-	ScenesComponent *sc = root->AddComponent<ScenesComponent>();
-	sc->Load("sushi_bar/scene.gltf");
-	sc->FieldsExpand();
+	shared_ptr<MeshPrimitive> quad = MakeQuad();
+	shared_ptr<Image> img = make_shared<Image>();
+	img->Load("idle/image.png");
+	shared_ptr<Sampler> sampler = make_shared<Sampler>();
+	shared_ptr<Texture2D> tex = make_shared<Texture2D>();
+	tex->image = img;
+	tex->sampler = sampler;
+	tex->SetupGLTexture2D();
+	quad->material->texturePairs.push_back(make_pair("tex", tex));
+	quad->material->shader->Use();
+	quad->material->Setup();
 	
-	renderer.SetupMaterial();
-	renderer.SetupActors(nullptr, root.get());
+	
 
 	while (window.IsOpen())
 	{
@@ -26,7 +31,8 @@ int main()
 		
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-		renderer.Render(root.get());
+		quad->material->Bind();
+		quad->Draw();
 		
 
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)

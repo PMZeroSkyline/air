@@ -20,17 +20,31 @@ public:
 class Sampler
 {
 public:
-    int magFilter = -1;
-    int minFilter = -1;
-    int wrapS = -1;
-    int wrapT = -1;
+    int magFilter = GL_LINEAR;
+    int minFilter = GL_LINEAR;
+    int wrapS = GL_REPEAT;
+    int wrapT = GL_REPEAT;
 };
 class Texture2D
 {
 public:
-    Sampler* sampler;
-    Image* image;
+    shared_ptr<Sampler> sampler;
+    shared_ptr<Image> image;
     GLTexture2D glTexture2D;
+    void SetupGLTexture2D()
+    {
+        GLenum format = GL_RGBA;
+        if (image->n == 1)
+        {
+            format = GL_RED;
+        }
+        if (image->n == 3)
+        {
+            format = GL_RGB;
+        }
+
+        glTexture2D.Setup(sampler->wrapS, sampler->wrapT, sampler->minFilter, sampler->magFilter, format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d, true);
+    }
 };
 class Shader
 {
@@ -52,51 +66,51 @@ public:
     }
     void SetBool(const string &name, bool value) const
     {         
-        glUniform1i(glGetUniformLocation(glProgram.id name.c_str()), (int)value); 
+        glUniform1i(glGetUniformLocation(glProgram.id, name.c_str()), (int)value); 
     }
     void SetInt(const string &name, int value) const
     { 
-        glUniform1i(glGetUniformLocation(glProgram.id name.c_str()), value); 
+        glUniform1i(glGetUniformLocation(glProgram.id, name.c_str()), value); 
     }
     void SetFloat(const string &name, float value) const
     { 
-        glUniform1f(glGetUniformLocation(glProgram.id name.c_str()), value); 
+        glUniform1f(glGetUniformLocation(glProgram.id, name.c_str()), value); 
     }
-    void SetVec2(const string &name, const glm::vec2 &value) const
+    void SetVec2(const string &name, const vec2 &value) const
     { 
-        glUniform2fv(glGetUniformLocation(glProgram.id name.c_str()), 1, &value[0]); 
+        glUniform2fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, &value[0]); 
     }
     void SetVec2(const string &name, float x, float y) const
     { 
-        glUniform2f(glGetUniformLocation(glProgram.id name.c_str()), x, y); 
+        glUniform2f(glGetUniformLocation(glProgram.id, name.c_str()), x, y); 
     }
-    void SetVec3(const string &name, const glm::vec3 &value) const
+    void SetVec3(const string &name, const vec3 &value) const
     { 
-        glUniform3fv(glGetUniformLocation(glProgram.id name.c_str()), 1, &value[0]); 
+        glUniform3fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, &value[0]); 
     }
     void SetVec3(const string &name, float x, float y, float z) const
     { 
-        glUniform3f(glGetUniformLocation(glProgram.id name.c_str()), x, y, z); 
+        glUniform3f(glGetUniformLocation(glProgram.id, name.c_str()), x, y, z); 
     }
-    void SetVec4(const string &name, const glm::vec4 &value) const
+    void SetVec4(const string &name, const vec4 &value) const
     { 
-        glUniform4fv(glGetUniformLocation(glProgram.id name.c_str()), 1, &value[0]); 
+        glUniform4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, &value[0]); 
     }
     void SetVec4(const string &name, float x, float y, float z, float w) const
     { 
-        glUniform4f(glGetUniformLocation(glProgram.id name.c_str()), x, y, z, w); 
+        glUniform4f(glGetUniformLocation(glProgram.id, name.c_str()), x, y, z, w); 
     }
-    void SetMat2(const string &name, const glm::mat2 &mat) const
+    void SetMat2(const string &name, const mat2 &mat) const
     {
-        glUniformMatrix2fv(glGetUniformLocation(glProgram.id name.c_str()), 1, GL_FALSE, &mat[0][0]);
+        glUniformMatrix2fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
-    void SetMat3(const string &name, const glm::mat3 &mat) const
+    void SetMat3(const string &name, const mat3 &mat) const
     {
-        glUniformMatrix3fv(glGetUniformLocation(glProgram.id name.c_str()), 1, GL_FALSE, &mat[0][0]);
+        glUniformMatrix3fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
-    void SetMat4(const string &name, const glm::mat4 &mat) const
+    void SetMat4(const string &name, const mat4 &mat) const
     {
-        glUniformMatrix4fv(glGetUniformLocation(glProgram.id name.c_str()), 1, GL_FALSE, &mat[0][0]);
+        glUniformMatrix4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_FALSE, &mat[0][0]);
     }
 };
 Blob<Shader> shaderBlob;
@@ -105,17 +119,33 @@ class Material
 public:
     int layer;
     shared_ptr<Shader> shader;
-    vector<pair<string, Texture2D*>> textures;
+    vector<pair<string, shared_ptr<Texture2D>>> texturePairs;
     void UseDefaultShader()
     {
-        shared_ptr<Shader> defaultShader = shaderBlob.Get("default");
-        if (!defaultShader)
+        shader = shaderBlob.Get("default");
+        if (!shader)
         {
-            defaultShader = make_shared<Shader>();
-            defaultShader->Load("shader/default_vs.glsl", "shader/default_fs.glsl");
-            shaderBlob.Set("default", defaultShader);
+            shader = make_shared<Shader>();
+            shader->Load("shader/default_vs.glsl", "shader/default_fs.glsl");
+            shaderBlob.Set("default", shader);
         }
-        shader = defaultShader;
+    }
+    void Setup()
+    {
+        for (int i = 0; i < texturePairs.size(); i++)
+        {
+            auto texturePair = texturePairs[i];
+            shader->SetInt(texturePair.first, i);
+        }
+    }
+    void Bind()
+    {
+        for (int i = 0; i < texturePairs.size(); i++)
+        {
+            auto texturePair = texturePairs[i];
+            glActiveTexture(GL_TEXTURE0 + i);
+            glBindTexture(GL_TEXTURE_2D, texturePair.second->glTexture2D.id);
+        }
     }
 };
 class MeshAttribute
@@ -144,7 +174,7 @@ public:
     MeshAttribute attribute;
     vector<unsigned int> indices;
     int indicesSize;
-    Material* material;
+    shared_ptr<Material> material;
     BoundingBox boundingBox;
     void SetupGLPrimitive()
     {
@@ -187,7 +217,7 @@ public:
         if (it != input.end())
         {
             end = it - input.begin();
-            if (end = 0)
+            if (end == 0)
             {
                 beg = 0;
                 interp = 0;
@@ -206,11 +236,8 @@ public:
                 return false;
             }
         }
-        else
-        {
-            LOG("anim sampler sample out of range");
-            return false;
-        }
+        LOG("anim sampler sample out of range");
+        return false;
     }
     vec3 SampleVec3(float time)
 	{
@@ -252,7 +279,7 @@ public:
 class AnimationChannel
 {
 public:
-    AnimationSampler* sampler;
+    shared_ptr<AnimationSampler> sampler;
     AnimationChannelTarget target;
 };
 class Animation
@@ -261,8 +288,8 @@ public:
     string name;
     float min;
     float max;
-    vector<AnimationChannel> channels;
-    vector<AnimationSampler> samplers;
+    vector<shared_ptr<AnimationChannel>> channels;
+    vector<shared_ptr<AnimationSampler>> samplers;
 };
 class Scene
 {
@@ -277,13 +304,13 @@ class Scenes
 public:
     vector<SceneNode> nodes;
     vector<shared_ptr<Image>> images;
-    vector<Sampler> samplers;
+    vector<shared_ptr<Sampler>> samplers;
     vector<shared_ptr<Texture2D>> textures;
-    vector<Material> materials;
-    vector<Mesh> meshs;
-    vector<Skin> skins;
+    vector<shared_ptr<Material>> materials;
+    vector<shared_ptr<Mesh>> meshs;
+    vector<shared_ptr<Skin>> skins;
     vector<Scene> scenes;
-    vector<Animation> animations;
+    vector<shared_ptr<Animation>> animations;
     int scene;
     string path;
     string dir;
@@ -294,6 +321,10 @@ public:
         SetupScenes(gltf);
         SetupSkins(gltf);
         SetupNodes(gltf);
+        SetupSamplers(gltf);
+        SetupImages(gltf);
+        SetupTextures(gltf);
+        SetupMaterials(gltf);
         SetupMeshs(gltf);
         SetupAnimations(gltf);
     }
@@ -327,21 +358,22 @@ public:
         skins.resize(gltf.skins.size());
         for (int i = 0; i < gltf.skins.size(); i++)
         {
-            Skin &skin = skins[i];
+            skins[i] = make_shared<Skin>();
+            shared_ptr<Skin> skin = skins[i];
             const gltf::Skin &gSkin = gltf.skins[i];
 
-            skin.name = move(gSkin.name);
-            skin.skeleton = gSkin.skeleton;
+            skin->name = move(gSkin.name);
+            skin->skeleton = gSkin.skeleton;
             gltf::AccessResult result = gltf::Access(gltf, gSkin.inverseBindMatrices);
             if (result.accessor->componentType == GL_FLOAT && result.accessor->type == "MAT4")
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, skin.inverseBindMatrices);VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, skin.inverseBindMatrices);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, skin->inverseBindMatrices);
             }
             else
             {
                 LOG("read inv bind mat failed, type not support !")
             }
-            skin.joints = move(gSkin.joints);
+            skin->joints = move(gSkin.joints);
         }
     }
     void SetupNodes(const gltf::glTF &gltf)
@@ -376,14 +408,67 @@ public:
             node.children = gNode.children;
         }
     }
+    void SetupSamplers(const gltf::glTF &gltf)
+    {
+        samplers.resize(gltf.samplers.size());
+        for (int i = 0; i < gltf.samplers.size(); i++)
+        {
+            const gltf::Sampler &gSampler = gltf.samplers[i];
+            samplers[i] = make_shared<Sampler>();
+            shared_ptr<Sampler> sampler = samplers[i];
+            sampler->magFilter = gSampler.magFilter;
+            sampler->minFilter = gSampler.minFilter;
+            sampler->wrapS = gSampler.wrapS;
+            sampler->wrapT = gSampler.wrapT;
+        }
+    }
+    void SetupImages(const gltf::glTF &gltf)
+    {
+        images.resize(gltf.images.size());
+        for (int i = 0; i < gltf.images.size(); i++)
+        {
+            const gltf::Image &gImage = gltf.images[i];
+            string imagePath = dir + gImage.uri;
+            shared_ptr<Image> sharedImage = imageBlob.Get(imagePath);
+            if (!sharedImage)
+            {
+                sharedImage = make_shared<Image>();
+                sharedImage->Load(imagePath);
+                imageBlob.Set(imagePath, sharedImage);
+            }
+            images[i] = sharedImage;
+        }
+    }
+    void SetupTextures(const gltf::glTF &gltf)
+    {
+        textures.resize(gltf.textures.size());
+        for (int i = 0; i < gltf.textures.size(); i++)
+        {
+            const gltf::Texture &gTextures = gltf.textures[i];
+            shared_ptr<Texture2D> sharedTexture2D = texture2DBlob.Get(path + ":" + to_string(i));
+            if (!sharedTexture2D)
+            {
+                sharedTexture2D = make_shared<Texture2D>();
+                sharedTexture2D->image = images[gTextures.source];
+                sharedTexture2D->sampler = samplers[gTextures.sampler];
+                sharedTexture2D->SetupGLTexture2D();
+            }
+            textures[i] = sharedTexture2D;
+        }
+    }
     void SetupMaterials(const gltf::glTF &gltf)
     {
         materials.resize(gltf.materials.size());
         for (int i = 0; i < gltf.materials.size(); i++)
         {
             const gltf::Material& gMaterial = gltf.materials[i];
-            Material* material = &materials[i];
+            materials[i] = make_shared<Material>();
+            shared_ptr<Material> material = materials[i];
             material->UseDefaultShader();
+            if (gMaterial.pbrMetallicRoughness.baseColorTexture.index != -1)
+            {
+                material->texturePairs.push_back(make_pair("baseColorTex", textures[gMaterial.pbrMetallicRoughness.baseColorTexture.index]));
+            }
         }
     }
     void SetupMeshs(const gltf::glTF &gltf)
@@ -392,12 +477,13 @@ public:
         for (int i = 0; i < gltf.meshes.size(); i++)
         {
             const gltf::Mesh &gMesh = gltf.meshes[i];
-            Mesh &mesh = meshs[i];
-            mesh.name = gMesh.name;
-            mesh.primitives.resize(gMesh.primitives.size());
+            meshs[i] = make_shared<Mesh>();
+            shared_ptr<Mesh> mesh = meshs[i];
+            mesh->name = gMesh.name;
+            mesh->primitives.resize(gMesh.primitives.size());
             for (int i = 0; i < gMesh.primitives.size(); i++)
             {
-                SetupMeshPrimitive(gltf, &mesh.primitives[i], gMesh.primitives[i]);
+                SetupMeshPrimitive(gltf, &mesh->primitives[i], gMesh.primitives[i]);
             }
         }
     }
@@ -405,7 +491,7 @@ public:
     {
         SetupVertexAttributes(gltf, &meshPrimitive->attribute, gMeshPrimitive.attributes);
         SetupMeshIndices(gltf, gMeshPrimitive.indices, meshPrimitive);
-        meshPrimitive->material = &materials[gMeshPrimitive.material];
+        meshPrimitive->material = materials[gMeshPrimitive.material];
         SetupMeshPrimitiveBoundingBox(gltf, meshPrimitive, gMeshPrimitive);
         meshPrimitive->SetupGLPrimitive();
     }
@@ -425,13 +511,16 @@ public:
     void SetupMeshIndices(const gltf::glTF &gltf, int meshPrimitiveIndicesId, MeshPrimitive *meshPrimitive)
     {
         gltf::AccessResult result = gltf::Access(gltf, meshPrimitiveIndicesId);
-        if (result.accessor->componentType == GL_UNSIGNED_SHORT)
+        if (result.accessor->componentType == GL_UNSIGNED_INT)
+        {
+            VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, meshPrimitive->indices);
+        }
+        else if (result.accessor->componentType == GL_UNSIGNED_SHORT)
         {
             vector<unsigned short> u16v;
             VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, u16v);
             vector<unsigned int> u32v(begin(u16v), end(u16v));
             meshPrimitive->indices = move(u32v);
-            meshPrimitive->indicesSize = meshPrimitive->indices.size();
         }
         else
         {
@@ -523,12 +612,13 @@ public:
         animations.resize(gltf.animations.size());
         for (int i = 0; i < gltf.animations.size(); i++)
         {
-            Animation &animation = animations[i];
+            animations[i] = make_shared<Animation>();
+            shared_ptr<Animation> animation = animations[i];
             const gltf::Animation &gAnimation = gltf.animations[i];
 
-            animation.name = gAnimation.name;
-            SetupAnimationSamplers(gltf, &animation, gAnimation);
-            SetupAnimationChannels(gltf, &animation, gAnimation);
+            animation->name = gAnimation.name;
+            SetupAnimationSamplers(gltf, animation.get(), gAnimation);
+            SetupAnimationChannels(gltf, animation.get(), gAnimation);
         }
     }
     void SetupAnimationSamplers(const gltf::glTF &gltf, Animation* animation, const gltf::Animation &gAnimation)
@@ -536,17 +626,18 @@ public:
         animation->samplers.resize(gAnimation.samplers.size());
         for (int i = 0; i < gAnimation.samplers.size(); i++)
         {
-            AnimationSampler &sampler = animation->samplers[i];
+            animation->samplers[i] = make_shared<AnimationSampler>();
+            shared_ptr<AnimationSampler> sampler = animation->samplers[i];
             const gltf::AnimationSampler &gSampler = gAnimation.samplers[i];
             
-            sampler.interpolation = gSampler.interpolation;
+            sampler->interpolation = gSampler.interpolation;
             
             gltf::AccessResult result = gltf::Access(gltf, gSampler.input);
-            VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.input);
+            VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler->input);
             if (result.accessor->min.size() == 1 && result.accessor->max.size() == 1)
             {
-                sampler.min = result.accessor->min[0];
-                sampler.max = result.accessor->max[0];
+                sampler->min = result.accessor->min[0];
+                sampler->max = result.accessor->max[0];
             }
             else
             {
@@ -554,22 +645,22 @@ public:
             }
             if (i == 0)
             {
-                animation->min = sampler.min;
-                animation->max = sampler.max;
+                animation->min = sampler->min;
+                animation->max = sampler->max;
             }
             else
             {
-                animation->min = min(animation->min, sampler.min);
-                animation->max = max(animation->max, sampler.max);
+                animation->min = min(animation->min, sampler->min);
+                animation->max = max(animation->max, sampler->max);
             }
             result = gltf::Access(gltf, gSampler.output);
             if (result.accessor->type == "VEC3")
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.outputVec3);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler->outputVec3);
             }
             else if (result.accessor->type == "VEC4")
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler.outputQuat);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, sampler->outputQuat);
             }
             else
             {
@@ -582,27 +673,27 @@ public:
             animation->channels.resize(gAnimation.channels.size());
             for (int i = 0; i < gAnimation.channels.size(); i++)
             {
-                animation->channels[i].sampler = &(animation->samplers[gAnimation.channels[i].sampler]);
-                animation->channels[i].target.node = gAnimation.channels[i].target.node;
-                animation->channels[i].target.path = gAnimation.channels[i].target.path;
+                animation->channels[i]->sampler = animation->samplers[gAnimation.channels[i].sampler];
+                animation->channels[i]->target.node = gAnimation.channels[i].target.node;
+                animation->channels[i]->target.path = gAnimation.channels[i].target.path;
             }
     }
 };
 class MeshComponent : public Component
 {
 public:
-    Mesh* mesh;
+    shared_ptr<Mesh> mesh;
 };
 class SkinComponent : public Component
 {
 public:
     vector<Actor*>* actors;
-    Skin* skin;
+    shared_ptr<Skin> skin;
 };
 class AnimationChannelsComponent : public Component
 {
 public:
-    vector<pair<float*, AnimationChannel*>> channelPairs;
+    vector<pair<float*, shared_ptr<AnimationChannel>>> channelPairs;
 };
 Blob<Scenes> scenesBlob;
 class ScenesComponent : public Component
@@ -634,10 +725,11 @@ public:
         animationWeights.resize(scenes->animations.size());
         for (int i = 0; i < scenes->animations.size(); i++)
         {
-            Animation* animation = &(scenes->animations[i]);
+            scenes->animations[i] = make_shared<Animation>();
+            shared_ptr<Animation> animation = scenes->animations[i];
             for (int j = 0; j < animation->channels.size(); j++)
             {
-                AnimationChannel* channel = &(animation->channels[j]);
+                shared_ptr<AnimationChannel> channel = animation->channels[j];
                 Actor* markForAddChannelActor = actors[channel->target.node];
                 AnimationChannelsComponent* channelsComponent = markForAddChannelActor->GetComponent<AnimationChannelsComponent>();
                 if (!channelsComponent)
@@ -660,12 +752,12 @@ public:
         if (node.mesh != -1)
         {
             MeshComponent* meshComponent = actor->AddComponent<MeshComponent>();
-            meshComponent->mesh = &(scenes->meshs[node.mesh]);
+            meshComponent->mesh = scenes->meshs[node.mesh];
         }
         if (node.skin != -1)
         {
             SkinComponent* skinComponent = actor->AddComponent<SkinComponent>();
-            skinComponent->skin = &(scenes->skins[node.skin]);
+            skinComponent->skin = scenes->skins[node.skin];
             skinComponent->actors = &actors;
         }
         for (int i = 0; i < node.children.size(); i++)
@@ -675,4 +767,28 @@ public:
     }
 };
 
+shared_ptr<MeshPrimitive> MakeQuad()
+{
+    shared_ptr<MeshPrimitive> quad = make_shared<MeshPrimitive>();
+    quad->attribute.POSITION = {
+        {1.0f,  1.0f, 0.0f},
+        {1.0f, -1.0f, 0.0f},
+        {-1.0f, -1.0f, 0.0f},
+        {-1.0f,  1.0f, 0.0f}
+    };
+    quad->attribute.TEXCOORD_0 = {
+        {1.0f,  1.0f},
+        {1.0f, 0.0f},
+        {0.0f, 0.0f},
+        {0.0f,  1.0f}
+    };
+    quad->indices = {
+        0, 1, 3,   
+        1, 2, 3    
+    };
+    quad->SetupGLPrimitive();
+    quad->material = make_shared<Material>();
+    quad->material->UseDefaultShader();
+    return quad;
+}
 #endif

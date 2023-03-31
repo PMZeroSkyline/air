@@ -9,7 +9,6 @@
 class Image
 {
 public:
-	string path;
 	unsigned char *d;
 	int w = 0, h = 0, n = 0;
 
@@ -18,24 +17,28 @@ public:
 	{
 		Load(path);
 	}
-	void Load(const string &_path)
+	void Load(const string &path)
 	{
-		if (path != "")
+		if (IsLoaded())
 			stbi_image_free(d);
-		d = stbi_load(_path.c_str(), &w, &h, &n, 0);
+		d = stbi_load(path.c_str(), &w, &h, &n, 0);
 		if (!d)
 		{
 			LOG("failed to load Image !");
 			return;
 		}
-		path = _path;
 		LOG("load Image succeed");
+	}
+	bool IsLoaded()
+	{
+		return !(w == 0 && h == 0 && n == 0);
 	}
 	~Image()
 	{
-		if (path == "")
-			return;
-		stbi_image_free(d);
+		if (!IsLoaded())
+		{
+			stbi_image_free(d);
+		}
 	}
 };
 

@@ -9,12 +9,14 @@ layout (location = 6) in vec2 TEXCOORD_3;
 layout (location = 7) in uvec3 JOINTS_0;
 layout (location = 8) in vec3 WEIGHTS_0;
 
-layout (std140) uniform Matrices
-{
-    mat4 VIEW;
-    mat4 PROJECTION;
-}; 
-uniform mat4 model;
+// layout (std140) uniform Matrices
+// {
+//     mat4 VIEW;
+//     mat4 PROJECTION;
+// }; 
+uniform mat4 M;
+uniform mat4 V;
+uniform mat4 P;
 
 out V2F
 {

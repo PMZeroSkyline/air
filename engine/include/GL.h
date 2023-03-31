@@ -66,10 +66,12 @@ struct GLProgram
 struct GLTexture2D
 {
 	unsigned int id = -1;
-	GLTexture2D(){}
-	GLTexture2D(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool is_gen_mipmap = true)
+	GLTexture2D()
 	{
 		glGenTextures(1, &id);		
+	}
+	void Setup(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool is_gen_mipmap = true)
+	{
 		glBindTexture(GL_TEXTURE_2D, id);
 
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
@@ -86,8 +88,7 @@ struct GLTexture2D
 	}
 	~GLTexture2D()
 	{
-		if (id != -1)
-			glDeleteTextures(1, &id);
+		glDeleteTextures(1, &id);
 	}
 };
 struct GLPrimitive
@@ -148,4 +149,12 @@ void GLEboData(const vector<unsigned int> &ids)
 	glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 }
 
+void SetupOpenGL()
+{
+	if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+	{
+		LOG("Failed to initialize GLAD !")
+	}
+	LOG("load glad succeed")
+}
 #endif

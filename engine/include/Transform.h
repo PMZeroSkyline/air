@@ -24,5 +24,12 @@ public:
         return T * R * S;
     }
 };
+ostream &operator<<(ostream &os, const Transform &t)
+{
+    os << "translation\t" << t.translation << endl;
+    os << "rotation\t" << degrees(eulerAngles(t.rotation)) << endl;
+    os << "scaling\t" << t.scaling << endl;
+    return os;
+}
 
 #endif

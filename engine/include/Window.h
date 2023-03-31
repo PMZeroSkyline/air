@@ -54,12 +54,6 @@ public:
 		glfwSetDropCallback(glfw_window, [](GLFWwindow* w, int path_count, const char* paths[]){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->DropCallback(w, path_count, paths);
 		});
-		
-		if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
-    	{
-        	LOG("Failed to initialize GLAD !")
-    	}
-		LOG("load glad succeed")
 	}
 	~Window()
 	{
