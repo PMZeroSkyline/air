@@ -11,28 +11,20 @@ int main()
 	SetupOpenGL();
 	CDResourcesDir();
 	
-	shared_ptr<MeshPrimitive> quad = MakeQuad();
-	shared_ptr<Image> img = make_shared<Image>();
-	img->Load("idle/image.png");
-	shared_ptr<Sampler> sampler = make_shared<Sampler>();
-	shared_ptr<Texture2D> tex = make_shared<Texture2D>();
-	tex->image = img;
-	tex->sampler = sampler;
-	tex->SetupGLTexture2D();
-	quad->material->texturePairs.push_back(make_pair("tex", tex));
-	quad->material->shader->Use();
-	quad->material->Setup();
-	
-	
+	Scenes scenes;
+	scenes.Load("test/1.fbx");
+	//scenes.materials[0]->shader->Use();
 
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
 	while (window.IsOpen())
 	{
 		window.Tick();
 		
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
-		quad->material->Bind();
-		quad->Draw();
+		//scenes.materials[0]->Bind();
+		//scenes.meshs[0]->primitives[0].Draw();
 		
 
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)

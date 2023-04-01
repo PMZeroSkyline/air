@@ -28,11 +28,13 @@ public:
 class Texture2D
 {
 public:
+    string name;
     shared_ptr<Sampler> sampler;
     shared_ptr<Image> image;
     GLTexture2D glTexture2D;
     void SetupGLTexture2D()
     {
+        LOG("SetupGLTexture2D " << name)
         GLenum format = GL_RGBA;
         if (image->n == 1)
         {
@@ -42,16 +44,17 @@ public:
         {
             format = GL_RGB;
         }
-
-        glTexture2D.Setup(sampler->wrapS, sampler->wrapT, sampler->minFilter, sampler->magFilter, format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d, true);
+        glTexture2D.Setup(sampler->wrapS, sampler->wrapT, sampler->minFilter, sampler->magFilter, format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
     }
 };
 class Shader
 {
 public:
+    string name;
     GLProgram glProgram;
     void Load(const string &vsPath, const string &fsPath)
     {
+        name = "vs:" + vsPath + ",fs:" + fsPath;
         GLShader vsShader(GL_VERTEX_SHADER), fsShader(GL_FRAGMENT_SHADER);
         string vsStr, fsStr;
         StringFromFile(vsPath, vsStr);
@@ -134,17 +137,15 @@ public:
     {
         for (int i = 0; i < texturePairs.size(); i++)
         {
-            auto texturePair = texturePairs[i];
-            shader->SetInt(texturePair.first, i);
+            shader->SetInt(texturePairs[i].first, i);
         }
     }
     void Bind()
     {
         for (int i = 0; i < texturePairs.size(); i++)
         {
-            auto texturePair = texturePairs[i];
             glActiveTexture(GL_TEXTURE0 + i);
-            glBindTexture(GL_TEXTURE_2D, texturePair.second->glTexture2D.id);
+            glBindTexture(GL_TEXTURE_2D, texturePairs[i].second->glTexture2D.id);
         }
     }
 };
@@ -314,7 +315,32 @@ public:
     int scene;
     string path;
     string dir;
-    void Load(const string &_path)
+    vector<aiNode*> aNodes;
+    void Load(const string &path)
+    {
+        SetupPathAndDir(path);
+        Assimp::Importer importer;
+        const aiScene* scene = importer.ReadFile(path, aiProcess_Triangulate | aiProcess_GenSmoothNormals | aiProcess_FlipUVs | aiProcess_CalcTangentSpace);
+        // check for errors
+        if(!scene || scene->mFlags & AI_SCENE_FLAGS_INCOMPLETE || !scene->mRootNode) // if is Not Zero
+        {
+            cout << "ERROR::ASSIMP:: " << importer.GetErrorString() << endl;
+            return;
+        }
+        aiAnimation *a0 = scene->mAnimations[0];
+        aiAnimation *a1 = scene->mAnimations[1];
+        GetAllNodes(scene->mRootNode);
+        LOG(" ")
+    }
+    void GetAllNodes(aiNode* aCurrentNode)
+    {
+        aNodes.push_back(aCurrentNode);
+        for (int i = 0; i < aCurrentNode->mNumChildren; i++)
+        {
+            GetAllNodes(aCurrentNode->mChildren[i]);
+        }
+    }
+    void Load1(const string &_path)
     {
         gltf::glTF gltf = gltf::Load(_path);
         SetupPathAndDir(_path);
@@ -445,13 +471,16 @@ public:
         for (int i = 0; i < gltf.textures.size(); i++)
         {
             const gltf::Texture &gTextures = gltf.textures[i];
-            shared_ptr<Texture2D> sharedTexture2D = texture2DBlob.Get(path + ":" + to_string(i));
+            string key = path + ":" + to_string(i);
+            shared_ptr<Texture2D> sharedTexture2D = texture2DBlob.Get(key);
             if (!sharedTexture2D)
             {
                 sharedTexture2D = make_shared<Texture2D>();
                 sharedTexture2D->image = images[gTextures.source];
                 sharedTexture2D->sampler = samplers[gTextures.sampler];
+                sharedTexture2D->name = sharedTexture2D->image->name;
                 sharedTexture2D->SetupGLTexture2D();
+                texture2DBlob.Set(key, sharedTexture2D);
             }
             textures[i] = sharedTexture2D;
         }
@@ -464,11 +493,13 @@ public:
             const gltf::Material& gMaterial = gltf.materials[i];
             materials[i] = make_shared<Material>();
             shared_ptr<Material> material = materials[i];
-            material->UseDefaultShader();
             if (gMaterial.pbrMetallicRoughness.baseColorTexture.index != -1)
             {
-                material->texturePairs.push_back(make_pair("baseColorTex", textures[gMaterial.pbrMetallicRoughness.baseColorTexture.index]));
+                shared_ptr<Texture2D> texture = textures[gMaterial.pbrMetallicRoughness.baseColorTexture.index];
+                material->texturePairs.push_back(make_pair("baseColorTex", texture));
             }
+            material->UseDefaultShader();
+            material->Setup();
         }
     }
     void SetupMeshs(const gltf::glTF &gltf)
@@ -491,9 +522,21 @@ public:
     {
         SetupVertexAttributes(gltf, &meshPrimitive->attribute, gMeshPrimitive.attributes);
         SetupMeshIndices(gltf, gMeshPrimitive.indices, meshPrimitive);
-        meshPrimitive->material = materials[gMeshPrimitive.material];
+        SetupMeshPrimitiveMaterial(meshPrimitive, gMeshPrimitive);
         SetupMeshPrimitiveBoundingBox(gltf, meshPrimitive, gMeshPrimitive);
         meshPrimitive->SetupGLPrimitive();
+    }
+    void SetupMeshPrimitiveMaterial(MeshPrimitive *meshPrimitive, const gltf::MeshPrimitive &gMeshPrimitive)
+    {
+        if (gMeshPrimitive.material == -1)
+        {
+            meshPrimitive->material = make_shared<Material>();
+            meshPrimitive->material->UseDefaultShader();
+        }
+        else
+        {
+            meshPrimitive->material = materials[gMeshPrimitive.material];
+        }
     }
     void SetupMeshPrimitiveBoundingBox(const gltf::glTF &gltf, MeshPrimitive *meshPrimitive, const gltf::MeshPrimitive &gMeshPrimitive)
     {
@@ -673,6 +716,7 @@ public:
             animation->channels.resize(gAnimation.channels.size());
             for (int i = 0; i < gAnimation.channels.size(); i++)
             {
+                animation->channels[i] = make_shared<AnimationChannel>();
                 animation->channels[i]->sampler = animation->samplers[gAnimation.channels[i].sampler];
                 animation->channels[i]->target.node = gAnimation.channels[i].target.node;
                 animation->channels[i]->target.path = gAnimation.channels[i].target.path;

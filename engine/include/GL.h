@@ -70,7 +70,7 @@ struct GLTexture2D
 	{
 		glGenTextures(1, &id);		
 	}
-	void Setup(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels, bool is_gen_mipmap = true)
+	void Setup(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
 	{
 		glBindTexture(GL_TEXTURE_2D, id);
 
@@ -78,13 +78,8 @@ struct GLTexture2D
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
-
-		if (is_gen_mipmap)
-		{
-			glGenerateMipmap(GL_TEXTURE_2D);
-		}
-
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
+		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	~GLTexture2D()
 	{

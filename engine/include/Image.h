@@ -9,6 +9,7 @@
 class Image
 {
 public:
+	string name;
 	unsigned char *d;
 	int w = 0, h = 0, n = 0;
 
@@ -19,6 +20,7 @@ public:
 	}
 	void Load(const string &path)
 	{
+		name = path;
 		if (IsLoaded())
 			stbi_image_free(d);
 		d = stbi_load(path.c_str(), &w, &h, &n, 0);
