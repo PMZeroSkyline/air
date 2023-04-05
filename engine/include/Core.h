@@ -10,6 +10,10 @@
 #include <tuple>
 #include <limits>
 #include <filesystem>
+#include <functional>
+#include <unordered_map>
+#include <any>
+using std::any;
 using std::cout;
 using std::endl;
 using std::begin;
@@ -33,6 +37,8 @@ using std::numeric_limits;
 using std::pair;
 using std::make_pair;
 using std::forward;
+using std::hash;
+using std::unordered_map;
 namespace fs = std::filesystem;
 
 #include <glad/glad.h>
@@ -106,6 +112,14 @@ using namespace nlohmann;
 
 #define LOG(arg) cout << arg << endl;
 
+template<typename T>
+void SafeDelete(T*& p)
+{
+	delete p;
+	p = nullptr;
+}
+
+
 #ifdef __APPLE__
 #include "CoreFoundation/CoreFoundation.h"
 #endif
@@ -148,6 +162,12 @@ void StringFromFile(const string &path, string &contents)
 		return;
 	}
 	throw(errno);
+}
+template<typename A, typename B>
+void Read(A* dst, int size, int count, B* src)
+{
+	for (int i = 0; i < count; i++)
+		memcpy(dst+i, src+i, size);
 }
 template<typename T>
 void VectorFromFile(const string &path, int beg, int count, vector<T> &contents)
@@ -202,4 +222,6 @@ void ReadCSV(const string &path, vector<vector<string>> &csv, bool removeSpace =
         SplitToVector(line, ",", csv.back());
     }
 }
+
+
 #endif

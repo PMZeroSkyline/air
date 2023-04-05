@@ -14,59 +14,107 @@ public:
 	};
 	virtual void Start(){};
 	virtual void Tick(){};
+	virtual Object* Instance()
+	{
+		Object* des = new Object;
+		*des = *this;
+		return des;
+	}
 };
 class Actor;
 class Component : public Object
 {
 public:
 	Actor* owner;
+	Object* Instance() override
+	{
+		Component* des = new Component;
+		*des = *this;
+		return des;
+	}
 };
 class Actor : public Object
 {
 public:
-	mat4 modelMatrix;
+	mat4 worldMatrix;
 	Transform localTransform;
-	map<string, unique_ptr<Component>> componentMap;
+	vector<Component*> components;
 	Actor* parent;
-	list<unique_ptr<Actor>> childrenList;
+	vector<Actor*> children;
+	~Actor()
+	{
+		for (int i = 0; i < components.size(); i++)
+		{
+			delete components[i];
+			components[i] = nullptr;
+		}
+		for (int i = 0; i < children.size(); i++)
+		{
+			delete children[i];
+			children[i] = nullptr;
+		}
+	}
 	template<typename T, typename... Args>
 	T* AddComponent(Args&&... args)
 	{
-		map<string, unique_ptr<Component>>::iterator found = componentMap.find(typeid(T).name());
-		if (found != componentMap.end() && found->second)
-		{
-			return (T*)found->second.get();
-		}
-		else
-		{
-			unique_ptr<T> added = make_unique<T>(std::forward<Args>(args)...);
-			T* result = added.get();
-			((Component*)result)->owner = this;
-			componentMap[typeid(T).name()] = move(added);
-			return result;
-		}
+		T* add = new T(forward<Args>(args)...);
+		((Component*)add)->owner = this;
+		components.push_back(add);
+		return add;
 	}
 	template<typename T, typename... Args>
 	T* AddChild(Args&&... args)
 	{
-		childrenList.push_back(make_unique<T>(std::forward<Args>(args)...));
-		childrenList.back()->parent = this;
-		return childrenList.back().get();
+		T* add = new T(forward<Args>(args)...);
+		((Actor*)add)->parent = this;
+		children.push_back(add);
+		return add;
 	}
 	template<typename T>
 	T* GetComponent()
 	{
-		map<string, unique_ptr<Component>>::iterator found = componentMap.find(typeid(T).name());
-		if (found != componentMap.end() && found->second)
+		for (int i = 0; i < components.size(); i++)
 		{
-			return (T*)found->second.get();
+			Component* c = components[i];
+			if (typeid(*c) == typeid(T))
+			{
+				return (T*)components[i];
+			}
+		}
+		return nullptr;
+	}
+	void TickWorldMatrix()
+	{
+		if (parent)
+		{
+			worldMatrix = parent->worldMatrix * localTransform.ToMatrix();
 		}
 		else
 		{
-			return nullptr;
+			worldMatrix = localTransform.ToMatrix();
 		}
+		for (int i = 0; i < children.size(); i++)
+		{
+			children[i]->TickWorldMatrix();
+		}
+		
+	}
+	Object* Instance() override
+	{
+		Actor* des = new Actor();
+		*des = *this;
+		for (int i = 0; i < components.size(); i++)
+		{
+			des->components[i] = (Component*)components[i]->Instance();
+			*des->components[i] = *components[i];
+			des->components[i]->owner = des;
+		}
+		for (int i = 0; i < children.size(); i++)
+		{
+			des->children[i] = (Actor*)children[i]->Instance();
+			des->parent = this;
+		}
+		return des;
 	}
 };
-
-
 #endif
