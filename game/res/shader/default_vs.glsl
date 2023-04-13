@@ -27,4 +27,5 @@ void main()
 {
     o.uv = TEXCOORD_0;
     gl_Position = P * V * M * vec4(POSITION, 1.0);
+
 }

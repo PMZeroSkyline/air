@@ -1,0 +1,7 @@
+1.退出vscode应用。
+
+2.输入如下指令，删除vscode的设置和配置: 
+sudo rm -rf $HOME/Library/Application\ Support/Code
+
+3.输入如下指令，删除vscode的插件: 
+sudo rm -rf $HOME/.vscode
