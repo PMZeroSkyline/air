@@ -5,12 +5,13 @@
 #include "SDK/STL/STL.h"
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "Image.h"
+#include "Resource/Container/Blob.h"
 
 class Texture2D
 {
 public:
     string name;
-    shared_ptr<TextureSampler> sampler;
+    TextureSampler sampler;
     shared_ptr<Image> image;
     GLTexture2D glTexture2D;
     void SetupGLTexture2D()
@@ -25,7 +26,10 @@ public:
         {
             format = GL_RGB;
         }
-        glTexture2D.Setup(sampler->wrapS, sampler->wrapT, sampler->minFilter, sampler->magFilter, format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
+        glTexture2D.Setup(sampler.wrapS, sampler.wrapT, sampler.minFilter, sampler.magFilter, format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
     }
 };
+
+Blob<Texture2D> texture2DBlob;
+
 #endif

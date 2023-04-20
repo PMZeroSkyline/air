@@ -4,6 +4,7 @@
 #include "SDK/STL/STL.h"
 #include "Core/Log/Log.h"
 #include "Platform/File/ImageFileRead.h"
+#include "Resource/Container/Blob.h"
 
 class Image
 {
@@ -43,5 +44,6 @@ public:
 	}
 };
 
+Blob<Image> imageBlob;
 
 #endif

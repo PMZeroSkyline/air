@@ -261,7 +261,10 @@ struct Sampler
 	int wrapT = 10497;
 	string name;
 	
-	
+	string ToString() const
+	{
+		return to_string(magFilter) + "," + to_string(minFilter) + "," + to_string(wrapS) + "," + to_string(wrapT);
+	}
 };
 struct Scene
 {

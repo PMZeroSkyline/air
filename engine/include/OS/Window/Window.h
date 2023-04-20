@@ -56,6 +56,7 @@ public:
 
 		glfwMakeContextCurrent(glfw_window);
 		glfwSetWindowUserPointer(glfw_window, this);
+		SetupOpenGL();
         
 		glfwSetFramebufferSizeCallback(glfw_window, [](GLFWwindow *w, int width, int height){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->FramebufferSizeCallback(w, width, height);

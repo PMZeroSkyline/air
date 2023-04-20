@@ -6,6 +6,7 @@
         "limits": "cpp",
         "random": "cpp",
         "ratio": "cpp",
-        "valarray": "cpp"
+        "valarray": "cpp",
+        "iosfwd": "cpp"
     }
 }
