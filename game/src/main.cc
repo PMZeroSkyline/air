@@ -17,7 +17,10 @@ int main()
 	scenes->Load("idle/idle.gltf");
 	scenes->FieldExpand();
 	LOG(" ");
+	
 	mat4 M, V = mat4().translate(vec3(0,0,-5.f)), P = Camera().perspective.GetPerspectiveMatrix();
+
+
 	for (int i = 0; i < scenes->scenes->materials.size(); i++)
 	{
 		scenes->scenes->materials[i]->mat4PtrMap["M"] = &M;
@@ -38,7 +41,6 @@ int main()
 			{
 				scenes->scenes->meshs[i]->primitives[j].Draw();
 			}
-			
 		}
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
 		{

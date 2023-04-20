@@ -8,8 +8,8 @@ class SceneNode
 public:
     string name;
     Transform localTransform;
-    int meshID;
-    int skinID;
+    int meshID = -1;
+    int skinID = -1;
     vector<int> childrenID;
 };
 

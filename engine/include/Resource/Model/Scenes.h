@@ -102,6 +102,10 @@ public:
                     animation->samplersInputMin = min(animation->samplersInputMin, animationSampler->inputMin);
                 }
             }
+            else
+            {
+                LOG("Load animation lost SamplersInputMin !")
+            }
             if (result.accessor->max.size() == 1)
             {
                 animationSampler->inputMax = result.accessor->max[0];
@@ -113,6 +117,10 @@ public:
                 {
                     animation->samplersInputMax = max(animation->samplersInputMax, animationSampler->inputMax);
                 }
+            }
+            else
+            {
+                LOG("Load animation lost SamplersInputMax !")
             }
             result = gltf::Access(GLTF, gAnimationSampler->output);
             if (result.accessor->componentType == GL_FLOAT && result.accessor->type == "VEC3")
@@ -133,7 +141,7 @@ public:
             const gltf::AnimationChannel* gAnimationChannel = &gAnimation->channels[i];
             animationChannel->sampler = &animation->samplers[gAnimationChannel->sampler];
             animationChannel->target.nodeID = gAnimationChannel->target.node;
-            animationChannel->target.path = gAnimationChannel->target.path;
+            animationChannel->target.SetupPath(gAnimationChannel->target.path);
         }
     }
     void SetupSkin(const gltf::glTF& GLTF, int i)
@@ -143,7 +151,6 @@ public:
         skins[i] = skin;
 
         skin->name = gSkin->name;
-        skin->skeletonID = gSkin->skeleton;
         gltf::AccessResult result = gltf::Access(GLTF, gSkin->inverseBindMatrices);
         if (result.accessor->componentType == GL_FLOAT)
         {
@@ -161,7 +168,7 @@ public:
         const gltf::Texture* gTexture = &GLTF.textures[i];
         const gltf::Sampler* gSampler = &GLTF.samplers[gTexture->sampler];
         const gltf::Image* gImage = &GLTF.images[gTexture->source];
-        string key = gImage->uri + ":" + gSampler->ToString();
+        string key = dir + gImage->uri + ":" + gSampler->ToString();
         shared_ptr<Texture2D> texture2D = texture2DBlob.Get(key);
         if (texture2D)
         {

@@ -123,6 +123,18 @@ struct GLArrayBuffer : GLBuffer
 		glBindBuffer(GL_ARRAY_BUFFER, id);
 	}
 };
+struct GLUniformBuffer : GLBuffer
+{
+	string name;
+	void Bind()
+	{
+		glBindBuffer(GL_UNIFORM_BUFFER, id);
+	}
+	void BindBufferBase(int index)
+	{
+		glBindBufferBase(GL_UNIFORM_BUFFER, index, id);
+	}
+};
 struct GLElementArrayBuffer : GLArrayBuffer
 {
 	void Bind()
@@ -142,11 +154,11 @@ struct GLPrimitive
 		Ebo.Bind();
 	}
 };
+
 void GLClear()
 {
 	glEnable(GL_DEPTH_TEST);  
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
 }
-
 #endif

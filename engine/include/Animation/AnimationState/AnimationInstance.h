@@ -7,6 +7,7 @@ class AnimationInstance
 {
 public:
     float weight = 0.f;
+    float time = 0.f;
     Animation* animation = nullptr;
 };
 

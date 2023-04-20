@@ -3,7 +3,7 @@
 
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "MeshAttribute.h"
-#include "Renderer/Geometry/MeshCommit.h"
+#include "SDK/OpenGL/MeshCommit.h"
 #include "Resource/Material/Material.h"
 #include "Physic/Shape/BoundingBox.h"
 

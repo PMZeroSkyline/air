@@ -8,7 +8,7 @@ template<typename T>
 struct quatt
 {
     T x,y,z,w;
-	quatt<T>() : x(0), y(0), z(0), w(0) {}
+	quatt<T>() : x(0), y(0), z(0), w(1) {}
 	quatt<T>(T i) : x(i), y(i), z(i), w(i) {}
 	quatt<T>(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w) {}
 	quatt<T>(const vec3t<T> euler);
@@ -19,7 +19,9 @@ struct quatt
 	quatt<T> operator+(const quatt<T>& v) const;
 	quatt<T> operator-(const quatt<T>& v) const;
 	quatt<T> operator*(const quatt<T>& v) const;
+	quatt<T> operator*(T v) const;
 	quatt<T> operator/(const quatt<T>& v) const;
+	quatt<T> operator/(T v) const;
 	quatt<T> operator-() const;
 	bool operator==(const quatt<T>& v) const;
 	bool operator!=(const quatt<T>& v) const;
@@ -81,13 +83,30 @@ inline quatt<T> quatt<T>::operator-(const quatt<T>& v) const
 template<typename T>
 inline quatt<T> quatt<T>::operator*(const quatt<T>& v) const
 {
-	return quatt<T>(x*v.x, y*v.y, z*v.z, w*v.w);
+	const quatt<T> p(*this);
+	const quatt<T> q(v);
+	quatt<T> r;
+	r.w = p.w * q.w - p.x * q.x - p.y * q.y - p.z * q.z;
+	r.x = p.w * q.x + p.x * q.w + p.y * q.z - p.z * q.y;
+	r.y = p.w * q.y + p.y * q.w + p.z * q.x - p.x * q.z;
+	r.z = p.w * q.z + p.z * q.w + p.x * q.y - p.y * q.x;
+	return r;
+}
+template<typename T>
+inline quatt<T> quatt<T>::operator*(T v) const
+{
+	return quatt<T>(x*v, y*v, z*v, w*v);
 }
 template<typename T>
 inline quatt<T> quatt<T>::operator/(const quatt<T>& v) const
 {
 	return quatt<T>(x/v.x, y/v.y, z/v.z, w/v.w);
 }
+template<typename T>
+inline quatt<T> quatt<T>::operator/(T v) const
+{
+	return quatt<T>(x/v, y/v, z/v, w/v);
+}	
 template<typename T>
 inline quatt<T> quatt<T>::operator+=(const quatt<T>& v)
 {
@@ -103,7 +122,12 @@ inline quatt<T> quatt<T>::operator-=(const quatt<T>& v)
 template<typename T>
 inline quatt<T> quatt<T>::operator*=(const quatt<T>& v)
 {
-	x*=v.x; y*=v.y; z*=v.z; w*=v.w;
+	const quatt<T> p(*this);
+	const quatt<T> q(v);
+	w = p.w * q.w - p.x * q.x - p.y * q.y - p.z * q.z;
+	x = p.w * q.x + p.x * q.w + p.y * q.z - p.z * q.y;
+	y = p.w * q.y + p.y * q.w + p.z * q.x - p.x * q.z;
+	z = p.w * q.z + p.z * q.w + p.x * q.y - p.y * q.x;
 	return *this;
 }
 template<typename T>
@@ -157,6 +181,35 @@ template<typename T>
 inline T dot(const quatt<T>& a, const quatt<T>& b)
 {
     return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
+}
+template<typename T>
+quatt<T> slerp(const quatt<T>& x, const quatt<T>& y, T a)
+{
+	quatt<T> z = y;
+	T cosTheta = dot(x, y);
+	// If cosTheta < 0, the interpolation will take the long way around the sphere.
+	// To fix this, one quat must be negated.
+	if(cosTheta < static_cast<T>(0))
+	{
+		z = -y;
+		cosTheta = -cosTheta;
+	}
+	// Perform a linear interpolation when cosTheta is close to 1 to avoid side effect of sin(angle) becoming a zero denominator
+	if(cosTheta > static_cast<T>(1) - epsilon<T>())
+	{
+		// Linear interpolation
+		return quatt<T>(
+			lerp(x.x, z.x, a),
+			lerp(x.y, z.y, a),
+			lerp(x.z, z.z, a),
+			lerp(x.w, z.w, a));
+	}
+	else
+	{
+		// Essential Mathematics, page 467
+		T angle = acos(cosTheta);
+		return (x * sin((static_cast<T>(1) - a) * angle) + z * sin(a * angle)) / sin(angle);
+	}
 }
 
 using quat = quatt<float>;

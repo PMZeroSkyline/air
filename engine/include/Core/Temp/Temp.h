@@ -60,3 +60,7 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+glm::quat q1 = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+glm::quat q2 = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+float t = 0.5f;
+glm::quat result = glm::slerp(q1, q2, t);

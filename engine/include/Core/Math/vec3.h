@@ -146,6 +146,11 @@ inline vec3t<T> cross(const vec3t<T>& x, const vec3t<T>& y)
 				x.z * y.x - y.z * x.x,
 				x.x * y.y - y.x * x.y);
 }
+template<typename T>
+inline vec3t<T> lerp(const vec3t<T>& x, const vec3t<T>& y, T a)
+{
+	return x * (static_cast<T>(1) - a) + y * a;
+}
 
 using u8vec3 = vec3t<unsigned char>;
 using u16vec3 = vec3t<unsigned short>;

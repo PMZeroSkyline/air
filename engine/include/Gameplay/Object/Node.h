@@ -30,5 +30,17 @@ public:
 	}
 };
 
-
+Node* FindNodeByName(const string& findName, Node* find)
+{
+	if (find->name == findName)
+	{
+		return find;
+	}
+	for (int i = 0; i < find->children.size(); i++)
+	{
+		if (Node* found = FindNodeByName(findName, find->children[i]))
+			return found;
+	}
+	return nullptr;
+}
 #endif

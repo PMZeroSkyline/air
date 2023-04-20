@@ -68,6 +68,7 @@ public:
         glUniformMatrix4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_TRUE, &mat[0][0]);
     }
 };
+
 Blob<Shader> shaderBlob;
 
 #endif

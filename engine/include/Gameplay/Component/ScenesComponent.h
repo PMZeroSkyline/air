@@ -6,6 +6,8 @@
 #include "Gameplay/Object/Actor.h"
 #include "Animation/AnimationState/AnimationInstanceView.h"
 #include "AnimationNodeComponent.h"
+#include "MeshComponent.h"
+#include "SkinComponent.h"
 
 class ScenesComponent : public Component
 {
@@ -14,6 +16,7 @@ public:
     vector<AnimationInstance> animationInstances;
 
     vector<Actor*> nodes;
+    vector<SkinInstance*> skinInstances;
 
     void Load(const string& path)
     {
@@ -30,6 +33,19 @@ public:
     {           
         node->name = sceneNode->name;
         node->localTransform = sceneNode->localTransform;
+
+        if (sceneNode->meshID != -1)
+        {
+            MeshComponent* meshComponent = node->AddComponent<MeshComponent>();
+            meshComponent->mesh = scenes->meshs[sceneNode->meshID].get();
+        }
+        if (sceneNode->skinID != -1)
+        {
+            SkinComponent* skinComponent = node->AddComponent<SkinComponent>();
+            skinComponent->skinInstance.skin = scenes->skins[sceneNode->skinID].get();
+            skinInstances[sceneNode->skinID] = &skinComponent->skinInstance;
+        }
+
         for (int i = 0; i < sceneNode->childrenID.size(); i++)
         {
             SceneNode* sceneNodeChild = &scenes->nodes[sceneNode->childrenID[i]];
@@ -41,6 +57,9 @@ public:
     void FieldExpand()
     {
         nodes.resize(scenes->nodes.size());
+        skinInstances.resize(scenes->skins.size());
+        animationInstances.resize(scenes->animations.size());
+
         Scene* scene = &scenes->scenes[scenes->sceneID];
         name = scene->name;
         for (int i = 0; i < scene->nodeIDs.size(); i++)
@@ -51,7 +70,6 @@ public:
             NodeExpand(sceneNode, nodeChild);
         }
 
-        animationInstances.resize(scenes->animations.size());
         for (int i = 0; i < scenes->animations.size(); i++)
         {
             shared_ptr<Animation> animation = scenes->animations[i];
@@ -79,6 +97,17 @@ public:
                 }
 
                 animationInstanceView->channels.push_back(channel);
+            }
+        }
+
+        for (int i = 0; i < skinInstances.size(); i++)
+        {
+            SkinInstance* skinInstance = skinInstances[i];
+            Skin* skin = skinInstance->skin;
+            skinInstance->joints.resize(skin->jointIDs.size());
+            for (int j = 0; j < skin->jointIDs.size(); j++)
+            {
+                skinInstance->joints[j] = nodes[skin->jointIDs[j]];
             }
         }
     }

@@ -7,7 +7,6 @@ class Skin
 {
 public:
     string name;
-    int skeletonID;
     vector<mat4> inverseBindMatrices;
     vector<int> jointIDs;
 };
