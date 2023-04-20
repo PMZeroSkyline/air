@@ -90,6 +90,30 @@ public:
             {
                 VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->input);
             }
+            if (result.accessor->min.size() == 1)
+            {
+                animationSampler->inputMin = result.accessor->min[0];
+                if (animation->samplersInputMin == -1)
+                {
+                    animation->samplersInputMin = animationSampler->inputMin;
+                }
+                else
+                {
+                    animation->samplersInputMin = min(animation->samplersInputMin, animationSampler->inputMin);
+                }
+            }
+            if (result.accessor->max.size() == 1)
+            {
+                animationSampler->inputMax = result.accessor->max[0];
+                if (animation->samplersInputMax == -1)
+                {
+                    animation->samplersInputMax = animationSampler->inputMax;
+                }
+                else
+                {
+                    animation->samplersInputMax = max(animation->samplersInputMax, animationSampler->inputMax);
+                }
+            }
             result = gltf::Access(GLTF, gAnimationSampler->output);
             if (result.accessor->componentType == GL_FLOAT && result.accessor->type == "VEC3")
             {

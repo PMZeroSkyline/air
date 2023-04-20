@@ -35,6 +35,8 @@ using std::numeric_limits;
 using std::pair;
 using std::make_pair;
 using std::forward;
+using std::min;
+using std::max;
 namespace fs = std::filesystem;
 using std::initializer_list;
 #endif

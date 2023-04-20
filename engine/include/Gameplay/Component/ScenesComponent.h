@@ -4,15 +4,14 @@
 #include "Component.h"
 #include "Resource/Model/Scenes.h"
 #include "Gameplay/Object/Actor.h"
-#include "Animation/AnimationState/AnimationState.h"
-#include "Animation/AnimationState/AnimationView.h"
+#include "Animation/AnimationState/AnimationInstanceView.h"
 #include "AnimationNodeComponent.h"
 
 class ScenesComponent : public Component
 {
 public:
     shared_ptr<Scenes> scenes;
-    AnimationState animationState;
+    vector<AnimationInstance> animationInstances;
 
     vector<Actor*> nodes;
 
@@ -52,43 +51,35 @@ public:
             NodeExpand(sceneNode, nodeChild);
         }
 
-        animationState.animationInstances.resize(scenes->animations.size());
+        animationInstances.resize(scenes->animations.size());
         for (int i = 0; i < scenes->animations.size(); i++)
         {
             shared_ptr<Animation> animation = scenes->animations[i];
-            animationState.animationInstances[i].animation = animation.get();
-            animationState.animationInstances[i].weight = 0.f;
+            AnimationInstance* animationInstance = &animationInstances[i];
+
+            animationInstance->animation = animation.get();
 
             for (int j = 0; j < animation->channels.size(); j++)
             {
                 AnimationChannel* channel = &animation->channels[j];
                 Actor* targetNode = nodes[channel->target.nodeID];
+
                 AnimationNodeComponent* animationNodeComponent = targetNode->GetComponent<AnimationNodeComponent>();
                 if (!animationNodeComponent)
                 {
                     animationNodeComponent = targetNode->AddComponent<AnimationNodeComponent>();
                 }
-                AnimationView* animationView = nullptr;
-                for (int k = 0; k < animationNodeComponent->animationViews.size(); k++)
+
+                AnimationInstanceView* animationInstanceView = animationNodeComponent->GetAnimationInstanceView(animationInstance);
+                if (!animationInstanceView)
                 {
-                    if (animationNodeComponent->animationViews[k].animationInstance == &animationState.animationInstances[i]);
-                    {
-                        animationView = &animationNodeComponent->animationViews[k];
-                        break;
-                    }
+                    animationNodeComponent->animationInstanceViews.push_back(AnimationInstanceView());
+                    animationInstanceView = &animationNodeComponent->animationInstanceViews.back();
+                    animationInstanceView->animationInstance = animationInstance;
                 }
-                if (!animationView)
-                {
-                    animationNodeComponent->animationViews.push_back(AnimationView());
-                    animationView = &animationNodeComponent->animationViews.back();
-                    animationView->animationInstance = &animationState.animationInstances[i];
-                }
-                animationView->channels.push_back(channel);
-                
+
+                animationInstanceView->channels.push_back(channel);
             }
-            
-            
-            
         }
     }
 };

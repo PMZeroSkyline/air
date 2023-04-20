@@ -18,9 +18,6 @@ int main()
 	scenes->FieldExpand();
 	LOG(" ");
 
-
-	
-	
 	while (window.IsOpen())
 	{
 		window.Tick();
@@ -28,13 +25,11 @@ int main()
 		glEnable(GL_DEPTH_TEST);  
 		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
-
 		
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
 		{
 			window.Close();
 		}
-		
 	}
 	
 	return 0;

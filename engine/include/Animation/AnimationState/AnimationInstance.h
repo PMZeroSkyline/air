@@ -6,8 +6,8 @@
 class AnimationInstance
 {
 public:
-    float weight;
-    Animation* animation;
+    float weight = 0.f;
+    Animation* animation = nullptr;
 };
 
 #endif
