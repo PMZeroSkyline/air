@@ -17,15 +17,29 @@ int main()
 	scenes->Load("idle/idle.gltf");
 	scenes->FieldExpand();
 	LOG(" ");
+	mat4 M, V = mat4().translate(vec3(0,0,-5.f)), P = Camera().perspective.GetPerspectiveMatrix();
+	for (int i = 0; i < scenes->scenes->materials.size(); i++)
+	{
+		scenes->scenes->materials[i]->mat4PtrMap["M"] = &M;
+		scenes->scenes->materials[i]->mat4PtrMap["V"] = &V;
+		scenes->scenes->materials[i]->mat4PtrMap["P"] = &P;
+	}
+	
 
 	while (window.IsOpen())
 	{
 		window.Tick();
 		
-		glEnable(GL_DEPTH_TEST);  
-		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
-		
+		GLClear();
+
+		for	(int i = 0; i != scenes->scenes->meshs.size(); i++)
+		{
+			for (int j = 0; j < scenes->scenes->meshs[i]->primitives.size(); j++)
+			{
+				scenes->scenes->meshs[i]->primitives[j].Draw();
+			}
+			
+		}
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
 		{
 			window.Close();

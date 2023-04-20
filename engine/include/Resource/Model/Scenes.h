@@ -163,12 +163,12 @@ public:
         const gltf::Image* gImage = &GLTF.images[gTexture->source];
         string key = gImage->uri + ":" + gSampler->ToString();
         shared_ptr<Texture2D> texture2D = texture2DBlob.Get(key);
-        texture2Ds[i] = texture2D;
         if (texture2D)
         {
             return;
         }
         texture2D = make_shared<Texture2D>();
+        texture2Ds[i] = texture2D;
         texture2DBlob.Set(key, texture2D);
 
         texture2D->name = gTexture->name;
