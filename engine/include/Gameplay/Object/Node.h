@@ -10,7 +10,7 @@
 class Node : public Object
 {
 public:
-	Node* parent;
+	Node* parent = nullptr;
 	vector<Node*> children;
 	~Node()
 	{
@@ -30,17 +30,26 @@ public:
 	}
 };
 
-Node* FindNodeByName(const string& findName, Node* find)
+void ForEachNode(Node* node, function<bool(Node*)> func)
 {
-	if (find->name == findName)
+	if(!func(node))
+		return;
+	for (int i = 0; i < node->children.size(); i++)
 	{
-		return find;
+		ForEachNode(node->children[i], func);
 	}
-	for (int i = 0; i < find->children.size(); i++)
-	{
-		if (Node* found = FindNodeByName(findName, find->children[i]))
-			return found;
-	}
-	return nullptr;
+}
+Node* FindNodeByName(const string& name, Node* node)
+{
+	Node* found = nullptr;
+	ForEachNode(node, [&found, &name](Node* current){
+		if (current->name == name)
+		{
+			found = current;
+			return false;
+		}
+		return true;
+	});
+	return found;
 }
 #endif
