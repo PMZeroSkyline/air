@@ -35,9 +35,9 @@ template<typename T>
 inline quatt<T>::quatt(const vec3t<T> euler)
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
-	T pitch = euler.x;
-	T yaw = euler.y;
-	T roll = euler.z;
+	T pitch = euler.y;
+	T yaw = euler.z;
+	T roll = euler.x;
 
     T cr = cos(roll * 0.5);
     T sr = sin(roll * 0.5);
@@ -59,15 +59,15 @@ vec3t<T> quatt<T>::toEuler() const
 	// roll (x-axis rotation)
 	float sinr_cosp = 2 * (w * x + y * z);
 	float cosr_cosp = 1 - 2 * (x * x + y * y);
-	angles.z = std::atan2(sinr_cosp, cosr_cosp);
+	angles.x = std::atan2(sinr_cosp, cosr_cosp);
 	// pitch (y-axis rotation)
 	float sinp = std::sqrt(1 + 2 * (w * y - x * z));
 	float cosp = std::sqrt(1 - 2 * (w * y - x * z));
-	angles.x = 2 * std::atan2(sinp, cosp) - PI / 2;
+	angles.y = 2 * std::atan2(sinp, cosp) - PI / 2;
 	// yaw (z-axis rotation)
 	float siny_cosp = 2 * (w * z + x * y);
 	float cosy_cosp = 1 - 2 * (y * y + z * z);
-	angles.y = std::atan2(siny_cosp, cosy_cosp);
+	angles.z = std::atan2(siny_cosp, cosy_cosp);
 	return angles;
 }
 template<typename T>

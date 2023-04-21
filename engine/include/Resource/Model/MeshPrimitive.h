@@ -24,7 +24,6 @@ public:
     }
     void Draw()
     {
-        material->Bind();
         glPrimitive.Bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     }

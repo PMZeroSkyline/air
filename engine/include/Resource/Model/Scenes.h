@@ -277,6 +277,27 @@ public:
                     VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, primitive->attribute.TEXCOORD_0);
                 }
             }
+            id = gPrimitive->Find("JOINTS_0");
+            if (id != -1)
+            {
+                gltf::AccessResult result = gltf::Access(GLTF, id);
+                if (result.accessor->componentType == GL_UNSIGNED_BYTE)
+                {
+                    vector<u8vec4> u8v;
+                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, u8v);
+                    vector<ivec4> iv(u8v.begin(), u8v.end());
+                    primitive->attribute.JOINTS_0 = move(iv);
+                }
+            }
+            id = gPrimitive->Find("WEIGHTS_0");
+            if (id != -1)
+            {
+                gltf::AccessResult result = gltf::Access(GLTF, id);
+                if (result.accessor->componentType == GL_FLOAT)
+                {
+                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, primitive->attribute.WEIGHTS_0);
+                }
+            }
             id = gPrimitive->indices;
             if (id != -1)
             {

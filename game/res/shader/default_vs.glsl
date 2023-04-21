@@ -6,8 +6,8 @@ layout (location = 3) in vec2 TEXCOORD_0;
 layout (location = 4) in vec2 TEXCOORD_1;
 layout (location = 5) in vec2 TEXCOORD_2;
 layout (location = 6) in vec2 TEXCOORD_3;
-layout (location = 7) in uvec3 JOINTS_0;
-layout (location = 8) in vec3 WEIGHTS_0;
+layout (location = 7) in ivec4 JOINTS_0;
+layout (location = 8) in vec4 WEIGHTS_0;
 
 //layout (std140) uniform MTX
 //{
@@ -15,9 +15,12 @@ layout (location = 8) in vec3 WEIGHTS_0;
 //    mat4 P;
 //}; 
 
+uniform bool isSkin;
+
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
+uniform mat4 J[100];
 out V2F
 {
     vec2 uv;
@@ -26,6 +29,29 @@ out V2F
 void main()
 {
     o.uv = TEXCOORD_0;
-    gl_Position = P * V * M * vec4(POSITION, 1.0);
+
+    // vec4 pos = vec4(POSITION,1.0f);
+    // vec4 animPos = vec4(0);
+    // for(int i = 0 ; i < 4 ; i++)
+    // {
+    //     vec4 localPos = BONES[JOINTS_0[i]] * vec4(POSITION,1.0f);
+    //     animPos += localPos * WEIGHTS_0[i];
+    //     //vec3 localNormal = mat3(finalBonesMatrices[boneIds[i]]) * norm;
+    // }
+
+    vec4 pos = vec4(POSITION,1.0f);
+    
+    mat4 S = mat4(1.f);
+    if (isSkin)
+    {
+        S = 
+        WEIGHTS_0[0] * J[JOINTS_0[0]] + 
+        WEIGHTS_0[1] * J[JOINTS_0[1]] + 
+        WEIGHTS_0[2] * J[JOINTS_0[2]] + 
+        WEIGHTS_0[3] * J[JOINTS_0[3]];
+    }
+    
+
+    gl_Position = P * V * M * S * pos;
 
 }

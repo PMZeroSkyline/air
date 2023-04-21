@@ -219,6 +219,7 @@ inline mat4 mat4::inverse() const
 	vec4 SignB(-1, +1, -1, +1);
 	mat4 Inverse = {Inv0 * SignA, Inv1 * SignB, Inv2 * SignA, Inv3 * SignB};
 	Inverse = Inverse.transpose();
+	return Inverse;
 
 	vec4 Row0(Inverse[0][0], Inverse[1][0], Inverse[2][0], Inverse[3][0]);
 

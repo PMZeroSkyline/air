@@ -24,7 +24,13 @@ public:
 		components.push_back(add);
 		return add;
 	}
-	
+	template<typename T>
+	T* AddComponent(T* c)
+	{
+		((Component*)c)->owner = this;
+		components.push_back(c);
+		return c;
+	}
 	template<typename T>
 	T* GetComponent()
 	{
