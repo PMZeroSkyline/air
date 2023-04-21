@@ -7,6 +7,7 @@
 #include "Gameplay/Component/ScenesComponent.h"
 #include "Renderer/Camera/Camera.h"
 #include "Gameplay/Component/CameraComponent.h"
+#include "Map/Map.h"
 
 class Renderable
 {
@@ -26,6 +27,7 @@ public:
 	vector<Renderable> renderables;
 	void Load(Actor* root)
 	{
+		renderables.clear();
 		ForEachNode(root, [this](Node* current){
 
 			Actor* actor = (Actor*)current;
@@ -49,13 +51,12 @@ public:
 			}
 			return true;
 		});
+		sort(renderables.begin(), renderables.end());
 	}
 	void Render()
 	{
 		mat4 V = ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
 		mat4 P = cameraComponent->camera.perspective.GetPerspectiveMatrix();
-
-		sort(renderables.begin(), renderables.end());
 
 		for (int i = 0; i < renderables.size(); i++)
 		{
@@ -74,45 +75,43 @@ public:
 		}		
 	}
 };
+
 int main()
 {
 	CDResourcesDir();
 	Window window;
 
-	Actor* root = new Actor;
+	Map map;
 
-	Actor* ca = root->AddChild<Actor>();
-	CameraComponent* c = ca->AddComponent<CameraComponent>();
-	ca->localTransform.translation = vec3(0,5,5);
-	ca->localTransform.rotation = EulerToQuat(vec3(-45, 0, 0));
-	ca->worldMatrix = ca->localTransform.ToMatrix();
+	
+	Actor* ABar = map.AddChild<Actor>();
+	ScenesComponent* CBar = ABar->AddComponent<ScenesComponent>();
+	CBar->Load("bar/scene.gltf");
+	CBar->FieldExpand();
 
-	Actor* sa = root->AddChild<Actor>();
-	sa->localTransform.rotation = EulerToQuat(vec3(0, 0, 0));
-	ScenesComponent* sc = sa->AddComponent<ScenesComponent>();
-	sc->Load("sushi_bar/scene.gltf");
-	sc->FieldExpand();
+	Actor* ACam = map.AddChild<Actor>();
+	ACam->localTransform.translation = vec3(0, 5, 5);
+	ACam->localTransform.rotation = EulerToQuat(vec3(-45, 0, 0));
+	CameraComponent* CCam = ACam->AddComponent<CameraComponent>();
 
 	Renderables renderables;
-	renderables.Load(root);
+
+	map.Start();
 
 	while (window.IsOpen())
 	{
 		window.Tick();
-		//glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
 		GLClear();
-		//sc->animationInstances[0].weight = 1.f;
-		//sc->animationInstances[0].time = (sin(window.time) * 0.5 + 0.5) * 2;
-		ResetWorldMatrix(root);
-		renderables.Render();
-		//RenderActor(sa, c);
+
+		map.Tick(window.deltaTime);
+		//renderables.Load(&map);
+		
+		//renderables.Render();
 
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
 		{
 			window.Close();
 		}
 	}
-	delete sa;
-	delete ca;
 	return 0;
 }

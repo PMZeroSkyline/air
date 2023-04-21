@@ -28,6 +28,22 @@ public:
 		children.push_back(add);
 		return add;
 	}
+	virtual void Start() override
+	{
+		Object::Start();
+		for (int i = 0; i < children.size(); i++)
+		{
+			children[i]->Start();
+		}
+	}
+	virtual void Tick(float deltaTime) override
+	{
+		Object::Tick(deltaTime);
+		for (int i = 0; i < children.size(); i++)
+		{
+			children[i]->Tick(deltaTime);
+		}
+	}
 };
 
 void ForEachNode(Node* node, function<bool(Node*)> func)

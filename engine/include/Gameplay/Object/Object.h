@@ -10,7 +10,7 @@ public:
 	string name;
 	virtual ~Object(){LOG("delete " << name)}
 	virtual void Start(){}
-	virtual void Tick(){}
+	virtual void Tick(float deltaTime){}
 	
 };
 

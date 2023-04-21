@@ -44,6 +44,28 @@ public:
 		}
 		return nullptr;
 	}
+	virtual void Start() override
+	{
+		Node::Start();
+		for (int i = 0; i < components.size(); i++)
+		{
+			if (components[i])
+			{
+				components[i]->Start();
+			}
+		}
+	}
+	virtual void Tick(float deltaTime) override
+	{
+		Node::Tick(deltaTime);
+		for (int i = 0; i < components.size(); i++)
+		{
+			if (components[i])
+			{
+				components[i]->Tick(deltaTime);
+			}
+		}
+	}
 };
 
 #endif
