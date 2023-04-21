@@ -10,34 +10,20 @@ public:
 	bool isDirty = true;
 	mat4 worldMatrix;
 	Transform localTransform;
-	void ResetWorldMatrix(bool isForceReset = false)
+	void ResetWorldMatrix(bool isForce = false)
 	{
 		AnimationNodeComponent* animationNodeComponent = GetComponent<AnimationNodeComponent>();
-		bool isReset = isForceReset || isDirty || animationNodeComponent;
+		bool isReset = isForce || isDirty || animationNodeComponent;
 		if (isReset)
 		{
-			if (parent)
+			mat4 world = parent ? ((Actor*)parent)->worldMatrix : mat4();
+			if (animationNodeComponent)
 			{
-				mat4 world = ((Actor*)parent)->worldMatrix;
-				if (animationNodeComponent)
-				{
-					worldMatrix = world * animationNodeComponent->GetAnimationTransform().ToMatrix();
-				}
-				else
-				{
-					worldMatrix = world * localTransform.ToMatrix();
-				}
+				worldMatrix = world * animationNodeComponent->GetAnimationTransform().ToMatrix();
 			}
 			else
 			{
-				if (animationNodeComponent)
-				{
-					worldMatrix = animationNodeComponent->GetAnimationTransform().ToMatrix();
-				}
-				else
-				{
-					worldMatrix = localTransform.ToMatrix();
-				}
+				worldMatrix = world * localTransform.ToMatrix();
 			}
 			isDirty = false;
 		}
@@ -47,6 +33,4 @@ public:
 		}
 	}
 };
-
-
 #endif

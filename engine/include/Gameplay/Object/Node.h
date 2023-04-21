@@ -46,19 +46,30 @@ public:
 	}
 };
 
-void ForEachNode(Node* node, function<bool(Node*)> func)
+template<typename T>
+void InvForEachNode(T* node, function<void(T*)> func)
+{
+	for (int i = 0; i < ((Node*)node)->children.size(); i++)
+	{
+		InvForEachNode((T*)(((Node*)node)->children[i]), func);
+	}
+	func(node);
+}
+template<typename T>
+void ForEachNode(T* node, function<bool(T*)> func)
 {
 	if(!func(node))
 		return;
-	for (int i = 0; i < node->children.size(); i++)
+	for (int i = 0; i < ((Node*)node)->children.size(); i++)
 	{
-		ForEachNode(node->children[i], func);
+		ForEachNode((T*)(((Node*)node)->children[i]), func);
 	}
 }
-Node* FindNodeByName(const string& name, Node* node)
+template<typename T>
+T* FindNodeByName(const string& name, T* node)
 {
-	Node* found = nullptr;
-	ForEachNode(node, [&found, &name](Node* current){
+	T* found = nullptr;
+	ForEachNode<T>(node, [&found, &name](T* current){
 		if (current->name == name)
 		{
 			found = current;

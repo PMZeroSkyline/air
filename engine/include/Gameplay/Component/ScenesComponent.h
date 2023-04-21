@@ -37,7 +37,7 @@ public:
         if (sceneNode->meshID != -1)
         {
             MeshComponent* meshComponent = node->AddComponent<MeshComponent>();
-            meshComponent->mesh = scenes->meshs[sceneNode->meshID].get();
+            meshComponent->mesh = scenes->meshs[sceneNode->meshID];
         }
         if (sceneNode->skinID != -1)
         {

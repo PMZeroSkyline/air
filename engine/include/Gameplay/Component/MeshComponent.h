@@ -7,7 +7,7 @@
 class MeshComponent : public Component
 {
 public:
-    Mesh* mesh;
+    shared_ptr<Mesh> mesh;
     
 };
 

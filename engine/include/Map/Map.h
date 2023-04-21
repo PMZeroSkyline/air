@@ -14,16 +14,12 @@ public:
     }
     virtual void Start() override
     {
-        ResetWorldMatrix();
-
         Actor::Start();
 
     }
     virtual void Tick(float deltaTime) override
     {
         Actor::Tick(deltaTime);
-        
-        ResetWorldMatrix();
     }
 };
 

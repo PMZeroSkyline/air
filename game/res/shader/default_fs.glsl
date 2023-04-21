@@ -11,8 +11,8 @@ uniform sampler2D baseColorTex;
 void main()
 {   
     FragColor = vec4(i.uv.x, i.uv.y, 0., 1.);
-    vec4 baseColor = texture(baseColorTex, i.uv);
-    if (baseColor.a < 0.5)
-        discard;
-    FragColor = vec4(baseColor.rgb,1.);
+    // vec4 baseColor = texture(baseColorTex, i.uv);
+    // if (baseColor.a < 0.5)
+    //     discard;
+    // FragColor = vec4(baseColor.rgb,1.);
 }
