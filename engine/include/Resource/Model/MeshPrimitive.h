@@ -15,6 +15,12 @@ public:
     vector<unsigned int> indices;
     shared_ptr<Material> material;
     BoundingBox boundingBox;
+
+    bool operator<(const MeshPrimitive& rhs) const
+    {
+        return *material < *rhs.material;
+    }
+
     void SetupGLPrimitive()
     {
         LOG("SetupGLPrimitive")
@@ -27,6 +33,7 @@ public:
         glPrimitive.Bind();
         glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
     }
+    
 };
 MeshPrimitive CubePrimitive()
 {

@@ -12,6 +12,8 @@
 #include <filesystem>
 #include <initializer_list>
 #include <cmath>
+#include <functional>
+#include <algorithm>
 using std::cout;
 using std::endl;
 using std::begin;
@@ -39,4 +41,6 @@ using std::min;
 using std::max;
 namespace fs = std::filesystem;
 using std::initializer_list;
+using std::function;
+using std::sort;
 #endif

@@ -8,6 +8,7 @@ class MeshComponent : public Component
 {
 public:
     Mesh* mesh;
+    
 };
 
 #endif

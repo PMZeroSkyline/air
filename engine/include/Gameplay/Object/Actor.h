@@ -11,35 +11,36 @@ public:
 	Transform localTransform;
 };
 
-void ForEachActor(Actor* node, void (*F)(Actor*))
-{
-	F(node);
-	for (int i = 0; i < node->children.size(); i++)
-	{
-		ForEachActor((Actor*)node->children[i], F);
-	}
-}
-
 void ResetWorldMatrix(Actor* node)
 {
-	AnimationNodeComponent* animationNodeComponent = node->GetComponent<AnimationNodeComponent>();
-	mat4 parentMatrix;
-	if (node->parent)
-	{
-		parentMatrix = ((Actor*)node->parent)->worldMatrix;
-	}
-	if (animationNodeComponent)
-	{
-		node->worldMatrix = parentMatrix * animationNodeComponent->GetAnimationTransform().ToMatrix();
-	}
-	else
-	{
-		node->worldMatrix = parentMatrix * node->localTransform.ToMatrix();
-	}
-	for (int i = 0; i < node->children.size(); i++)
-	{
-		ResetWorldMatrix((Actor*)node->children[i]);
-	}
+	ForEachNode(node, [](Node* current){
+		Actor* actor = (Actor*)current;
+		AnimationNodeComponent* animationNodeComponent = actor->GetComponent<AnimationNodeComponent>();
+		if (actor->parent)
+		{
+			mat4 world = ((Actor*)actor->parent)->worldMatrix;
+			if (animationNodeComponent)
+			{
+				actor->worldMatrix = world * animationNodeComponent->GetAnimationTransform().ToMatrix();
+			}
+			else
+			{
+				actor->worldMatrix = world * actor->localTransform.ToMatrix();
+			}
+		}
+		else
+		{
+			if (animationNodeComponent)
+			{
+				actor->worldMatrix = animationNodeComponent->GetAnimationTransform().ToMatrix();
+			}
+			else
+			{
+				actor->worldMatrix = actor->localTransform.ToMatrix();
+			}
+		}
+		return true;
+	});
 }
 
 #endif

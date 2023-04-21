@@ -22,7 +22,13 @@ public:
 
     vector<pair<string, shared_ptr<Texture2D>>> texturePairs;
     map<string, mat4> mat4Map;
+    map<string, mat4*> mat4PtrMap;
     vector<mat4> jointMatrix;
+
+    bool operator<(const Material& rhs) const
+    {
+        return alphaMode < rhs.alphaMode;
+    }
 
     void UseDefaultShader()
     {
@@ -37,14 +43,14 @@ public:
     void Bind()
     {
         shader->Use();
-        //for (auto it = mat4PtrMap.begin(); it != mat4PtrMap.end(); it++)
-        //{
-        //    shader->SetMat4(it->first, *it->second);
-        //}
-        for (auto it = mat4Map.begin(); it != mat4Map.end(); it++)
+        for (auto it = mat4PtrMap.begin(); it != mat4PtrMap.end(); it++)
         {
-            shader->SetMat4(it->first, it->second);
+           shader->SetMat4(it->first, *it->second);
         }
+        // for (auto it = mat4Map.begin(); it != mat4Map.end(); it++)
+        // {
+        //     shader->SetMat4(it->first, it->second);
+        // }
         shader->SetBool("isSkin", jointMatrix.size() != 0);
         for (int i = 0; i < jointMatrix.size(); i++)
         {
