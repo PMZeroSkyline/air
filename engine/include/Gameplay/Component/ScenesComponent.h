@@ -16,7 +16,7 @@ public:
     vector<AnimationInstance> animationInstances;
 
     vector<Actor*> nodes;
-    vector<SkinInstance*> skinInstances;
+    vector<SkinInstance> skinInstances;
 
     void Load(const string& path)
     {
@@ -27,6 +27,7 @@ public:
             scenes->Load(path);
             scenesBlob.Set(path, scenes);
         }
+        FieldExpand();
     }
 
     void NodeExpand(SceneNode* sceneNode, Actor* node)
@@ -42,8 +43,7 @@ public:
         if (sceneNode->skinID != -1)
         {
             SkinComponent* skinComponent = node->AddComponent<SkinComponent>();
-            skinComponent->skinInstance.skin = scenes->skins[sceneNode->skinID].get();
-            skinInstances[sceneNode->skinID] = &skinComponent->skinInstance;
+            skinComponent->skinInstance = &skinInstances[sceneNode->skinID];
         }
 
         for (int i = 0; i < sceneNode->childrenID.size(); i++)
@@ -102,8 +102,9 @@ public:
 
         for (int i = 0; i < skinInstances.size(); i++)
         {
-            SkinInstance* skinInstance = skinInstances[i];
-            Skin* skin = skinInstance->skin;
+            SkinInstance* skinInstance = &skinInstances[i];
+            Skin* skin = scenes->skins[i].get();
+            skinInstance->skin = skin;
             skinInstance->joints.resize(skin->jointIDs.size());
             for (int j = 0; j < skin->jointIDs.size(); j++)
             {

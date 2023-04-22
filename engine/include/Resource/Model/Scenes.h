@@ -283,10 +283,11 @@ public:
                 gltf::AccessResult result = gltf::Access(GLTF, id);
                 if (result.accessor->componentType == GL_UNSIGNED_BYTE)
                 {
-                    vector<u8vec4> u8v;
-                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, u8v);
-                    vector<ivec4> iv(u8v.begin(), u8v.end());
-                    primitive->attribute.JOINTS_0 = move(iv);
+                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, primitive->attribute.JOINTS_0);
+                }
+                else
+                {
+                    LOG("load mesh joint type not support !")
                 }
             }
             id = gPrimitive->Find("WEIGHTS_0");

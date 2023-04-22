@@ -13,8 +13,26 @@ void GLVaoData(int &target, int &offset, T&& t)
 		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
 		glEnableVertexAttribArray(target);
 		GLenum type = GL_FLOAT;
-		if (typeid(t[0][0]) == typeid(unsigned int))
+		if (typeid(t[0][0]) == typeid(float))
+		{
+			type = GL_FLOAT;
+		}
+		else if (typeid(t[0][0]) == typeid(int))
+		{
+			type = GL_INT;
+		}
+		else if (typeid(t[0][0]) == typeid(unsigned int))
+		{
 			type = GL_UNSIGNED_INT;
+		}
+		else if (typeid(t[0][0]) == typeid(unsigned char))
+		{
+			type = GL_UNSIGNED_BYTE;
+		}
+		else
+		{
+			LOG("failed to find vao data type !")
+		}
 		long long offset64bit = offset;
 		glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)offset64bit);
 		offset += sizeof(t[0])*t.size();

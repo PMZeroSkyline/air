@@ -47,24 +47,15 @@ public:
         {
            shader->SetMat4(it->first, *it->second);
         }
-        // for (auto it = mat4Map.begin(); it != mat4Map.end(); it++)
-        // {
-        //     shader->SetMat4(it->first, it->second);
-        // }
         shader->SetBool("isSkin", jointMatrix.size() != 0);
         for (int i = 0; i < jointMatrix.size(); i++)
         {
             shader->SetMat4("J[" + to_string(i) + "]", jointMatrix[i]);
         }
-        
-        
         for (int i = 0; i < texturePairs.size(); i++)
         {
             glActiveTexture(GL_TEXTURE0 + i);
             glBindTexture(GL_TEXTURE_2D, texturePairs[i].second->glTexture2D.id);
-        }
-        for (int i = 0; i < texturePairs.size(); i++)
-        {
             shader->SetInt(texturePairs[i].first, i);
         }
     }

@@ -7,7 +7,7 @@
 class SkinComponent : public Component
 {
 public:
-    SkinInstance skinInstance;
+    SkinInstance* skinInstance;
 };
 
 #endif

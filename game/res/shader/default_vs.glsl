@@ -20,16 +20,20 @@ uniform bool isSkin;
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
-uniform mat4 J[100];
+uniform mat4 J[128];
 out V2F
 {
     vec2 uv;
+    vec4 debug;
 } o;
 
 void main()
 {
     o.uv = TEXCOORD_0;
-
+    // if (JOINTS_0 == ivec4(0))
+    //     o.debug = vec4(1,0,0,0);
+    // else
+    //     o.debug = vec4(0,1,0,1);
     // vec4 pos = vec4(POSITION,1.0f);
     // vec4 animPos = vec4(0);
     // for(int i = 0 ; i < 4 ; i++)
@@ -41,7 +45,7 @@ void main()
 
     vec4 pos = vec4(POSITION,1.0f);
     
-    mat4 S = mat4(1.f);
+    mat4 S;
     if (isSkin)
     {
         S = 

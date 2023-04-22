@@ -25,7 +25,7 @@ public:
 class Renderables
 {
 public:
-	CameraComponent* cameraComponent;
+	CameraComponent* cameraComponent = nullptr;
 	vector<Renderable> renderables;
 	void Load(Actor* root)
 	{
@@ -53,9 +53,18 @@ public:
 	}
 	void Render()
 	{
-		mat4 V = ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
-		mat4 P = cameraComponent->camera.perspective.GetPerspectiveMatrix();
-
+		mat4 V, P;
+		if (cameraComponent)
+		{
+			V = ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
+			P = cameraComponent->camera.perspective.GetPerspectiveMatrix();
+		}
+		else
+		{
+			V = mat4().translate(vec3(0,0,-4));
+			P = Camera().perspective.GetPerspectiveMatrix();
+		}
+		
 		for (int i = 0; i < renderables.size(); i++)
 		{
 			Renderable* renderable = &renderables[i];
@@ -66,24 +75,22 @@ public:
 			Actor* parent = (Actor*)renderable->actor->parent;
 
 			mat4 M = actor->worldMatrix;
-			mat4 W = parent ? parent->worldMatrix : mat4();
+			mat4 IW = parent ? parent->worldMatrix.inverse() : mat4();
 
 			material->mat4PtrMap["M"] = &M;
 			material->mat4PtrMap["V"] = &V;
 			material->mat4PtrMap["P"] = &P;
-
 			if (skinComponent)
 			{
-				SkinInstance* skinInstance = &skinComponent->skinInstance;
+				SkinInstance* skinInstance = skinComponent->skinInstance;
 				Skin* skin = skinInstance->skin;
-				material->jointMatrix.resize(100);
-				for (int j = 0; j < skin->inverseBindMatrices.size(); j++)
+				material->jointMatrix.resize(128);
+				for (int j = 0; j < skinInstance->joints.size(); j++)
 				{
-					material->jointMatrix[j] = skin->inverseBindMatrices[j];
+					Actor* joint = skinInstance->joints[j];
+					material->jointMatrix[j] = IW * joint->worldMatrix * skin->inverseBindMatrices[j];
 				}
 			}
-			
-			material->Bind();
 			meshPrimitive->Draw();
 		}		
 	}
@@ -96,34 +103,31 @@ int main()
 
 	Map map;
 
-	
 	Actor* ABar = map.AddChild<Actor>();
 	ABar->localTransform.scaling = vec3(1.f);
-	ABar->localTransform.rotation = EulerToQuat(vec3(-0,0,0));
+	ABar->localTransform.rotation = EulerToQuat(vec3(0,0,0));
 	ScenesComponent* CBar = ABar->AddComponent<ScenesComponent>();
-	CBar->Load("idle/idle.gltf");
-	CBar->FieldExpand();
-	
-	CBar->animationInstances[0].weight = 0.f;
+	CBar->Load("vroid/anim/anim.gltf");
 
 	Actor* ACam = map.AddChild<Actor>();
-	ACam->localTransform.translation = vec3(0, 0, 5);
+	ACam->localTransform.translation = vec3(0, 1, 3);
 	ACam->localTransform.rotation = EulerToQuat(vec3(0, 0, 0));
 	CameraComponent* CCam = ACam->AddComponent<CameraComponent>();
 
 	Renderables renderables;
 
 	map.Start();
-	
 
 	while (window.IsOpen())
 	{
 		window.Tick();
 		GLClear();
 		
+		CBar->animationInstances[0].weight = 1.f;
 		CBar->animationInstances[0].time = (sin(window.time)*0.5+0.5) * CBar->animationInstances[0].animation->samplersInputMax;
-		map.Tick(window.deltaTime);
 		map.ResetWorldMatrix();
+
+		map.Tick(window.deltaTime);
 		renderables.Load(&map);
 		renderables.Render();
 
