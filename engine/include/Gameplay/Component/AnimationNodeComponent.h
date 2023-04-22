@@ -33,9 +33,8 @@ public:
             const AnimationInstance* animationInstance = view->animationInstance;
             if (animationInstance->weight <= 0)
             {
-                continue;
+                continue;;
             }
-            
             for (int j = 0; j < view->channels.size(); j++)
             {
                 AnimationChannel* channel = view->channels[j];

@@ -13,18 +13,19 @@ public:
 	void ResetWorldMatrix(bool isForce = false)
 	{
 		AnimationNodeComponent* animationNodeComponent = GetComponent<AnimationNodeComponent>();
-		bool isReset = isForce || isDirty || animationNodeComponent;
+		bool hasAnimation = false;
+		Transform animationTransform;
+		if (animationNodeComponent)
+		{
+			animationTransform = animationNodeComponent->GetAnimationTransform();
+			hasAnimation = animationTransform != Transform();
+		}
+		bool isReset = isForce || isDirty || hasAnimation;
 		if (isReset)
 		{
 			mat4 world = parent ? ((Actor*)parent)->worldMatrix : mat4();
-			if (animationNodeComponent)
-			{
-				worldMatrix = world * animationNodeComponent->GetAnimationTransform().ToMatrix();
-			}
-			else
-			{
-				worldMatrix = world * localTransform.ToMatrix();
-			}
+			mat4 local = hasAnimation ? animationTransform.ToMatrix() : localTransform.ToMatrix();
+			worldMatrix = world * local;
 			isDirty = false;
 		}
 		for (int i = 0; i < children.size(); i++)

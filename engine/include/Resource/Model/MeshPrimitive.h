@@ -36,12 +36,12 @@ public:
     }
     
 };
-MeshPrimitive CubePrimitive()
+shared_ptr<MeshPrimitive> MakeCubePrimitive()
 {
-    MeshPrimitive primitive;
-    primitive.material = make_shared<Material>();
-    primitive.material->UseDefaultShader();
-    primitive.attribute.POSITION = {
+    shared_ptr<MeshPrimitive> primitive = make_shared<MeshPrimitive>();
+    primitive->material = make_shared<Material>();
+    primitive->material->UseDefaultShader();
+    primitive->attribute.POSITION = {
         {-0.5f, -0.5f, -0.5f},
         { 0.5f, -0.5f, -0.5f},
         { 0.5f,  0.5f, -0.5f},
@@ -79,7 +79,7 @@ MeshPrimitive CubePrimitive()
         {-0.5f,  0.5f,  0.5f},
         {-0.5f,  0.5f, -0.5f}
     };
-    primitive.attribute.TEXCOORD_0 = {
+    primitive->attribute.TEXCOORD_0 = {
         {0.0f, 0.0f},
         {1.0f, 0.0f},
         {1.0f, 1.0f},
@@ -117,12 +117,12 @@ MeshPrimitive CubePrimitive()
         {0.0f, 0.0f},
         {0.0f, 1.0f}
     };
-    primitive.indices.resize(36);
+    primitive->indices.resize(36);
     for (int i = 0; i < 36; i++)
     {
-        primitive.indices[i] = i;
+        primitive->indices[i] = i;
     }
-    primitive.SetupGLPrimitive();
+    primitive->SetupGLPrimitive();
     return primitive;
 }
 #endif

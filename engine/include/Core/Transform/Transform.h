@@ -16,6 +16,14 @@ public:
 		vec3 Skew; vec4 Perspective;
 		m.decompose(scaling, rotation, translation, Skew, Perspective);
 	}
+	bool operator==(const Transform& rhs) const
+	{
+		return ((translation == rhs.translation) && (rotation == rhs.rotation) && (scaling == rhs.scaling));
+	}
+	bool operator!=(const Transform& rhs) const
+	{
+		return !(*this == rhs);
+	}
 	mat4 ToMatrix()
 	{
 		return mat4().translate(translation) * mat4(rotation) * mat4().scale(scaling);

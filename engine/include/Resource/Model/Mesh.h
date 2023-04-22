@@ -7,6 +7,6 @@ class Mesh
 {
 public:
     string name;
-    vector<MeshPrimitive> primitives;
+    vector<shared_ptr<MeshPrimitive>> primitives;
 };
 #endif

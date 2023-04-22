@@ -242,7 +242,8 @@ public:
         for (int i = 0; i < gMesh->primitives.size(); i++)
         {
             const gltf::MeshPrimitive* gPrimitive = &gMesh->primitives[i];
-            MeshPrimitive* primitive = &mesh->primitives[i];
+            shared_ptr<MeshPrimitive> primitive = make_shared<MeshPrimitive>();
+            mesh->primitives[i] = primitive;
             
             // POSITION
             // NORMAL

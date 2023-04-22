@@ -14,42 +14,41 @@
 class Renderable
 {
 public:
-	Actor* actor = nullptr;
-	SkinComponent* skinComponent = nullptr;
-	MeshPrimitive* meshPrimitive = nullptr;
+	shared_ptr<MeshPrimitive> primitive;
+	MeshComponent* meshComponent;
+	SkinComponent* skinComponent;
     bool operator<(const Renderable& rhs) const
     {
-        return *meshPrimitive < *(rhs.meshPrimitive);
+        return *primitive < *(rhs.primitive);
     }
 };
 class Renderables
 {
 public:
 	CameraComponent* cameraComponent = nullptr;
-	vector<Renderable> renderables;
+	vector<shared_ptr<Renderable>> renderables;
 	void Load(Actor* root)
 	{
-		renderables.clear();
 		InvForEachNode<Actor>(root, [this](Actor* current){
-			if (CameraComponent* cameraComp = current->GetComponent<CameraComponent>())
+			CameraComponent* cc = current->GetComponent<CameraComponent>();
+			if (cc)
 			{
-				cameraComponent = cameraComp;
+				cameraComponent = cc;
 			}
-			
-			if (MeshComponent* meshComponent = current->GetComponent<MeshComponent>())
+			MeshComponent* mc = current->GetComponent<MeshComponent>();
+			if (mc)
 			{
-				SkinComponent* skinComponent = current->GetComponent<SkinComponent>();
-				for (int i = 0; i < meshComponent->mesh->primitives.size(); i++)
+				SkinComponent* sc = current->GetComponent<SkinComponent>();
+				for (int i = 0; i < mc->mesh->primitives.size(); i++)
 				{
-					Renderable renderable;
-					renderable.actor = current;
-					renderable.meshPrimitive = &meshComponent->mesh->primitives[i];
-					renderable.skinComponent = skinComponent;
+					shared_ptr<Renderable> renderable = make_shared<Renderable>();
+					renderable->primitive = mc->mesh->primitives[i];
+					renderable->meshComponent = mc;
+					renderable->skinComponent = sc;
 					renderables.push_back(renderable);
 				}
 			}
 		});
-		sort(renderables.begin(), renderables.end());
 	}
 	void Render()
 	{
@@ -61,38 +60,27 @@ public:
 		}
 		else
 		{
-			V = mat4().translate(vec3(0,0,-4));
+			V = mat4().translate(vec3(0,0,-5));
 			P = Camera().perspective.GetPerspectiveMatrix();
 		}
-		
 		for (int i = 0; i < renderables.size(); i++)
 		{
-			Renderable* renderable = &renderables[i];
-			Material* material = renderable->meshPrimitive->material.get();
-			MeshPrimitive* meshPrimitive = renderable->meshPrimitive;
-			SkinComponent* skinComponent = renderable->skinComponent;
-			Actor* actor = renderable->actor;
-			Actor* parent = (Actor*)renderable->actor->parent;
-
-			mat4 M = actor->worldMatrix;
-			mat4 IW = parent ? parent->worldMatrix.inverse() : mat4();
-
-			material->mat4PtrMap["M"] = &M;
-			material->mat4PtrMap["V"] = &V;
-			material->mat4PtrMap["P"] = &P;
-			if (skinComponent)
+			shared_ptr<Renderable> renderable = renderables[i];
+			mat4 M = ((Actor*)renderable->meshComponent->owner)->worldMatrix;
+			renderable->primitive->material->mat4PtrMap["M"] = &M;
+			renderable->primitive->material->mat4PtrMap["V"] = &V;
+			renderable->primitive->material->mat4PtrMap["P"] = &P;
+			if (renderable->skinComponent)
 			{
-				SkinInstance* skinInstance = skinComponent->skinInstance;
-				Skin* skin = skinInstance->skin;
-				material->jointMatrix.resize(128);
-				for (int j = 0; j < skinInstance->joints.size(); j++)
+				mat4 IW = renderable->meshComponent->owner->parent ? ((Actor*)renderable->meshComponent->owner->parent)->worldMatrix.inverse() : mat4();
+				renderable->primitive->material->jointMatrix.resize(128);
+				for (int j = 0; j < renderable->skinComponent->skinInstance->joints.size(); j++)
 				{
-					Actor* joint = skinInstance->joints[j];
-					material->jointMatrix[j] = IW * joint->worldMatrix * skin->inverseBindMatrices[j];
+					renderable->primitive->material->jointMatrix[j] = IW * renderable->skinComponent->skinInstance->joints[j]->worldMatrix * renderable->skinComponent->skinInstance->skin->inverseBindMatrices[j];
 				}
 			}
-			meshPrimitive->Draw();
-		}		
+			renderable->primitive->Draw();
+		}
 	}
 };
 
@@ -102,32 +90,34 @@ int main()
 	Window window;
 
 	Map map;
-
-	Actor* ABar = map.AddChild<Actor>();
-	ABar->localTransform.scaling = vec3(1.f);
-	ABar->localTransform.rotation = EulerToQuat(vec3(0,0,0));
-	ScenesComponent* CBar = ABar->AddComponent<ScenesComponent>();
-	CBar->Load("vroid/anim/anim.gltf");
-
-	Actor* ACam = map.AddChild<Actor>();
-	ACam->localTransform.translation = vec3(0, 1, 3);
-	ACam->localTransform.rotation = EulerToQuat(vec3(0, 0, 0));
-	CameraComponent* CCam = ACam->AddComponent<CameraComponent>();
-
+	Actor* sa = map.AddChild<Actor>();
+	ScenesComponent* sc = sa->AddComponent<ScenesComponent>();
+	sc->Load("idle/idle.gltf");
+	//sc->animationInstances[0].weight = 1.f;
+	//sc->animationInstances[0].time = 1.f;
+	Actor* ca = map.AddChild<Actor>();
+	ca->localTransform.translation.y = .5;
+	ca->localTransform.translation.z = 3;
+	ca->localTransform.rotation = EulerToQuat(vec3(-0,0,0));
+	ca->AddComponent<CameraComponent>();
+	InvForEachNode<Actor>(sa, [](Actor* curr){
+		Actor* tmp = curr->AddChild<Actor>();
+		tmp->localTransform.scaling = vec3(8.f);
+		MeshComponent* tmp1 = tmp->AddComponent<MeshComponent>();
+		tmp1->mesh = make_shared<Mesh>();
+		shared_ptr<MeshPrimitive> tmp2 = MakeCubePrimitive();
+		tmp1->mesh->primitives.push_back(tmp2);
+	});
+	map.ResetWorldMatrix();
 	Renderables renderables;
-
-	map.Start();
+	
 
 	while (window.IsOpen())
 	{
 		window.Tick();
-		GLClear();
 		
-		CBar->animationInstances[0].weight = 1.f;
-		CBar->animationInstances[0].time = (sin(window.time)*0.5+0.5) * CBar->animationInstances[0].animation->samplersInputMax;
-		map.ResetWorldMatrix();
+		GLClear();
 
-		map.Tick(window.deltaTime);
 		renderables.Load(&map);
 		renderables.Render();
 
