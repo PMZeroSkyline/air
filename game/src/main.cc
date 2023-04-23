@@ -92,13 +92,13 @@ int main()
 	Map map;
 	Actor* sa = map.AddChild<Actor>();
 	ScenesComponent* sc = sa->AddComponent<ScenesComponent>();
-	sc->Load("idle/idle.gltf");
+	sc->Load("vroid/anim/anim.gltf");
 	sc->animationInstances[0].weight = 1.f;
-	sc->animationInstances[0].time = 1.f;
+	
 	Actor* ca = map.AddChild<Actor>();
-	ca->localTransform.translation.y = .5;
-	ca->localTransform.translation.z = 3;
-	ca->localTransform.rotation = EulerToQuat(vec3(-0,0,0));
+	ca->localTransform.translation.y = 1.5;
+	ca->localTransform.translation.z = 1;
+	ca->localTransform.rotation = EulerToQuat(vec3(-15,0,0));
 	ca->AddComponent<CameraComponent>();
 	// InvForEachNode<Actor>(sa, [](Actor* curr){
 	// 	Actor* tmp = curr->AddChild<Actor>();
@@ -108,7 +108,7 @@ int main()
 	// 	shared_ptr<MeshPrimitive> tmp2 = MakeCubePrimitive();
 	// 	tmp1->mesh->primitives.push_back(tmp2);
 	// });
-	map.ResetWorldMatrix();
+	
 	Renderables renderables;
 	
 
@@ -118,6 +118,8 @@ int main()
 		
 		GLClear();
 
+		sc->animationInstances[0].time = (sin(window.time)*.5+.5) * sc->animationInstances[0].animation->samplersInputMax;
+		map.ResetWorldMatrix();
 		renderables.Load(&map);
 		renderables.Render();
 

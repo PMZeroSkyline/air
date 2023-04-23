@@ -14,7 +14,7 @@ public:
     vector<vec2> TEXCOORD_1;
     vector<vec2> TEXCOORD_2;
     vector<vec2> TEXCOORD_3;
-    vector<ivec4> JOINTS_0;
+    vector<vec4> JOINTS_0;
     vector<vec4> WEIGHTS_0;
 };
 
