@@ -2,7 +2,7 @@
 #define CAMERA_CONPONENT_H
 
 #include "Component.h"
-#include "Renderer/Camera/Camera.h"
+#include "Render/Camera/Camera.h"
 
 class CameraComponent : public Component
 {
