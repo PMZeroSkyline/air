@@ -9,6 +9,7 @@
 #include "Gameplay/Component/CameraComponent.h"
 #include "Map/Map.h"
 #include "Gameplay/Object/Actor.h"
+#include "Gameplay/Object/Role.h"
 #include "Render/Renderer/Renderables.h"
 
 
@@ -16,32 +17,19 @@ int main()
 {
 	CDResourcesDir();
 	Window window;
-
 	Map map;
-	Actor* sa = map.AddChild<Actor>();
-	ScenesComponent* sc = sa->AddComponent<ScenesComponent>();
-	sc->Load("vroid/anim/anim.gltf");
-	sc->animationInstances[0].weight = 1.f;
-	
-	Actor* ca = map.AddChild<Actor>();
-	ca->localTransform.translation.y = 1.5;
-	ca->localTransform.translation.z = 1;
-	ca->localTransform.rotation = EulerToQuat(vec3(-15,0,0));
-	ca->AddComponent<CameraComponent>();
-	
+	Role* roleActor = map.AddChild<Role>();
+	roleActor->Load("idle/idle.gltf");
 	Renderables renderables;
-
+	map.Start();
 	while (window.IsOpen())
 	{
 		window.Tick();
-		
 		GLClear();
-
-		sc->animationInstances[0].time = (sin(window.time)*.5+.5) * sc->animationInstances[0].animation->samplersInputMax;
+		map.Tick();
 		map.ResetWorldMatrix();
 		renderables.Load(&map);
 		renderables.Render();
-
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
 		{
 			window.Close();

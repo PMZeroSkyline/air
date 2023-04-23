@@ -17,9 +17,9 @@ public:
         Actor::Start();
 
     }
-    virtual void Tick(float deltaTime) override
+    virtual void Tick() override
     {
-        Actor::Tick(deltaTime);
+        Actor::Tick();
     }
 };
 

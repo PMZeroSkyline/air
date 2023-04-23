@@ -36,12 +36,12 @@ public:
 			children[i]->Start();
 		}
 	}
-	virtual void Tick(float deltaTime) override
+	virtual void Tick() override
 	{
-		Object::Tick(deltaTime);
+		Object::Tick();
 		for (int i = 0; i < children.size(); i++)
 		{
-			children[i]->Tick(deltaTime);
+			children[i]->Tick();
 		}
 	}
 };

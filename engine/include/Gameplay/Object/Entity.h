@@ -55,14 +55,14 @@ public:
 			}
 		}
 	}
-	virtual void Tick(float deltaTime) override
+	virtual void Tick() override
 	{
-		Node::Tick(deltaTime);
+		Node::Tick();
 		for (int i = 0; i < components.size(); i++)
 		{
 			if (components[i])
 			{
-				components[i]->Tick(deltaTime);
+				components[i]->Tick();
 			}
 		}
 	}

@@ -5,6 +5,7 @@
 #include "Core/Log/Log.h"
 #include "SDK/OpenGL/CppOpenGL.h"
 #include <GLFW/glfw3.h>
+#include "Core/Math/vec2.h"
 
 struct Key
 {
@@ -14,6 +15,12 @@ struct Key
 	float pressDur = 0;
 	float downTime = 0;
 	float downDeltaTime = 10000;
+};
+struct CursorPos
+{
+	vec2 pos = vec2(0.f);
+	vec2 lastPos = vec2(0.f);
+	vec2 deltaPos = vec2(0.f);
 };
 void SetupOpenGL()
 {
@@ -29,6 +36,8 @@ public:
 	GLFWwindow* glfw_window;
 	float time = 0, deltaTime = 0;
 	Key keys[GLFW_KEY_LAST];
+	Key mouseButtons[GLFW_MOUSE_BUTTON_LAST];
+	CursorPos mouseCursor;
 	vector<string> dropPaths;
 
 	Window(int w = 800, int h = 600, const char *title = "window")
@@ -64,10 +73,15 @@ public:
 		glfwSetKeyCallback(glfw_window, [](GLFWwindow* w, int key, int scancode, int action, int mods){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
 		});
+		glfwSetMouseButtonCallback(glfw_window, [](GLFWwindow* w, int button, int action, int mods){
+			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->MouseButtonCallback(w, button, action, mods);
+		});
 		glfwSetDropCallback(glfw_window, [](GLFWwindow* w, int path_count, const char* paths[]){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->DropCallback(w, path_count, paths);
 		});
-		
+		glfwSetCursorPosCallback(glfw_window, [](GLFWwindow* w, double xpos, double ypos){
+			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->CursorPosCallback(w, xpos, ypos);
+		});
 	}
 	~Window()
 	{
@@ -83,9 +97,22 @@ public:
 		deltaTime = glfwGetTime() - time;
 		time = glfwGetTime();
 
+		mouseCursor.deltaPos = mouseCursor.pos - mouseCursor.lastPos;
+		mouseCursor.lastPos = mouseCursor.pos;
+
 		for (int i = 0; i < GLFW_KEY_LAST; i++)
 		{
 			Key &k = keys[i];
+			k.pressDown = false;
+			k.liftUp = false;
+			if (k.pressing)
+				k.pressDur += deltaTime;
+			else
+				k.pressDur = 0;
+		}
+		for (int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
+		{
+			Key &k = mouseButtons[i];
 			k.pressDown = false;
 			k.liftUp = false;
 			if (k.pressing)
@@ -118,6 +145,23 @@ public:
 			k.liftUp=true;
 		}	
 	}
+	void MouseButtonCallback(GLFWwindow* w, int button, int action, int mods)
+	{
+		Key& k = mouseButtons[button];
+
+		if (action == 1) // event key pressDown
+		{
+			k.pressing=true;
+			k.pressDown=true;
+			k.downDeltaTime = glfwGetTime() - k.downTime;
+			k.downTime = glfwGetTime();
+		}
+		else if (action == 0) // event key liftUp
+		{
+			k.pressing=false;
+			k.liftUp=true;
+		}	
+	}
 	void DropCallback(GLFWwindow* w, int path_count, const char* paths[])
 	{
 		for (int i = 0; i < path_count; i++)
@@ -126,12 +170,16 @@ public:
 			dropPaths.push_back(path);
 		}
 	}
+	void CursorPosCallback(GLFWwindow* w, double xpos, double ypos)
+	{
+		mouseCursor.pos = vec2(xpos, ypos);
+	}
 	void Close()
 	{
 		glfwSetWindowShouldClose(glfw_window, true);
 	}
 };
-Window* GetCurrentContext()
+Window* GetCurrentWindowContext()
 {
     return (Window*)glfwGetWindowUserPointer(glfwGetCurrentContext());
 }
