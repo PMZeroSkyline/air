@@ -11,7 +11,7 @@ public:
 	vector<shared_ptr<Renderable>> renderables;
 	void Load(Actor* root)
 	{
-		InvForEachNode<Actor>(root, [this](Actor* current){
+		RForEachNode<Actor>(root, [this](Actor* current){
 			CameraComponent* cc = current->GetComponent<CameraComponent>();
 			if (cc)
 			{

@@ -47,11 +47,11 @@ public:
 };
 
 template<typename T>
-void InvForEachNode(T* node, function<void(T*)> func)
+void RForEachNode(T* node, function<void(T*)> func)
 {
 	for (int i = 0; i < ((Node*)node)->children.size(); i++)
 	{
-		InvForEachNode((T*)(((Node*)node)->children[i]), func);
+		RForEachNode((T*)(((Node*)node)->children[i]), func);
 	}
 	func(node);
 }
