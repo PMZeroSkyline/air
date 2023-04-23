@@ -284,7 +284,10 @@ public:
                 gltf::AccessResult result = gltf::Access(GLTF, id);
                 if (result.accessor->componentType == GL_UNSIGNED_BYTE)
                 {
-                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, primitive->attribute.JOINTS_0);
+                    vector<u8vec4> u8v;
+                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, u8v);
+                    vector<ivec4> iv(u8v.begin(), u8v.end());
+                    primitive->attribute.JOINTS_0 = move(iv);
                 }
                 else
                 {

@@ -24,12 +24,17 @@ uniform mat4 J[128];
 out V2F
 {
     vec2 uv;
+    vec4 debug;
 } o;
 
 void main()
 {
     o.uv = TEXCOORD_0;
 
+    int target = 0;
+    o.debug = (JOINTS_0[0] != target || JOINTS_0[1] != target || JOINTS_0[2] != target || JOINTS_0[3] != target) ? vec4(1.f) : vec4(0.f);
+    // int maxv = 0;
+    // o.debug = (JOINTS_0.x > maxv || JOINTS_0.y > maxv || JOINTS_0.z > maxv || JOINTS_0.w > maxv) ? vec4(1.f) : vec4(0.f);
     vec4 pos = vec4(POSITION,1.0f);
     
     mat4 S = mat4(1.f);
@@ -43,6 +48,6 @@ void main()
     }
     
 
-    gl_Position = P * V * M * S * pos;
+    gl_Position = P * V * M * J[0] * pos;
 
 }

@@ -93,21 +93,21 @@ int main()
 	Actor* sa = map.AddChild<Actor>();
 	ScenesComponent* sc = sa->AddComponent<ScenesComponent>();
 	sc->Load("idle/idle.gltf");
-	//sc->animationInstances[0].weight = 1.f;
-	//sc->animationInstances[0].time = 1.f;
+	sc->animationInstances[0].weight = 1.f;
+	sc->animationInstances[0].time = 1.f;
 	Actor* ca = map.AddChild<Actor>();
 	ca->localTransform.translation.y = .5;
 	ca->localTransform.translation.z = 3;
 	ca->localTransform.rotation = EulerToQuat(vec3(-0,0,0));
 	ca->AddComponent<CameraComponent>();
-	InvForEachNode<Actor>(sa, [](Actor* curr){
-		Actor* tmp = curr->AddChild<Actor>();
-		tmp->localTransform.scaling = vec3(8.f);
-		MeshComponent* tmp1 = tmp->AddComponent<MeshComponent>();
-		tmp1->mesh = make_shared<Mesh>();
-		shared_ptr<MeshPrimitive> tmp2 = MakeCubePrimitive();
-		tmp1->mesh->primitives.push_back(tmp2);
-	});
+	// InvForEachNode<Actor>(sa, [](Actor* curr){
+	// 	Actor* tmp = curr->AddChild<Actor>();
+	// 	tmp->localTransform.scaling = vec3(8.f);
+	// 	MeshComponent* tmp1 = tmp->AddComponent<MeshComponent>();
+	// 	tmp1->mesh = make_shared<Mesh>();
+	// 	shared_ptr<MeshPrimitive> tmp2 = MakeCubePrimitive();
+	// 	tmp1->mesh->primitives.push_back(tmp2);
+	// });
 	map.ResetWorldMatrix();
 	Renderables renderables;
 	

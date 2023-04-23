@@ -24,14 +24,26 @@ void CDAppleResourcesDir()
 }
 void CDResourcesDir()
 {
-	#ifdef __APPLE__    
-		CDAppleResourcesDir();
-		fs::current_path("../game/res");
-	#endif
-	#ifdef _WIN32
-		fs::current_path("../res");
-	#endif
-}
+	fs::path currentPath = fs::current_path();
+	string currentPathStr = currentPath.string();
+	size_t pos = currentPathStr.find("air");
+	if (pos != string::npos)
+	{
+		string rootDir = currentPathStr.substr(0, pos);
+		fs::current_path(rootDir + "air/game/res");
+	}
+	else
+	{
+		LOG("failed to cd resources dir")
+	}
 
+	// #ifdef __APPLE__    
+	// 	CDAppleResourcesDir();
+	// 	fs::current_path("../game/res");
+	// #endif
+	// #ifdef _WIN32
+		
+	// #endif
+}
 
 #endif
