@@ -8,14 +8,14 @@
 #include "mat4.h"
 
 template<typename T>
-vec3t<T> QuatToEuler(const quatt<T>& q)
+vec3t<T> QuatToEuler(const quatt<T>& q, bool isCastToDegrees = true)
 {
-    return degrees(q.toEuler());
+    return isCastToDegrees ? degrees(q.ToEuler()) : q.ToEuler();
 }
 template<typename T>
-quatt<T> EulerToQuat(const vec3t<T>& e)
+quatt<T> EulerToQuat(const vec3t<T>& e, bool isCastToRadians = true)
 {
-    return quatt<T>(radians(e));
+    return quatt<T>(isCastToRadians ? radians(e) : e);
 }
 
 

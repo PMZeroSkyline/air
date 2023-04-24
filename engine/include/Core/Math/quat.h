@@ -30,7 +30,7 @@ struct quatt
 	T const& operator[](int i) const;
     T length() const;
     quatt<T> normalize() const;
-	vec3t<T> toEuler() const;
+	vec3t<T> ToEuler() const;
 };
 // template<typename T>
 // quatt<T>::quatt(const vec3t<T>& axis, T angle)
@@ -62,7 +62,7 @@ quatt<T>::quatt(const vec3t<T>& euler)
     z = cr * cp * sy - sr * sp * cy;
 }
 template<typename T>
-vec3t<T> quatt<T>::toEuler() const
+vec3t<T> quatt<T>::ToEuler() const
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
 	vec3 angles;

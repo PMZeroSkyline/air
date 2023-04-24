@@ -19,12 +19,12 @@ public:
     {
         cameraArmActor = AddChild<Actor>();
         cameraArmActor->localTransform.translation = vec3(0,1.5,0);
-        cameraArmActor->localTransform.rotation = EulerToQuat(vec3(0,90,0));
+        cameraArmActor->localTransform.rotation = EulerToQuat(vec3(0,-90,0));
         cameraActor = cameraArmActor->AddChild<Actor>();
         cameraActor->localTransform.translation = vec3(0,0,5);
         cameraComponent = cameraActor->AddComponent<CameraComponent>();
         meshActor = AddChild<Actor>();
-        meshActor->localTransform.rotation = EulerToQuat(vec3(0,-90,0));
+        meshActor->localTransform.rotation = EulerToQuat(vec3(0,90,0));
         scenesComponent = meshActor->AddComponent<ScenesComponent>();
         window = GetCurrentWindowContext();
     }
@@ -40,23 +40,21 @@ public:
     {
         Actor::Tick();
 
-        Transform worldTransform = Transform(worldMatrix);
-        worldTransform.rotation = EulerToQuat(vec3(0, window->time*30.f, 0));
-        SetWorldMatrix(worldTransform.ToMatrix());
-
-        // worldTransform = Transform(worldMatrix);
-        // vec3 dir;
+        //cameraArmActor->localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
+        localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
         
-        // if (window->keys[GLFW_KEY_W].pressing)
-        // {
-        //     dir += GetForwardVector();
-        // }
-        // if (window->keys[GLFW_KEY_S].pressing)
-        // {
-        //     dir -= GetForwardVector();
-        // }
-        // worldTransform.translation += dir;
-        // SetWorldMatrix(worldTransform.ToMatrix());
+        vec3 dir;
+        if (window->keys[GLFW_KEY_W].pressing)
+        {
+            dir += GetForwardVector();
+        }
+        if (window->keys[GLFW_KEY_S].pressing)
+        {
+            dir -= GetForwardVector();
+        }
+        localTransform.translation += dir;
+        ResetWorldMatrix(true);
+
     }
 };
 

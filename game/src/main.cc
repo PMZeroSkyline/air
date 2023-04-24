@@ -21,11 +21,6 @@ int main()
 
 	// test beg
 
-	// Transform t1;
-	// t1.rotation = EulerToQuat(vec3(0, 150.f, 0));
-	// Transform t2 = Transform(t1.ToMatrix());
-	// vec3 eul = QuatToEuler(t2.rotation);
-	// LOG(eul)
 
 	// end
 	Map map;

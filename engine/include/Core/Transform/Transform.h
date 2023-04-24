@@ -33,7 +33,7 @@ public:
 ostream &operator<<(ostream &os, const Transform &t)
 {
 	os << "translation\t" << t.translation;
-	os << "rotation\t" << degrees(t.rotation.toEuler());
+	os << "rotation\t" << degrees(t.rotation.ToEuler());
 	os << "scaling\t\t" << t.scaling;
 	return os;
 }
