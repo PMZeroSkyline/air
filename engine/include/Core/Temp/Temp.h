@@ -1,11 +1,5 @@
 
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-#include <glm/gtc/type_ptr.hpp>
-#include <glm/gtc/quaternion.hpp>
-#include <glm/gtx/quaternion.hpp>
-#include <glm/gtx/euler_angles.hpp>
-#include <glm/gtx/matrix_decompose.hpp>
+
 //using namespace glm;
 #include "SDK/STL/STL.h"
 //ostream &operator<<(ostream &os, const vec3 v)
@@ -56,11 +50,7 @@
 //    return EulerToQuat(v.x, v.y, v.z);
 //}
 //
-#include <assimp/Importer.hpp>
-#include <assimp/scene.h>
-#include <assimp/postprocess.h>
+// #include <assimp/Importer.hpp>
+// #include <assimp/scene.h>
+// #include <assimp/postprocess.h>
 
-glm::quat q1 = glm::angleAxis(glm::radians(45.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-glm::quat q2 = glm::angleAxis(glm::radians(90.0f), glm::vec3(0.0f, 1.0f, 0.0f));
-float t = 0.5f;
-glm::quat result = glm::slerp(q1, q2, t);

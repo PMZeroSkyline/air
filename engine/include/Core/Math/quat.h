@@ -11,7 +11,8 @@ struct quatt
 	quatt<T>() : x(0), y(0), z(0), w(1) {}
 	quatt<T>(T i) : x(i), y(i), z(i), w(i) {}
 	quatt<T>(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w) {}
-	quatt<T>(const vec3t<T> euler);
+	//quatt<T>(const vec3t<T>& axis, T angle);
+	quatt<T>(const vec3t<T>& euler);
 	quatt<T> operator+=(const quatt<T>& v);
 	quatt<T> operator-=(const quatt<T>& v);
 	quatt<T> operator*=(const quatt<T>& v);
@@ -31,8 +32,17 @@ struct quatt
     quatt<T> normalize() const;
 	vec3t<T> toEuler() const;
 };
+// template<typename T>
+// quatt<T>::quatt(const vec3t<T>& axis, T angle)
+// {
+// 	float halfAngle = angle * static_cast<T>(0.5);
+// 	x = axis.x * sin(halfAngle);
+// 	y = axis.y * sin(halfAngle);
+// 	z = axis.z * sin(halfAngle);
+// 	w = cos(halfAngle);
+// }
 template<typename T>
-inline quatt<T>::quatt(const vec3t<T> euler)
+quatt<T>::quatt(const vec3t<T>& euler)
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
 	T pitch = euler.y;

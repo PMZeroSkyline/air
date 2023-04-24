@@ -18,9 +18,9 @@ struct Key
 };
 struct CursorPos
 {
-	vec2 pos = vec2(0.f);
-	vec2 lastPos = vec2(0.f);
-	vec2 deltaPos = vec2(0.f);
+	dvec2 pos = dvec2(0);
+	dvec2 lastPos = dvec2(0);
+	dvec2 deltaPos = dvec2(0);
 };
 void SetupOpenGL()
 {

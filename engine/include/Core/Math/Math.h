@@ -18,4 +18,6 @@ quatt<T> EulerToQuat(const vec3t<T>& e)
     return quatt<T>(radians(e));
 }
 
+
+
 #endif

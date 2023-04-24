@@ -127,5 +127,6 @@ using u16vec2 = vec2t<unsigned short>;
 using uvec2 = vec2t<unsigned int>;
 using ivec2 = vec2t<int>;
 using vec2 = vec2t<float>;
+using dvec2 = vec2t<double>;
 
 #endif

@@ -10,17 +10,20 @@ public:
 	bool isDirty = true;
 	mat4 worldMatrix;
 	Transform localTransform;
-	vec4 GetForwardVector() const
+	vec3 GetForwardVector() const
 	{
-		return worldMatrix.column(0);
+		const vec4 c = worldMatrix.column(0);
+		return vec3(c.x, c.y, c.z);
 	}
-	vec4 GetUpVector() const
+	vec3 GetUpVector() const
 	{
-		return worldMatrix.column(1);
+		const vec4 c = worldMatrix.column(1);
+		return vec3(c.x, c.y, c.z);
 	}
-	vec4 GetRightVector() const
+	vec3 GetRightVector() const
 	{
-		return worldMatrix.column(2);
+		const vec4 c = worldMatrix.column(2);
+		return vec3(c.x, c.y, c.z);
 	}
 	void SetWorldMatrix(mat4 m)
 	{

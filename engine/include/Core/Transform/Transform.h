@@ -16,6 +16,7 @@ public:
 		vec3 Skew; vec4 Perspective;
 		m.decompose(scaling, rotation, translation, Skew, Perspective);
 	}
+	
 	bool operator==(const Transform& rhs) const
 	{
 		return ((translation == rhs.translation) && (rotation == rhs.rotation) && (scaling == rhs.scaling));

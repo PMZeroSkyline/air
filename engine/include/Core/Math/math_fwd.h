@@ -4,8 +4,22 @@
 #include "SDK/STL/STL.h"
 #include "Core/Log/Log.h"
 
+// temp
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+#include <glm/gtc/quaternion.hpp>
+#include <glm/gtx/quaternion.hpp>
+#include <glm/gtx/euler_angles.hpp>
+#include <glm/gtx/matrix_decompose.hpp>
+// temp end
+
+#define CP_XYZW(a, b) a.x=b.x; a.y=b.y; a.z=b.z; a.w=b.w;
+#define CP_XYZ(a, b) a.x=b.x; a.y=b.y; a.z=b.z;
+
 #ifndef PI
 #define PI 3.14159265358979323846
+
 #endif
 
 template<typename T>
