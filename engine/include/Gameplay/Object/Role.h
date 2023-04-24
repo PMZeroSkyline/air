@@ -9,6 +9,7 @@
 class Role : public Actor
 {
 public:
+    //https://learnopengl.com/Getting-started/Coordinate-Systems
     Actor* cameraArmActor = nullptr;
     Actor* cameraActor = nullptr;
     CameraComponent* cameraComponent = nullptr;
@@ -39,7 +40,6 @@ public:
     virtual void Tick() override
     {
         Actor::Tick();
-
         //cameraArmActor->localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
         localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
         
@@ -52,9 +52,21 @@ public:
         {
             dir -= GetForwardVector();
         }
+        if (window->keys[GLFW_KEY_D].pressing)
+        {
+            dir += GetRightVector();
+        }
+        if (window->keys[GLFW_KEY_A].pressing)
+        {
+            dir -= GetRightVector();
+        }
+        if (dir.length() > 0.5f)
+        {
+            dir = dir.normalize();
+        }
         localTransform.translation += dir;
-        ResetWorldMatrix(true);
 
+        ResetWorldMatrix(true);
     }
 };
 
