@@ -272,35 +272,42 @@ inline mat4 mat4::translate(const vec3& v) const
 }
 inline mat4 mat4::rotate(const vec3& v, float angle) const
 {
+	glm::mat4 glm_m;
 	mat4 m = transpose();
+	memcpy(&glm_m, &m, sizeof(mat4));
+	glm::vec3 glm_axis;
+	memcpy(&glm_axis, &v, sizeof(vec3));
+	glm_m = glm::rotate(glm_m, angle, glm_axis);
+	memcpy((mat4*)this, &glm_m, sizeof(mat4));
+	// mat4 m = transpose();
 
-	float const a = angle;
-	float const c = cos(a);
-	float const s = sin(a);
+	// float const a = angle;
+	// float const c = cos(a);
+	// float const s = sin(a);
 
-	vec3 axis = v.normalize();
-	vec3 temp = (1.0f - c) * axis;
+	// vec3 axis = v.normalize();
+	// vec3 temp = (1.0f - c) * axis;
 
-	mat4 Rotate;
-	Rotate[0][0] = c + temp[0] * axis[0];
-	Rotate[0][1] = temp[0] * axis[1] + s * axis[2];
-	Rotate[0][2] = temp[0] * axis[2] - s * axis[1];
+	// mat4 Rotate;
+	// Rotate[0][0] = c + temp[0] * axis[0];
+	// Rotate[0][1] = temp[0] * axis[1] + s * axis[2];
+	// Rotate[0][2] = temp[0] * axis[2] - s * axis[1];
 
-	Rotate[1][0] = temp[1] * axis[0] - s * axis[2];
-	Rotate[1][1] = c + temp[1] * axis[1];
-	Rotate[1][2] = temp[1] * axis[2] + s * axis[0];
+	// Rotate[1][0] = temp[1] * axis[0] - s * axis[2];
+	// Rotate[1][1] = c + temp[1] * axis[1];
+	// Rotate[1][2] = temp[1] * axis[2] + s * axis[0];
 
-	Rotate[2][0] = temp[2] * axis[0] + s * axis[1];
-	Rotate[2][1] = temp[2] * axis[1] - s * axis[0];
-	Rotate[2][2] = c + temp[2] * axis[2];
+	// Rotate[2][0] = temp[2] * axis[0] + s * axis[1];
+	// Rotate[2][1] = temp[2] * axis[1] - s * axis[0];
+	// Rotate[2][2] = c + temp[2] * axis[2];
 
-	mat4 Result;
-	Result[0] = m[0] * Rotate[0][0] + m[1] * Rotate[0][1] + m[2] * Rotate[0][2];
-	Result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
-	Result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
-	Result[3] = m[3];
+	// mat4 Result;
+	// Result[0] = m[0] * Rotate[0][0] + m[1] * Rotate[0][1] + m[2] * Rotate[0][2];
+	// Result[1] = m[0] * Rotate[1][0] + m[1] * Rotate[1][1] + m[2] * Rotate[1][2];
+	// Result[2] = m[0] * Rotate[2][0] + m[1] * Rotate[2][1] + m[2] * Rotate[2][2];
+	// Result[3] = m[3];
 
-	return Result.transpose();	
+	// return Result.transpose();	
 }
 inline mat4 mat4::scale(const vec3& v) const
 {
@@ -509,5 +516,61 @@ mat4 PerspectiveProjection(float yfov, float aspect, float znear, float zfar)
 		{0, 0, -1, 0}
 	};
 	return result;
+}
+mat4 TranslationMatrix(const vec3& translation)
+{
+	mat4 m = {
+		{1, 0, 0, translation.x},
+		{0, 1, 0, translation.y},
+		{0, 0, 1, translation.z},
+		{0, 0, 0, 1},
+	};
+	return m;
+}
+mat4 RotateXMatrix(float radianceAngle)
+{
+	float cosA = cos(radianceAngle);
+	float sinA = sin(radianceAngle);
+	mat4 m = {
+		{1, 0, 0, 0},
+		{0, cosA, -sinA, 0},
+		{0, sinA, cosA, 0},
+		{0, 0, 0, 1}
+	};
+	return m;
+}
+mat4 RotateYMatrix(float radianceAngle)
+{
+	float cosA = cos(radianceAngle);
+	float sinA = sin(radianceAngle);
+	mat4 m = {
+		{cosA, 0, sinA, 0},
+		{0, 1, 0, 0},
+		{-sinA, 0, cosA, 0},
+		{0, 0, 0, 1}
+	};
+	return m;
+}
+mat4 RotateZMatrix(float radianceAngle)
+{
+	float cosA = cos(radianceAngle);
+	float sinA = sin(radianceAngle);
+	mat4 m = {
+		{cosA, -sinA, 0, 0},
+		{sinA, cosA, 0, 0},
+		{0, 0, 1, 0},
+		{0, 0, 0, 1}
+	};
+	return m;
+}
+mat4 ScaleMatrix(const vec3& scale)
+{
+	mat4 m = {
+		{scale.x, 0, 0, 0},
+		{0, scale.y, 0, 0},
+		{0, 0, scale.z, 0},
+		{0, 0, 0, 1},
+	};
+	return m;
 }
 #endif

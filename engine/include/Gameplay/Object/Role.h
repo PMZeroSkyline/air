@@ -41,7 +41,8 @@ public:
     {
         Actor::Tick();
         //cameraArmActor->localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
-        localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
+        //localTransform.rotation = EulerToQuat(vec3(0,30, window->time));
+        ResetWorldMatrix(true);
         
         vec3 dir;
         if (window->keys[GLFW_KEY_W].pressing)
