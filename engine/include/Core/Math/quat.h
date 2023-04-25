@@ -41,45 +41,114 @@ struct quatt
 // 	z = axis.z * sin(halfAngle);
 // 	w = cos(halfAngle);
 // }
+#define WIKI_CONVERSION
+#ifdef WIKI_CONVERSION
+// Euler angles (in 3-2-1 sequence) to quaternion conversion
 template<typename T>
-quatt<T>::quatt(const vec3t<T>& euler)
+quatt<T>::quatt(const vec3t<T>& in_euler)
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
-	T pitch = euler.y;
-	T yaw = euler.z;
-	T roll = euler.x;
+	dvec3 euler = radians(in_euler);
+	double pitch = euler.y;
+	double yaw = euler.z;
+	double roll = euler.x;
 
-    T cr = cos(roll * 0.5);
-    T sr = sin(roll * 0.5);
-    T cp = cos(pitch * 0.5);
-    T sp = sin(pitch * 0.5);
-    T cy = cos(yaw * 0.5);
-    T sy = sin(yaw * 0.5);
+    double cr = cos(roll * 0.5);
+    double sr = sin(roll * 0.5);
+    double cp = cos(pitch * 0.5);
+    double sp = sin(pitch * 0.5);
+    double cy = cos(yaw * 0.5);
+    double sy = sin(yaw * 0.5);
 
     w = cr * cp * cy + sr * sp * sy;
     x = sr * cp * cy - cr * sp * sy;
     y = cr * sp * cy + sr * cp * sy;
     z = cr * cp * sy - sr * sp * cy;
 }
+// this implementation assumes normalized quaternion
+// converts to Euler angles in 3-2-1 sequence
 template<typename T>
 vec3t<T> quatt<T>::ToEuler() const
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
-	vec3 angles;
+	dvec3 angles;
 	// roll (x-axis rotation)
-	float sinr_cosp = 2 * (w * x + y * z);
-	float cosr_cosp = 1 - 2 * (x * x + y * y);
-	angles.x = std::atan2(sinr_cosp, cosr_cosp);
+	double sinr_cosp = 2 * (w * x + y * z);
+	double cosr_cosp = 1 - 2 * (x * x + y * y);
+	angles.x = atan2(sinr_cosp, cosr_cosp);
 	// pitch (y-axis rotation)
-	float sinp = std::sqrt(1 + 2 * (w * y - x * z));
-	float cosp = std::sqrt(1 - 2 * (w * y - x * z));
-	angles.y = 2 * std::atan2(sinp, cosp) - PI / 2;
+	double sinp = sqrt(1 + 2 * (w * y - x * z));
+	double cosp = sqrt(1 - 2 * (w * y - x * z));
+	angles.y = 2 * atan2(sinp, cosp) - PI / 2;
 	// yaw (z-axis rotation)
-	float siny_cosp = 2 * (w * z + x * y);
-	float cosy_cosp = 1 - 2 * (y * y + z * z);
-	angles.z = std::atan2(siny_cosp, cosy_cosp);
-	return angles;
+	double siny_cosp = 2 * (w * z + x * y);
+	double cosy_cosp = 1 - 2 * (y * y + z * z);
+	angles.z = atan2(siny_cosp, cosy_cosp);
+	return degrees(angles);
 }
+#else
+template<typename T>
+quatt<T>::quatt(const vec3t<T>& euler)
+{
+	// Unreal Math
+	const double Pitch = euler.y;
+	const double Yaw = euler.z;
+	const double Roll = euler.x;
+
+	const double DEG_TO_RAD = PI/(180.0);
+	const double RADS_DIVIDED_BY_2 = DEG_TO_RAD/2.0;
+	double SP, SY, SR;
+	double CP, CY, CR;
+
+	const double PitchNoWinding = mod(Pitch, 360.0);
+	const double YawNoWinding = mod(Yaw, 360.0);
+	const double RollNoWinding = mod(Roll, 360.0);
+
+	sincos(PitchNoWinding * RADS_DIVIDED_BY_2, SP, CP);
+	sincos(YawNoWinding * RADS_DIVIDED_BY_2, SY, CY);
+	sincos(RollNoWinding * RADS_DIVIDED_BY_2, SR, CR);
+
+	x =  CR*SP*SY - SR*CP*CY;
+	y = -CR*SP*CY - SR*CP*SY;
+	z =  CR*CP*SY - SR*SP*CY;
+	w =  CR*CP*CY + SR*SP*SY;
+}
+// this implementation assumes normalized quaternion
+// converts to Euler angles in 3-2-1 sequence
+template<typename T>
+vec3t<T> quatt<T>::ToEuler() const
+{
+	// Unreal Math
+	const double SingularityTest = z * x - w * y;
+	const double YawY = 2.0f * (w * z + x * y);
+	const double YawX = (1.0f - 2.0f * (y*y + z*z));
+
+	const double SINGULARITY_THRESHOLD = 0.4999995;
+	const double RAD_TO_DEG = (180.0 / PI);
+	double Pitch, Yaw, Roll;
+
+	if (SingularityTest < -SINGULARITY_THRESHOLD)
+	{
+		Pitch = -90.0;
+		Yaw = (atan2(YawY, YawX) * RAD_TO_DEG);
+		Roll = NormalizeAxis(-Yaw - (2.0 * atan2(x, w) * RAD_TO_DEG));
+	}
+	else if (SingularityTest > SINGULARITY_THRESHOLD)
+	{
+		Pitch = 90.0;
+		Yaw = (atan2(YawY, YawX) * RAD_TO_DEG);
+		Roll = NormalizeAxis(Yaw - (2.0 * atan2(x, w) * RAD_TO_DEG));
+	}
+	else
+	{
+		Pitch = (asin(2.0 * SingularityTest) * RAD_TO_DEG); // Note: not FastAsin like float implementation
+		Yaw = (atan2(YawY, YawX) * RAD_TO_DEG);
+		Roll = (atan2(-2.0 * (w * x + y * z), (1.0 - 2.0 * (x*x + y*y))) * RAD_TO_DEG);
+	}
+
+	return vec3t<T>(Roll, Pitch, Yaw);
+}
+#endif
 template<typename T>
 inline quatt<T> quatt<T>::operator+(const quatt<T>& v) const
 {

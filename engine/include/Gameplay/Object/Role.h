@@ -19,13 +19,13 @@ public:
     Role()
     {
         cameraArmActor = AddChild<Actor>();
-        cameraArmActor->localTransform.translation = vec3(0,1.5,0);
-        cameraArmActor->localTransform.rotation = EulerToQuat(vec3(0,-90,0));
+        cameraArmActor->localTransform.translation = vec3(0,0,1.5);
+        cameraArmActor->localTransform.rotation = EulerToQuat(vec3(0,0,-90));
         cameraActor = cameraArmActor->AddChild<Actor>();
-        cameraActor->localTransform.translation = vec3(0,0,5);
+        cameraActor->localTransform.translation = vec3(0,5,0);
         cameraComponent = cameraActor->AddComponent<CameraComponent>();
         meshActor = AddChild<Actor>();
-        meshActor->localTransform.rotation = EulerToQuat(vec3(0,90,0));
+        meshActor->localTransform.rotation = EulerToQuat(vec3(0,0,90));
         scenesComponent = meshActor->AddComponent<ScenesComponent>();
         window = GetCurrentWindowContext();
     }
@@ -40,8 +40,11 @@ public:
     virtual void Tick() override
     {
         Actor::Tick();
-        //cameraArmActor->localTransform.rotation *= EulerToQuat(vec3(0, -window->mouseCursor.deltaPos.x*window->deltaTime, 0), false);
-        //localTransform.rotation = EulerToQuat(vec3(0,30, window->time));
+        vec3 eul = QuatToEuler(cameraArmActor->localTransform.rotation);
+        eul.y += window->deltaTime*30.f;
+        LOG(eul.y)
+        cameraArmActor->localTransform.rotation = EulerToQuat(10.f, 0.f, eul.y);
+
         ResetWorldMatrix(true);
         
         vec3 dir;

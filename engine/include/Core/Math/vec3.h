@@ -15,10 +15,12 @@ struct vec3t
 	vec3t<T>(const vec3t<unsigned int> &v) : x(v.x), y(v.y), z(v.z) {}
 	vec3t<T>(const vec3t<int> &v) : x(v.x), y(v.y), z(v.z) {}
 	vec3t<T>(const vec3t<float> &v) : x(v.x), y(v.y), z(v.z) {}
+	vec3t<T>(const vec3t<double> &v) : x(v.x), y(v.y), z(v.z) {}
 	vec3t<T> operator+=(const vec3t<T>& v);
 	vec3t<T> operator-=(const vec3t<T>& v);
 	vec3t<T> operator*=(const vec3t<T>& v);
 	vec3t<T> operator/=(const vec3t<T>& v);
+	vec3t<T> operator%=(T v);
 	vec3t<T> operator+(const vec3t<T>& v) const;
 	vec3t<T> operator-(const vec3t<T>& v) const;
 	vec3t<T> operator*(const vec3t<T>& v) const;
@@ -26,6 +28,7 @@ struct vec3t
 	vec3t<T> operator/(const vec3t<T>& v) const;
 	vec3t<T> operator/(T) const;
 	vec3t<T> operator-() const;
+	vec3t<T> operator%(T v) const;
 	bool operator==(const vec3t<T>& v) const;
 	bool operator!=(const vec3t<T>& v) const;
 	T& operator[](int i);
@@ -88,9 +91,22 @@ inline vec3t<T> vec3t<T>::operator/=(const vec3t<T>& v)
 	return *this;
 }
 template<typename T>
+inline vec3t<T> vec3t<T>::operator%=(T v)
+{
+	x = mod(x, v);
+	y = mod(y, v);
+	z = mod(z, v);
+	return *this;
+}
+template<typename T>
 inline vec3t<T> vec3t<T>::operator-() const
 {
 	return vec3t<T>(-x,-y,-z);
+}
+template<typename T>
+inline vec3t<T> vec3t<T>::operator%(T v) const
+{
+	return vec3t<T>(mod(x, v), mod(y, v), mod(z, v));
 }
 template<typename T>
 inline bool vec3t<T>::operator==(const vec3t<T>& v) const
@@ -151,11 +167,27 @@ inline vec3t<T> lerp(const vec3t<T>& x, const vec3t<T>& y, T a)
 {
 	return x * (static_cast<T>(1) - a) + y * a;
 }
+template<typename T>
+T NormalizeAxis(T angle)
+{
+	double a = mod((double)angle, 360.0);
+	return a > 180.0 ? a - 360.0 : a;
+}
+template<typename T>
+vec3t<T> NormalizeEulerAngle(const vec3t<T>& e)
+{
+	return vec3t<T>(
+		NormalizeAxis(e.x),
+		NormalizeAxis(e.y),
+		NormalizeAxis(e.z)
+	);
+}
 
 using u8vec3 = vec3t<unsigned char>;
 using u16vec3 = vec3t<unsigned short>;
 using uvec3 = vec3t<unsigned int>;
 using ivec3 = vec3t<int>;
 using vec3 = vec3t<float>;
+using dvec3 = vec3t<double>;
 
 #endif

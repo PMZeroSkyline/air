@@ -278,7 +278,8 @@ inline mat4 mat4::rotate(const vec3& v, float angle) const
 	glm::vec3 glm_axis;
 	memcpy(&glm_axis, &v, sizeof(vec3));
 	glm_m = glm::rotate(glm_m, angle, glm_axis);
-	memcpy((mat4*)this, &glm_m, sizeof(mat4));
+	memcpy(&m, &glm_m, sizeof(mat4));
+	return m.transpose();
 	// mat4 m = transpose();
 
 	// float const a = angle;
@@ -517,7 +518,7 @@ mat4 PerspectiveProjection(float yfov, float aspect, float znear, float zfar)
 	};
 	return result;
 }
-mat4 TranslationMatrix(const vec3& translation)
+mat4 TranslationProjection(const vec3& translation)
 {
 	mat4 m = {
 		{1, 0, 0, translation.x},
@@ -527,7 +528,7 @@ mat4 TranslationMatrix(const vec3& translation)
 	};
 	return m;
 }
-mat4 RotateXMatrix(float radianceAngle)
+mat4 RotationXProjection(float radianceAngle)
 {
 	float cosA = cos(radianceAngle);
 	float sinA = sin(radianceAngle);
@@ -539,7 +540,7 @@ mat4 RotateXMatrix(float radianceAngle)
 	};
 	return m;
 }
-mat4 RotateYMatrix(float radianceAngle)
+mat4 RotationYProjection(float radianceAngle)
 {
 	float cosA = cos(radianceAngle);
 	float sinA = sin(radianceAngle);
@@ -551,7 +552,7 @@ mat4 RotateYMatrix(float radianceAngle)
 	};
 	return m;
 }
-mat4 RotateZMatrix(float radianceAngle)
+mat4 RotationZProjection(float radianceAngle)
 {
 	float cosA = cos(radianceAngle);
 	float sinA = sin(radianceAngle);
@@ -563,14 +564,24 @@ mat4 RotateZMatrix(float radianceAngle)
 	};
 	return m;
 }
-mat4 ScaleMatrix(const vec3& scale)
+mat4 ScaleProjection(const vec3& scale)
 {
 	mat4 m = {
 		{scale.x, 0, 0, 0},
 		{0, scale.y, 0, 0},
 		{0, 0, scale.z, 0},
-		{0, 0, 0, 1},
+		{0, 0, 0, 1}
 	};
 	return m;
 }
+// mat4 CoordinateProjection()
+// {
+// 	mat4 m = {
+// 		{1, 0, 0, 0},
+// 		{0, 0, 1, 0},
+// 		{0,-1, 0, 0},
+// 		{0, 0, 0, 1}
+// 	};
+// 	return m;
+// }
 #endif

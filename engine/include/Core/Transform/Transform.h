@@ -27,15 +27,7 @@ public:
 	}
 	mat4 ToMatrix()
 	{
-		vec3 euler = rotation.ToEuler();
-		mat4 Rx = mat4().rotate(vec3(1,0,0), euler.x);
-		mat4 Ry = mat4().rotate(vec3(0,1,0), euler.z);
-		mat4 Rz = mat4().rotate(vec3(0,0,1), euler.y);
-		mat4 R = Ry * Rx * Rz;
-		mat4 T = TranslationMatrix(translation);
-		mat4 S = ScaleMatrix(scaling);
-		return T * R * S;
-		//return TranslationMatrix(translation) * mat4(rotation) * ScaleMatrix(scaling);
+		return mat4().translate(translation) * mat4(rotation) * mat4().scale(scaling);
 	}
 };
 ostream &operator<<(ostream &os, const Transform &t)

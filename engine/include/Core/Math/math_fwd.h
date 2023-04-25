@@ -19,7 +19,6 @@
 
 #ifndef PI
 #define PI 3.14159265358979323846
-
 #endif
 
 template<typename T>
@@ -30,12 +29,12 @@ inline T lerp(T a, T b, T w)
 template<typename T>
 T radians(T degrees)
 {
-	return ((degrees * PI ) / 180.);
+	return ((degrees * PI ) / 180.0);
 }
 template<typename T>
 T degrees(T radians)
 {
-	return (( radians * 180. ) / PI);
+	return (( radians * 180.0 ) / PI);
 }
 template<typename T>
 T mod(T x, T y)
@@ -43,6 +42,12 @@ T mod(T x, T y)
 	T o = fmod(x, y);
 	o = o < 0 ? o + y : o;
 	return o;
+}
+template<typename T>
+void sincos(T v, T& s, T& c)
+{
+	s = sin(v);
+	c = cos(v);
 }
 template<typename T>
 int sgn(T val) 

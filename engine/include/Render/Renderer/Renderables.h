@@ -42,7 +42,7 @@ public:
 		}
 		else
 		{
-			V = mat4().translate(vec3(0,0,-5));
+			V = mat4().translate(vec3(0,0,0));
 			P = Camera().perspective.GetPerspectiveMatrix();
 		}
 		for (int i = 0; i < renderables.size(); i++)
