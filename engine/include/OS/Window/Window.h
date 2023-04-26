@@ -18,9 +18,9 @@ struct Key
 };
 struct CursorPos
 {
-	dvec2 pos = dvec2(0);
-	dvec2 lastPos = dvec2(0);
-	dvec2 deltaPos = dvec2(0);
+	vec2 pos = vec2(0.f);
+	vec2 lastPos = vec2(0.f);
+	vec2 deltaPos = vec2(0.f);
 };
 void SetupOpenGL()
 {
@@ -35,8 +35,8 @@ class Window
 public:
 	GLFWwindow* glfw_window;
 	float time = 0, deltaTime = 0;
-	Key keys[GLFW_KEY_LAST];
-	Key mouseButtons[GLFW_MOUSE_BUTTON_LAST];
+	vector<Key> keys;
+	vector<Key> mouseButtons;
 	CursorPos mouseCursor;
 	vector<string> dropPaths;
 
@@ -67,6 +67,9 @@ public:
 		glfwSetWindowUserPointer(glfw_window, this);
 		SetupOpenGL();
         
+		// macos vscode debug has bug : use vector reserve or const size array mad by out of memory !
+		keys.resize(GLFW_KEY_LAST);
+		mouseButtons.resize(GLFW_MOUSE_BUTTON_LAST);
 		glfwSetFramebufferSizeCallback(glfw_window, [](GLFWwindow *w, int width, int height){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->FramebufferSizeCallback(w, width, height);
 		});

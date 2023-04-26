@@ -42,8 +42,8 @@ public:
         Actor::Tick();
         vec3 eul = QuatToEuler(cameraArmActor->localTransform.rotation);
         eul.y += window->deltaTime*30.f;
-        LOG(eul.y)
-        cameraArmActor->localTransform.rotation = EulerToQuat(10.f, 0.f, eul.y);
+        //LOG(eul.y)
+        //cameraArmActor->localTransform.rotation = EulerToQuat(10.f, 0.f, eul.y);
 
         ResetWorldMatrix(true);
         

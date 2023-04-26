@@ -48,17 +48,17 @@ template<typename T>
 quatt<T>::quatt(const vec3t<T>& in_euler)
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
-	dvec3 euler = radians(in_euler);
-	double pitch = euler.y;
-	double yaw = euler.z;
-	double roll = euler.x;
+	vec3t<T> euler = radians(in_euler);
+	T pitch = euler.y;
+	T yaw = euler.z;
+	T roll = euler.x;
 
-    double cr = cos(roll * 0.5);
-    double sr = sin(roll * 0.5);
-    double cp = cos(pitch * 0.5);
-    double sp = sin(pitch * 0.5);
-    double cy = cos(yaw * 0.5);
-    double sy = sin(yaw * 0.5);
+    T cr = cos(roll * 0.5);
+    T sr = sin(roll * 0.5);
+    T cp = cos(pitch * 0.5);
+    T sp = sin(pitch * 0.5);
+    T cy = cos(yaw * 0.5);
+    T sy = sin(yaw * 0.5);
 
     w = cr * cp * cy + sr * sp * sy;
     x = sr * cp * cy - cr * sp * sy;
@@ -71,18 +71,18 @@ template<typename T>
 vec3t<T> quatt<T>::ToEuler() const
 {
 	// https://en.wikipedia.org/wiki/Conversion_between_quats_and_Euler_angles
-	dvec3 angles;
+	vec3t<T> angles;
 	// roll (x-axis rotation)
-	double sinr_cosp = 2 * (w * x + y * z);
-	double cosr_cosp = 1 - 2 * (x * x + y * y);
+	T sinr_cosp = 2 * (w * x + y * z);
+	T cosr_cosp = 1 - 2 * (x * x + y * y);
 	angles.x = atan2(sinr_cosp, cosr_cosp);
 	// pitch (y-axis rotation)
-	double sinp = sqrt(1 + 2 * (w * y - x * z));
-	double cosp = sqrt(1 - 2 * (w * y - x * z));
+	T sinp = sqrt(1 + 2 * (w * y - x * z));
+	T cosp = sqrt(1 - 2 * (w * y - x * z));
 	angles.y = 2 * atan2(sinp, cosp) - PI / 2;
 	// yaw (z-axis rotation)
-	double siny_cosp = 2 * (w * z + x * y);
-	double cosy_cosp = 1 - 2 * (y * y + z * z);
+	T siny_cosp = 2 * (w * z + x * y);
+	T cosy_cosp = 1 - 2 * (y * y + z * z);
 	angles.z = atan2(siny_cosp, cosy_cosp);
 	return degrees(angles);
 }

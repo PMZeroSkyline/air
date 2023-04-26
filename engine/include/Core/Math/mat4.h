@@ -483,8 +483,9 @@ inline mat4 mat4::scale(const vec3& v) const
 // }
 inline bool mat4::decompose(vec3& Scale, quat& Orientation, vec3& Translation, vec3& Skew, vec4& Perspective) const
 {
+	mat4 M = transpose();
 	glm::mat4 glm_M;
-	memcpy(&glm_M, this, sizeof(mat4));
+	memcpy(&glm_M, &M, sizeof(mat4));
 	glm::vec3 glm_pos, glm_scal, glm_skew;	glm::vec4 glm_per;	glm::quat glm_rot;
 	bool result = glm::decompose(glm_M, glm_scal, glm_rot, glm_pos, glm_skew, glm_per);
 	memcpy(&Scale, &glm_scal, sizeof(vec3));
