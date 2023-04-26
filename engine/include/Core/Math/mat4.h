@@ -513,7 +513,7 @@ mat4 PerspectiveProjection(float yfov, float aspect, float znear, float zfar)
 
 	mat4 result = {
 		{1/(a*tan(.5f*y)), 0, 0, 0},
-		{0,-1/tan(.5f*y), 0, 0},
+		{0,1/tan(.5f*y), 0, 0},
 		{0, 0, -(f+n)/(n-f), -(2.f*f*n)/(n-f)},
 		{0, 0, -1, 0}
 	};
@@ -579,8 +579,8 @@ mat4 RightHandUpZToUpYProjection()
 {
 	mat4 m = {
 		{1, 0, 0, 0},
-		{0, 0,-1, 0},
-		{0, 1, 0, 0},
+		{0, 0, 1, 0},
+		{0,-1, 0, 0},
 		{0, 0, 0, 1}
 	};
 	return m;

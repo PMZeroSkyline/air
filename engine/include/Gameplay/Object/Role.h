@@ -10,47 +10,49 @@ class Role : public Actor
 {
 public:
     //https://learnopengl.com/Getting-started/Coordinate-Systems
-    CameraComponent* cameraComponent = nullptr;
-    Window* window;
+    Actor* camArm = AddChild<Actor>();
+    Actor* cam = camArm->AddChild<Actor>();
+    CameraComponent* camComp = cam->AddComponent<CameraComponent>();
+    Window* win = GetCurrentWindowContext();
     Role()
     {
-        cameraComponent = AddComponent<CameraComponent>();
+        cam->localTransform.translation = vec3(0.f, 0.f, 0.f);
+        camArm->localTransform.translation = vec3(0.f, 0.f, 0.f);
+        camArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
     }
     void Load(const string& path)
     {
-        //scenesComponent->Load(path);
     }
     virtual void Start() override
     {
         Actor::Start();
-        window = GetCurrentWindowContext();
     }
     virtual void Tick() override
     {
         Actor::Tick();
         
         vec3 dir;
-        if (window->keys[GLFW_KEY_W].pressing)
+        if (win->keys[GLFW_KEY_W].pressing)
         {
             dir += GetForwardVector();
         }
-        if (window->keys[GLFW_KEY_S].pressing)
+        if (win->keys[GLFW_KEY_S].pressing)
         {
             dir -= GetForwardVector();
         }
-        if (window->keys[GLFW_KEY_D].pressing)
+        if (win->keys[GLFW_KEY_D].pressing)
         {
             dir += GetRightVector();
         }
-        if (window->keys[GLFW_KEY_A].pressing)
+        if (win->keys[GLFW_KEY_A].pressing)
         {
             dir -= GetRightVector();
         }
-        if (window->keys[GLFW_KEY_E].pressing)
+        if (win->keys[GLFW_KEY_E].pressing)
         {
             dir += GetUpVector();
         }
-        if (window->keys[GLFW_KEY_Q].pressing)
+        if (win->keys[GLFW_KEY_Q].pressing)
         {
             dir -= GetUpVector();
         }
