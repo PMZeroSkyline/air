@@ -28,7 +28,6 @@ public:
             scenesBlob.Set(path, scenes);
         }
         FieldExpand();
-        ((Actor*)owner)->ResetWorldMatrix(true);
     }
 
     void NodeExpand(SceneNode* sceneNode, Actor* node)

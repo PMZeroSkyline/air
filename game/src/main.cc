@@ -40,11 +40,17 @@ int main()
 	// CameraComponent* c1 = a2->AddComponent<CameraComponent>();
 
 	Role* roleActor = map.AddChild<Role>();
-	// roleActor->Load("idle/idle.gltf");
 
-	Actor* planeActor = map.AddChild<Actor>();
-	ScenesComponent* planeScenesComponent = planeActor->AddComponent<ScenesComponent>();
-	planeScenesComponent->Load("bar_zup/bar.gltf");
+	Actor* a1 = map.AddChild<Actor>();
+	ScenesComponent* s1 = a1->AddComponent<ScenesComponent>();
+	s1->Load("bar_zup/bar.gltf");
+
+	Actor* a2 = map.AddChild<Actor>();
+	a2->localTransform.scaling *= 10.f;
+	ScenesComponent* s2 = a2->AddComponent<ScenesComponent>();
+	s2->Load("idle_zup/idle.gltf");
+	s2->animationInstances[0].weight = 1.f;
+	s2->animationInstances[0].time = 1.f;
 
 	Renderables renderables;
 	map.Start();
@@ -53,6 +59,8 @@ int main()
 		window.Tick();
 		GLClear();
 		map.Tick();
+	map.ResetWorldMatrix(true);
+
 		renderables.Load(&map);
 		renderables.Render();
 		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
