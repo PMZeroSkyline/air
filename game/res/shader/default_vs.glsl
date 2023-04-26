@@ -19,6 +19,7 @@ uniform mat4 J[128];
 out V2F
 {
     vec2 uv;
+    vec4 worldPos;
 } o;
 
 void main()
@@ -34,6 +35,10 @@ void main()
         WEIGHTS_0[2] * J[int(JOINTS_0[2])] + 
         WEIGHTS_0[3] * J[int(JOINTS_0[3])];
     }
-    gl_Position = P * V * M * S * pos;
+    vec4 worldPos = M * S * pos;;
+
+    o.worldPos = worldPos;
+
+    gl_Position = P * V * worldPos;
 
 }

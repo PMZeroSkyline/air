@@ -59,4 +59,5 @@ T epsilon()
 {
 	return numeric_limits<T>::epsilon();
 }
+
 #endif

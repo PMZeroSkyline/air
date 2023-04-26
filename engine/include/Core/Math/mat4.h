@@ -510,11 +510,11 @@ mat4 OrthographicProjection(float xmag, float ymag, float znear, float zfar)
 mat4 PerspectiveProjection(float yfov, float aspect, float znear, float zfar)
 {
 	float a = aspect, y = yfov, n = znear, f = zfar;
-	
+
 	mat4 result = {
 		{1/(a*tan(.5f*y)), 0, 0, 0},
-		{0, 1/tan(.5f*y), 0, 0},
-		{0, 0, -(f+n)/(n-f), -(2*f*n)/(n-f)},
+		{0,-1/tan(.5f*y), 0, 0},
+		{0, 0, -(f+n)/(n-f), -(2.f*f*n)/(n-f)},
 		{0, 0, -1, 0}
 	};
 	return result;
@@ -575,14 +575,14 @@ mat4 ScaleProjection(const vec3& scale)
 	};
 	return m;
 }
-// mat4 CoordinateProjection()
-// {
-// 	mat4 m = {
-// 		{1, 0, 0, 0},
-// 		{0, 0, 1, 0},
-// 		{0,-1, 0, 0},
-// 		{0, 0, 0, 1}
-// 	};
-// 	return m;
-// }
+mat4 RightHandUpZToUpYProjection()
+{
+	mat4 m = {
+		{1, 0, 0, 0},
+		{0, 0,-1, 0},
+		{0, 1, 0, 0},
+		{0, 0, 0, 1}
+	};
+	return m;
+}
 #endif

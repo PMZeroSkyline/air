@@ -37,7 +37,7 @@ public:
 		mat4 V, P;
 		if (cameraComponent)
 		{
-			V = ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
+			V = RightHandUpZToUpYProjection() * ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
 			P = cameraComponent->camera.perspective.GetPerspectiveMatrix();
 		}
 		else
