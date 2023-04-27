@@ -575,7 +575,7 @@ mat4 ScaleProjection(const vec3& scale)
 	};
 	return m;
 }
-mat4 RightHandUpZToUpYProjection()
+mat4 RightHandZUpToYUpProjection()
 {
 	mat4 m = {
 		{1, 0, 0, 0},

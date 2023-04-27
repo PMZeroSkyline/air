@@ -14,7 +14,7 @@ public:
 		renderables.clear();
 		RForEachNode<Actor>(root, [this](Actor* current){
 			CameraComponent* cc = current->GetComponent<CameraComponent>();
-			if (cc)
+			if (!cameraComponent && cc)
 			{
 				cameraComponent = cc;
 			}
@@ -38,12 +38,12 @@ public:
 		mat4 V, P;
 		if (cameraComponent)
 		{
-			V = RightHandUpZToUpYProjection() * ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
+			V = RightHandZUpToYUpProjection() * ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
 			P = cameraComponent->camera.perspective.GetPerspectiveMatrix();
 		}
 		else
 		{
-			V = mat4().translate(vec3(0,0,0));
+			V = RightHandZUpToYUpProjection();
 			P = Camera().perspective.GetPerspectiveMatrix();
 		}
 		for (int i = 0; i < renderables.size(); i++)
@@ -66,6 +66,4 @@ public:
 		}
 	}
 };
-
-
 #endif
