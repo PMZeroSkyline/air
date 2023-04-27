@@ -26,6 +26,7 @@ int main()
 	s1->Load("bar_zup/bar.gltf");
 	// s1->animationInstances[0].weight = 1.f;
 	// s1->animationInstances[0].time = 1.f;							
+	GLLineMode();
 	Renderables renderables;
 	map.Start();
 	map.ResetWorldMatrix(true);
@@ -33,6 +34,7 @@ int main()
 	{
 		window.Tick();
 		GLClear();
+		
 		map.Tick();
 		renderables.Load(&map);
 		renderables.Render();

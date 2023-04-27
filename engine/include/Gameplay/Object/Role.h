@@ -69,10 +69,15 @@ public:
         {
             dir.z = 0;
             dir = dir.normalize();
+            localTransform.translation += dir;
+            ResetWorldMatrix(true);
+            
+            Transform tMesh = aMesh->worldMatrix;
+            float theta = atan2(dir.y, dir.x);
+            tMesh.rotation = EulerToQuat(0.f, 0.f, degrees(theta)+90.f);
+            aMesh->SetWorldMatrix(tMesh.ToMatrix());
         }
-        localTransform.translation += dir;
-
-        ResetWorldMatrix(true);
+        
     }
 };
 

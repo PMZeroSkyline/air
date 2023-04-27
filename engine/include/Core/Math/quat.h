@@ -291,6 +291,7 @@ quatt<T> slerp(const quatt<T>& x, const quatt<T>& y, T a)
 	}
 }
 
+
 using quat = quatt<float>;
 
 #endif

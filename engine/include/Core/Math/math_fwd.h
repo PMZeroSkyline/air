@@ -59,5 +59,24 @@ T epsilon()
 {
 	return numeric_limits<T>::epsilon();
 }
+float FInterp(float Current, float Target, float DeltaTime, float InterpSpeed)
+{
+    if (Current == Target || DeltaTime <= 0.f || InterpSpeed <= 0.f)
+    {
+        return Current;
+    }
+    
+    const float Distance = Target - Current;
+
+	if(sqrt(Distance) < 0.00001f)
+    {
+        return Target;
+    }
+
+    const float DeltaMove = Distance * min(1.f, DeltaTime * InterpSpeed);
+
+    return Current + DeltaMove;
+}
+
 
 #endif
