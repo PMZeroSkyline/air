@@ -10,19 +10,20 @@ class Role : public Actor
 {
 public:
     //https://learnopengl.com/Getting-started/Coordinate-Systems
-    Actor* camArm = AddChild<Actor>();
-    Actor* cam = camArm->AddChild<Actor>();
-    CameraComponent* camComp = cam->AddComponent<CameraComponent>();
+    Actor* aCamArm = AddChild<Actor>();
+    Actor* aCam = aCamArm->AddChild<Actor>();
+    CameraComponent* camComp = aCam->AddComponent<CameraComponent>();
+    Actor* aMesh = AddChild<Actor>();
+    ScenesComponent* sMesh = aMesh->AddComponent<ScenesComponent>();
     Window* win = GetCurrentWindowContext();
     Role()
     {
-        cam->localTransform.translation = vec3(-5.f, 0.f, 0.f);
-        cam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
-        camArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
-        camArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
-    }
-    void Load(const string& path)
-    {
+        aCam->localTransform.translation = vec3(-5.f, 0.f, 0.f);
+        aCam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
+        aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
+        aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
+        aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
+        sMesh->Load("idle_zup/idle.gltf");
     }
     virtual void Start() override
     {
@@ -31,26 +32,30 @@ public:
     virtual void Tick() override
     {
         Actor::Tick();
-        vec3 armRot = QuatToEuler(camArm->localTransform.rotation);
-        camArm->localTransform.rotation = EulerToQuat(vec3(0, 30.f, armRot.z+win->deltaTime*30.f));
+
+        vec3 eulArmRot = QuatToEuler(aCamArm->localTransform.rotation);
+        eulArmRot.y += win->mouseCursor.deltaPos.y;
+        eulArmRot.z += -win->mouseCursor.deltaPos.x;
+        eulArmRot.y = clamp(eulArmRot.y, -80.f, 80.f);
+        aCamArm->localTransform.rotation = EulerToQuat(eulArmRot);
         ResetWorldMatrix(true);
         
         vec3 dir;
         if (win->keys[GLFW_KEY_W].pressing)
         {
-            dir += GetForwardVector();
+            dir += aCam->GetRightVector();
         }
         if (win->keys[GLFW_KEY_S].pressing)
         {
-            dir -= GetForwardVector();
+            dir -= aCam->GetRightVector();
         }
         if (win->keys[GLFW_KEY_D].pressing)
         {
-            dir += GetRightVector();
+            dir += aCam->GetForwardVector();
         }
         if (win->keys[GLFW_KEY_A].pressing)
         {
-            dir -= GetRightVector();
+            dir -= aCam->GetForwardVector();
         }
         if (win->keys[GLFW_KEY_E].pressing)
         {
@@ -62,6 +67,7 @@ public:
         }
         if (dir.length() > 0.5f)
         {
+            dir.z = 0;
             dir = dir.normalize();
         }
         localTransform.translation += dir;

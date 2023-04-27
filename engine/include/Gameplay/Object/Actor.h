@@ -23,7 +23,7 @@ public:
 	vec3 GetRightVector() const
 	{
 		const vec4 c = worldMatrix.column(1);
-		return -vec3(c.x, c.y, c.z);
+		return vec3(c.x, c.y, c.z);
 	}
 	void SetWorldMatrix(mat4 m)
 	{

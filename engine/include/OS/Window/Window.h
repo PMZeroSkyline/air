@@ -18,9 +18,9 @@ struct Key
 };
 struct CursorPos
 {
-	vec2 pos = vec2(0.f);
-	vec2 lastPos = vec2(0.f);
-	vec2 deltaPos = vec2(0.f);
+	vec2 pos = vec2(-1.f);
+	vec2 lastPos = vec2(-1.f);
+	vec2 deltaPos = vec2(-1.f);
 };
 void SetupOpenGL()
 {
@@ -190,6 +190,10 @@ public:
 	}
 	void CursorPosCallback(GLFWwindow* w, double xpos, double ypos)
 	{
+		if (mouseCursor.pos == -1)
+		{
+			mouseCursor.lastPos = vec2(xpos, ypos);
+		}
 		mouseCursor.pos = vec2(xpos, ypos);
 	}
 	void Close()

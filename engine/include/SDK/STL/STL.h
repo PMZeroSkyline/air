@@ -39,6 +39,7 @@ using std::make_pair;
 using std::forward;
 using std::min;
 using std::max;
+using std::clamp;
 namespace fs = std::filesystem;
 using std::initializer_list;
 using std::function;
