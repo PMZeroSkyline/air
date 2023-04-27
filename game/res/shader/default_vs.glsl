@@ -20,7 +20,6 @@ out V2F
 {
     vec2 uv;
     vec4 worldPos;
-    vec4 viewPos;
 } o;
 
 void main()
@@ -37,11 +36,7 @@ void main()
         WEIGHTS_0[3] * J[int(JOINTS_0[3])];
     }
     vec4 worldPos = M * S * pos;
-    vec4 viewPos = V * worldPos;
-
     o.worldPos = worldPos;
-    o.viewPos = worldPos;
-
-    gl_Position = P * viewPos;
+    gl_Position = P * V * M * S * pos;
 
 }

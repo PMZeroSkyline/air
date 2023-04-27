@@ -39,6 +39,8 @@ public:
 	vector<Key> mouseButtons;
 	CursorPos mouseCursor;
 	vector<string> dropPaths;
+	int frameRate = 0;
+	int lastSecond = 0;
 
 	Window(int w = 800, int h = 600, const char *title = "window")
 	{
@@ -99,6 +101,19 @@ public:
 	{
 		deltaTime = glfwGetTime() - time;
 		time = glfwGetTime();
+
+		int currentSecond = floor(time);
+		if (currentSecond == lastSecond)
+		{
+			frameRate++;
+		}
+		else
+		{
+			LOG("frameRate:\t" << frameRate)
+			frameRate = 0;
+			lastSecond = currentSecond;
+		}
+		
 
 		mouseCursor.deltaPos = mouseCursor.pos - mouseCursor.lastPos;
 		mouseCursor.lastPos = mouseCursor.pos;

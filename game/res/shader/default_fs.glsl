@@ -5,7 +5,6 @@ in V2F
 {
     vec2 uv;
     vec4 worldPos;
-    vec4 viewPos;
 } i;
 
 uniform sampler2D baseColorTex;

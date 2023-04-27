@@ -23,6 +23,8 @@ int main()
 	Actor* a1 = map.AddChild<Actor>();
 	ScenesComponent* s1 = a1->AddComponent<ScenesComponent>();
 	s1->Load("bar_zup/bar.gltf");
+	// s1->animationInstances[0].weight = 1.f;
+	// s1->animationInstances[0].time = 1.f;
 	Renderables renderables;
 	map.ResetWorldMatrix(true);
 	map.Start();

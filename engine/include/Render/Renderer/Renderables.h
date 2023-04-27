@@ -11,6 +11,7 @@ public:
 	vector<shared_ptr<Renderable>> renderables;
 	void Load(Actor* root)
 	{
+		renderables.clear();
 		RForEachNode<Actor>(root, [this](Actor* current){
 			CameraComponent* cc = current->GetComponent<CameraComponent>();
 			if (cc)

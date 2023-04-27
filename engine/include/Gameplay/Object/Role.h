@@ -16,8 +16,9 @@ public:
     Window* win = GetCurrentWindowContext();
     Role()
     {
-        cam->localTransform.translation = vec3(0.f, 0.f, 0.f);
-        camArm->localTransform.translation = vec3(0.f, 0.f, 0.f);
+        cam->localTransform.translation = vec3(-5.f, 0.f, 0.f);
+        cam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
+        camArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         camArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
     }
     void Load(const string& path)
@@ -30,6 +31,9 @@ public:
     virtual void Tick() override
     {
         Actor::Tick();
+        vec3 armRot = QuatToEuler(camArm->localTransform.rotation);
+        camArm->localTransform.rotation = EulerToQuat(vec3(0, 30.f, armRot.z+win->deltaTime*30.f));
+        ResetWorldMatrix(true);
         
         vec3 dir;
         if (win->keys[GLFW_KEY_W].pressing)

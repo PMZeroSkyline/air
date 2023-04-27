@@ -12,7 +12,7 @@ public:
 	Transform localTransform;
 	vec3 GetForwardVector() const
 	{
-		const vec4 c = worldMatrix.column(1);
+		const vec4 c = worldMatrix.column(0);
 		return vec3(c.x, c.y, c.z);
 	}
 	vec3 GetUpVector() const
@@ -22,8 +22,8 @@ public:
 	}
 	vec3 GetRightVector() const
 	{
-		const vec4 c = worldMatrix.column(0);
-		return vec3(c.x, c.y, c.z);
+		const vec4 c = worldMatrix.column(1);
+		return -vec3(c.x, c.y, c.z);
 	}
 	void SetWorldMatrix(mat4 m)
 	{
