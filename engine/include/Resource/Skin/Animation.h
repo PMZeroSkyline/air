@@ -8,8 +8,8 @@ class Animation
 {
 public:
 	string name;
-	float samplersInputMin = -1;
-	float samplersInputMax = -1;
+	float min = -1;
+	float max = -1;
 	vector<AnimationChannel> channels;
 	vector<AnimationSampler> samplers;
 };

@@ -4,19 +4,44 @@
 #include "Component.h"
 #include "Resource/Model/Scenes.h"
 #include "Gameplay/Object/Actor.h"
-#include "Animation/AnimationState/AnimationInstanceView.h"
+#include "Animation/AnimationState/AnimationView.h"
 #include "AnimationNodeComponent.h"
 #include "MeshComponent.h"
 #include "SkinComponent.h"
+
+class AnimationPlayer
+{
+public:
+    AnimationInstance* instance = nullptr;
+    vector<AnimationInstance>* instances;
+
+    void Play(const string& animName)
+    {
+        for_each(instances->begin(), instances->end(), [this, &animName](AnimationInstance& animInst){
+            if (animInst.animation->name == animName)
+            {
+                instance = &animInst;
+            }
+        });
+    }
+    void Tick()
+    {
+        if (!instance)
+        {
+            return;
+        }
+
+    }
+};
 
 class ScenesComponent : public Component
 {
 public:
     shared_ptr<Scenes> scenes;
     vector<AnimationInstance> animationInstances;
-
     vector<Actor*> nodes;
     vector<SkinInstance> skinInstances;
+    AnimationPlayer animationPlayer;
 
     void Load(const string& path)
     {
@@ -88,17 +113,19 @@ public:
                     animationNodeComponent = targetNode->AddComponent<AnimationNodeComponent>();
                 }
 
-                AnimationInstanceView* animationInstanceView = animationNodeComponent->GetAnimationInstanceView(animationInstance);
+                AnimationView* animationInstanceView = animationNodeComponent->GetAnimationView(animationInstance);
                 if (!animationInstanceView)
                 {
-                    animationNodeComponent->animationInstanceViews.push_back(AnimationInstanceView());
-                    animationInstanceView = &animationNodeComponent->animationInstanceViews.back();
+                    animationNodeComponent->animationViews.push_back(AnimationView());
+                    animationInstanceView = &animationNodeComponent->animationViews.back();
                     animationInstanceView->animationInstance = animationInstance;
                 }
 
                 animationInstanceView->channels.push_back(channel);
             }
         }
+        
+        animationPlayer.instances = &animationInstances;
 
         for (int i = 0; i < skinInstances.size(); i++)
         {

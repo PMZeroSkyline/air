@@ -18,7 +18,7 @@ void RemoveSpace(string &str)
 {
     str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
 }
-bool IsStringComment(const string& inStr) {
+bool IsCommentString(const string& inStr) {
     string str = inStr;
     RemoveSpace(str);
     if (str.size() < 2) 
@@ -31,7 +31,7 @@ bool IsStringComment(const string& inStr) {
     }
     return false;
 }
-bool IsStringValid(const string& inStr)
+bool IsValidString(const string& inStr)
 {
     string str = inStr;
     RemoveSpace(str);

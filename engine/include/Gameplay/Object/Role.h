@@ -23,7 +23,7 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        sMesh->Load("idle_zup/idle.gltf");
+        sMesh->Load("vroid/anim/anim.gltf");
     }
     virtual void Start() override
     {
@@ -41,35 +41,39 @@ public:
         ResetWorldMatrix(true);
         
         vec3 dir;
-        if (win->keys[GLFW_KEY_W].pressing)
+        if (win->keys[KEY::W].pressing)
         {
             dir += aCam->GetRightVector();
         }
-        if (win->keys[GLFW_KEY_S].pressing)
+        if (win->keys[KEY::S].pressing)
         {
             dir -= aCam->GetRightVector();
         }
-        if (win->keys[GLFW_KEY_D].pressing)
+        if (win->keys[KEY::D].pressing)
         {
             dir += aCam->GetForwardVector();
         }
-        if (win->keys[GLFW_KEY_A].pressing)
+        if (win->keys[KEY::A].pressing)
         {
             dir -= aCam->GetForwardVector();
         }
-        if (win->keys[GLFW_KEY_E].pressing)
+        if (win->keys[KEY::E].pressing)
         {
             dir += GetUpVector();
         }
-        if (win->keys[GLFW_KEY_Q].pressing)
+        if (win->keys[KEY::Q].pressing)
         {
             dir -= GetUpVector();
         }
+        
         dir.z = 0;
         if (dir.length() > 0.1f)
         {
+
+
+
             dir = dir.normalize();
-            localTransform.translation += dir;
+            localTransform.translation += dir * .1f;
             ResetWorldMatrix(true);
             
             Transform tMesh = aMesh->worldMatrix;
@@ -77,7 +81,29 @@ public:
             tMesh.rotation = EulerToQuat(0.f, 0.f, degrees(theta)+90.f);
             aMesh->SetWorldMatrix(tMesh.ToMatrix());
         }
-        
+
+        if (dir.length() < 0.1f)
+        {
+            sMesh->animationInstances[0].weight = 1.f;
+            sMesh->animationInstances[1].weight = 0.f;
+            sMesh->animationInstances[0].time = sMesh->animationInstances[0].time + win->deltaTime * 2.f;
+            if (sMesh->animationInstances[0].time > sMesh->animationInstances[0].animation->max)
+            {
+                sMesh->animationInstances[0].time = 0.f;
+            }
+            ResetWorldMatrix(true);
+        }
+        else
+        {
+            sMesh->animationInstances[1].weight = 1.f;
+            sMesh->animationInstances[0].weight = 0.f;
+            sMesh->animationInstances[1].time = sMesh->animationInstances[1].time + win->deltaTime * 2.f;
+            if (sMesh->animationInstances[1].time > sMesh->animationInstances[1].animation->max)
+            {
+                sMesh->animationInstances[1].time = 0.f;
+            }
+            ResetWorldMatrix(true);
+        }
     }
 };
 

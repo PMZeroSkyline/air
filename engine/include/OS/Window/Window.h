@@ -45,7 +45,6 @@ public:
 		#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		#endif
-		
 		}
 		glfw_window = glfwCreateWindow(w, h, title, NULL, NULL);
 		if (glfw_window == NULL)
@@ -56,6 +55,7 @@ public:
 		LOG("create window succeed")
 
 		glfwMakeContextCurrent(glfw_window);
+		glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetWindowUserPointer(glfw_window, this);
 		SetupOpenGL();
         

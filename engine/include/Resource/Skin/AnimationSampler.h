@@ -11,22 +11,22 @@ public:
 	string interpolation = "LINEAR";
 
 	vector<float> input;
-	float inputMin;
-	float inputMax;
+	float min;
+	float max;
 
 	vector<vec3> outputVec3;
 	vector<quat> outputQuat;
 
 	void GetInputInterp(float time, int& x, int& y, float& interp) const
 	{
-		if (time <= inputMin)
+		if (time <= min)
 		{
 			interp = 0.f;
 			x = 0.f;
 			y = 0.f;
 			return;
 		}
-		if (time >= inputMax)
+		if (time >= max)
 		{
 			interp = 1.f;
 			x = input.size() - 1;

@@ -19,9 +19,6 @@ int main()
 	CDResourcesDir();
 	Window window;
 
-	Node root;
-	TreeFileParse("anim/anim.md", &root);
-
 	Map map;
 	Role* roleActor = map.AddChild<Role>();
 	Actor* a1 = map.AddChild<Actor>();

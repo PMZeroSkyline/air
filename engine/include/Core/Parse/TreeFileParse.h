@@ -15,7 +15,7 @@ void TreeFileParse(const string& path, Node* result)
     string line;
     while (getline(f, line))
     {
-        if (!IsStringValid(line) || IsStringComment(line))
+        if (!IsValidString(line) || IsCommentString(line))
         {
             continue;
         }

@@ -4,7 +4,7 @@
 #include "AnimationInstance.h"
 #include "Resource/Skin/Animation.h"
 
-class AnimationInstanceView
+class AnimationView
 {
 public:
     AnimationInstance* animationInstance;

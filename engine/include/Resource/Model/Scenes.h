@@ -92,14 +92,14 @@ public:
             }
             if (result.accessor->min.size() == 1)
             {
-                animationSampler->inputMin = result.accessor->min[0];
-                if (animation->samplersInputMin == -1)
+                animationSampler->min = result.accessor->min[0];
+                if (animation->min == -1)
                 {
-                    animation->samplersInputMin = animationSampler->inputMin;
+                    animation->min = animationSampler->min;
                 }
                 else
                 {
-                    animation->samplersInputMin = min(animation->samplersInputMin, animationSampler->inputMin);
+                    animation->min = min(animation->min, animationSampler->min);
                 }
             }
             else
@@ -108,14 +108,14 @@ public:
             }
             if (result.accessor->max.size() == 1)
             {
-                animationSampler->inputMax = result.accessor->max[0];
-                if (animation->samplersInputMax == -1)
+                animationSampler->max = result.accessor->max[0];
+                if (animation->max == -1)
                 {
-                    animation->samplersInputMax = animationSampler->inputMax;
+                    animation->max = animationSampler->max;
                 }
                 else
                 {
-                    animation->samplersInputMax = max(animation->samplersInputMax, animationSampler->inputMax);
+                    animation->max = max(animation->max, animationSampler->max);
                 }
             }
             else

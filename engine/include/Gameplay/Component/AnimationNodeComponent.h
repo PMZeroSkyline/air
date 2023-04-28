@@ -2,7 +2,7 @@
 #define ANIMATION_NODE_COMPONENT_H
 
 #include "SDK/STL/STL.h"
-#include "Animation/AnimationState/AnimationInstanceView.h"
+#include "Animation/AnimationState/AnimationView.h"
 #include "Component.h"
 #include "Core/Transform/Transform.h"
 #include "Core/Log/Log.h"
@@ -11,15 +11,15 @@
 class AnimationNodeComponent : public Component
 {
 public:
-    vector<AnimationInstanceView> animationInstanceViews;
+    vector<AnimationView> animationViews;
 
-    AnimationInstanceView* GetAnimationInstanceView(AnimationInstance* animationInstance)
+    AnimationView* GetAnimationView(AnimationInstance* animationInstance)
     {
-        for (int i = 0; i < animationInstanceViews.size(); i++)
+        for (int i = 0; i < animationViews.size(); i++)
         {
-            if (animationInstanceViews[i].animationInstance == animationInstance)
+            if (animationViews[i].animationInstance == animationInstance)
             {
-                return &animationInstanceViews[i];
+                return &animationViews[i];
             }
         }
         return nullptr;
@@ -27,13 +27,13 @@ public:
     Transform GetAnimationTransform() const
     {
         Transform result;
-        for (int i = 0; i < animationInstanceViews.size(); i++)
+        for (int i = 0; i < animationViews.size(); i++)
         {
-            const AnimationInstanceView* view = &animationInstanceViews[i];
+            const AnimationView* view = &animationViews[i];
             const AnimationInstance* animationInstance = view->animationInstance;
             if (animationInstance->weight <= 0)
             {
-                continue;;
+                continue;
             }
             for (int j = 0; j < view->channels.size(); j++)
             {
