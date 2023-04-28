@@ -14,6 +14,7 @@
 #include <cmath>
 #include <functional>
 #include <algorithm>
+#include <sstream>
 using std::cout;
 using std::endl;
 using std::begin;
@@ -40,6 +41,10 @@ using std::forward;
 using std::min;
 using std::max;
 using std::clamp;
+using std::string_view;
+using std::stringstream;
+using std::istringstream;
+using std::ostringstream;
 namespace fs = std::filesystem;
 using std::initializer_list;
 using std::function;

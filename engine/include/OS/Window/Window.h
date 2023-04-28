@@ -6,16 +6,8 @@
 #include "SDK/OpenGL/CppOpenGL.h"
 #include <GLFW/glfw3.h>
 #include "Core/Math/vec2.h"
+#include "Key.h"
 
-struct Key
-{
-	bool pressing = false;
-	bool pressDown = false;
-	bool liftUp = false;
-	float pressDur = 0;
-	float downTime = 0;
-	float downDeltaTime = 10000;
-};
 struct CursorPos
 {
 	vec2 pos = vec2(-1.f);
@@ -36,7 +28,6 @@ public:
 	GLFWwindow* glfw_window;
 	float time = 0, deltaTime = 0;
 	vector<Key> keys;
-	vector<Key> mouseButtons;
 	CursorPos mouseCursor;
 	vector<string> dropPaths;
 	int frameRate = 0;
@@ -46,7 +37,6 @@ public:
 	{
 		if (glfwGetCurrentContext() == nullptr)
 		{
-
 			glfwInit();
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
@@ -71,7 +61,6 @@ public:
         
 		// macos vscode debug has bug : use vector reserve or const size array mad by out of memory !
 		keys.resize(GLFW_KEY_LAST);
-		mouseButtons.resize(GLFW_MOUSE_BUTTON_LAST);
 		glfwSetFramebufferSizeCallback(glfw_window, [](GLFWwindow *w, int width, int height){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->FramebufferSizeCallback(w, width, height);
 		});
@@ -128,16 +117,6 @@ public:
 			else
 				k.pressDur = 0;
 		}
-		for (int i = 0; i < GLFW_MOUSE_BUTTON_LAST; i++)
-		{
-			Key &k = mouseButtons[i];
-			k.pressDown = false;
-			k.liftUp = false;
-			if (k.pressing)
-				k.pressDur += deltaTime;
-			else
-				k.pressDur = 0;
-		}
 
 		glfwSwapBuffers(glfw_window);
         glfwPollEvents();
@@ -165,7 +144,7 @@ public:
 	}
 	void MouseButtonCallback(GLFWwindow* w, int button, int action, int mods)
 	{
-		Key& k = mouseButtons[button];
+		Key& k = keys[button];
 
 		if (action == 1) // event key pressDown
 		{

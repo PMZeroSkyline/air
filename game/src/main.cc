@@ -12,12 +12,16 @@
 #include "Gameplay/Object/Role.h"
 #include "Render/Renderer/Renderables.h"
 #include "Core/Temp/Temp.h"
-
+#include "Core/Parse/TreeFileParse.h"
 
 int main()
 {
 	CDResourcesDir();
 	Window window;
+
+	Node root;
+	TreeFileParse("anim/anim.md", &root);
+
 	Map map;
 	Role* roleActor = map.AddChild<Role>();
 	Actor* a1 = map.AddChild<Actor>();
@@ -38,7 +42,8 @@ int main()
 		map.Tick();
 		renderables.Load(&map);
 		renderables.Render();
-		if (window.keys[GLFW_KEY_ESCAPE].pressDown)
+		
+		if (window.keys[KEY::ESCAPE].pressDown)
 		{
 			window.Close();
 		}

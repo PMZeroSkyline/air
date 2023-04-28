@@ -65,9 +65,9 @@ public:
         {
             dir -= GetUpVector();
         }
-        if (dir.length() > 0.5f)
+        dir.z = 0;
+        if (dir.length() > 0.1f)
         {
-            dir.z = 0;
             dir = dir.normalize();
             localTransform.translation += dir;
             ResetWorldMatrix(true);
