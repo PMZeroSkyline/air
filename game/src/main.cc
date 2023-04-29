@@ -24,10 +24,10 @@ int main()
 	Actor* a1 = map.AddChild<Actor>();
 	a1->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
 	ScenesComponent* s1 = a1->AddComponent<ScenesComponent>();
-	s1->Load("bar_zup/bar.gltf");
+	s1->Load("sandbox/sandbox.gltf");
 	// s1->animationInstances[0].weight = 1.f;
 	// s1->animationInstances[0].time = 1.f;							
-	GLLineMode();
+	//GLLineMode();
 	Renderables renderables;
 	map.Start();
 	map.ResetWorldMatrix(true);

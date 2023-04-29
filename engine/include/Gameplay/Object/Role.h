@@ -33,77 +33,57 @@ public:
     {
         Actor::Tick();
 
-        vec3 eulArmRot = QuatToEuler(aCamArm->localTransform.rotation);
-        eulArmRot.y += win->mouseCursor.deltaPos.y;
-        eulArmRot.z += -win->mouseCursor.deltaPos.x;
-        eulArmRot.y = clamp(eulArmRot.y, -80.f, 80.f);
-        aCamArm->localTransform.rotation = EulerToQuat(eulArmRot);
-        ResetWorldMatrix(true);
-        
+        // 
+        Transform wArmTrans = Transform(aCamArm->worldMatrix);
+        vec3 wArmEul = QuatToEuler(wArmTrans.rotation);
+        wArmEul.z -= win->mouseCursor.deltaPos.x;
+        wArmTrans.rotation = EulerToQuat(wArmEul);
+        aCamArm->SetWorldMatrix(wArmTrans.ToMatrix());
+
+        vec3 lArmEul = QuatToEuler(aCamArm->localTransform.rotation);
+        lArmEul.y += win->mouseCursor.deltaPos.y;
+        lArmEul.y = clamp(lArmEul.y, -70.f, 70.f);
+        aCamArm->localTransform.rotation = EulerToQuat(lArmEul);
+        aCamArm->ResetWorldMatrix(true);
+
         vec3 dir;
         if (win->keys[KEY::W].pressing)
         {
-            dir += aCam->GetRightVector();
+            dir += aCamArm->GetForwardVector();
         }
         if (win->keys[KEY::S].pressing)
         {
-            dir -= aCam->GetRightVector();
+            dir -= aCamArm->GetForwardVector();
         }
         if (win->keys[KEY::D].pressing)
         {
-            dir += aCam->GetForwardVector();
+            dir -= aCamArm->GetRightVector();
         }
         if (win->keys[KEY::A].pressing)
         {
-            dir -= aCam->GetForwardVector();
+            dir += aCamArm->GetRightVector();
         }
-        if (win->keys[KEY::E].pressing)
-        {
-            dir += GetUpVector();
-        }
-        if (win->keys[KEY::Q].pressing)
-        {
-            dir -= GetUpVector();
-        }
-        
-        dir.z = 0;
+        dir.z = 0.f;
         if (dir.length() > 0.1f)
         {
-
-
-
             dir = dir.normalize();
-            localTransform.translation += dir * .1f;
-            ResetWorldMatrix(true);
-            
-            Transform tMesh = aMesh->worldMatrix;
-            float theta = atan2(dir.y, dir.x);
-            tMesh.rotation = EulerToQuat(0.f, 0.f, degrees(theta)+90.f);
-            aMesh->SetWorldMatrix(tMesh.ToMatrix());
-        }
+            Transform wTrans = Transform(worldMatrix);
 
-        if (dir.length() < 0.1f)
-        {
-            sMesh->animationInstances[0].weight = 1.f;
-            sMesh->animationInstances[1].weight = 0.f;
-            sMesh->animationInstances[0].time = sMesh->animationInstances[0].time + win->deltaTime * 2.f;
-            if (sMesh->animationInstances[0].time > sMesh->animationInstances[0].animation->max)
-            {
-                sMesh->animationInstances[0].time = 0.f;
-            }
-            ResetWorldMatrix(true);
+            // rotate actor to current arm world rotaion, clear arm local rotation z
+            wTrans.rotation = EulerToQuat(0.f, 0.f, wArmEul.z);
+            vec3 lArmEul = QuatToEuler(aCamArm->localTransform.rotation);
+            aCamArm->localTransform.rotation = EulerToQuat(lArmEul.x, lArmEul.y, 0.f);
+
+            // add world location
+            wTrans.translation += dir * .1f;
+            SetWorldMatrix(wTrans.ToMatrix());
+
+            Transform wMeshTrans = Transform(aMesh->worldMatrix);
+            float wAngleZ = atan2(dir.y, dir.x);
+            wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
+            aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
         }
-        else
-        {
-            sMesh->animationInstances[1].weight = 1.f;
-            sMesh->animationInstances[0].weight = 0.f;
-            sMesh->animationInstances[1].time = sMesh->animationInstances[1].time + win->deltaTime * 2.f;
-            if (sMesh->animationInstances[1].time > sMesh->animationInstances[1].animation->max)
-            {
-                sMesh->animationInstances[1].time = 0.f;
-            }
-            ResetWorldMatrix(true);
-        }
+        
     }
 };
 
