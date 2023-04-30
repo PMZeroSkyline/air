@@ -6,8 +6,10 @@
 #include "Gameplay/Object/Node.h"
 #include "StringParse.h"
 
-void TreeFileParse(const string& path, Node* result)
+template<typename T>
+shared_ptr<T> TreeFileParse(const string& path)
 {
+    shared_ptr<T> result = make_shared<T>();
     Node* lastNode = nullptr;
     int lastDepth = 0;
 
@@ -19,13 +21,12 @@ void TreeFileParse(const string& path, Node* result)
         {
             continue;
         }
-        size_t index = line.find_first_not_of(' ');
-        int depth = index / 4;
+        int depth = GetStringIndent(line);
         if (lastNode == nullptr)
         {
             if (depth == 0)
             {
-                Node* node = result->AddChild<Node>();
+                Node* node = ((Node*)result.get())->AddChild<T>();
                 node->name = line;
                 lastNode = node;
                 lastDepth = depth;
@@ -37,7 +38,7 @@ void TreeFileParse(const string& path, Node* result)
         }
         else if (depth == lastDepth)
         {
-            Node* node = lastNode->parent->AddChild<Node>();
+            Node* node = ((Node*)lastNode->parent)->AddChild<T>();
             node->name = line;
             lastNode = node;
             lastDepth = depth;
@@ -48,9 +49,9 @@ void TreeFileParse(const string& path, Node* result)
             Node* parent = lastNode->parent;
             for (int i = 0; i < offset; i++)
             {
-                parent = parent->parent;
+                parent = (T*)(parent->parent);
             }
-            Node* node = parent->AddChild<Node>();
+            Node* node = ((Node*)parent)->AddChild<T>();
             node->name = line;
             lastNode = node;
             lastDepth = depth;
@@ -59,7 +60,7 @@ void TreeFileParse(const string& path, Node* result)
         {
             if (depth - lastDepth == 1)
             {
-                Node* node = lastNode->AddChild<Node>();
+                Node* node = ((Node*)lastNode)->AddChild<T>();
                 node->name = line;
                 lastNode = node;
                 lastDepth = depth;
@@ -70,6 +71,7 @@ void TreeFileParse(const string& path, Node* result)
             }
         }
     }
+    return result;
 }
 
 #endif

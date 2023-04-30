@@ -41,4 +41,18 @@ bool IsValidString(const string& inStr)
     }
     return true;
 }
+int GetStringIndent(const string& str)
+{
+    if (str == "")
+    {
+        return 0;
+    }
+    size_t index = str.find_first_not_of(' ');
+    if (index == string::npos)
+    {
+        return 0;
+    }
+    int depth = index / 4;
+    return depth;
+}
 #endif

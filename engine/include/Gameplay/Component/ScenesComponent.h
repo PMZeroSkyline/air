@@ -9,39 +9,49 @@
 #include "MeshComponent.h"
 #include "SkinComponent.h"
 
-class AnimationPlayer
+#include "Core/Parse/TreeFileParse.h"
+
+class Animations
 {
 public:
-    AnimationInstance* instance = nullptr;
-    vector<AnimationInstance>* instances;
+    AnimationInstance* currentAnimationInstance = nullptr;
+    vector<AnimationInstance>* animationInstances;
+    Window* win = GetCurrentWindowContext();
 
-    void Play(const string& animName)
+    void Play(const string& name)
     {
-        for_each(instances->begin(), instances->end(), [this, &animName](AnimationInstance& animInst){
-            if (animInst.animation->name == animName)
+        for_each(animationInstances->begin(), animationInstances->end(), [&name, this](AnimationInstance& curr){
+            if (curr.animation->name == name)
             {
-                instance = &animInst;
+                curr.weight = 1.f;
+                currentAnimationInstance = &curr;
+            }
+            else
+            {
+                curr.weight = 0.f;
             }
         });
     }
     void Tick()
     {
-        if (!instance)
+        if (currentAnimationInstance)
         {
-            return;
+            currentAnimationInstance->time += win->deltaTime;
+            if (currentAnimationInstance->time > currentAnimationInstance->animation->max)
+            {
+                currentAnimationInstance->time = currentAnimationInstance->animation->min;
+            }
         }
-
     }
 };
-
 class ScenesComponent : public Component
 {
 public:
     shared_ptr<Scenes> scenes;
-    vector<AnimationInstance> animationInstances;
     vector<Actor*> nodes;
     vector<SkinInstance> skinInstances;
-    AnimationPlayer animationPlayer;
+    vector<AnimationInstance> animationInstances;
+    Animations animDemo;
 
     void Load(const string& path)
     {
@@ -54,7 +64,6 @@ public:
         }
         FieldExpand();
     }
-
     void NodeExpand(SceneNode* sceneNode, Actor* node)
     {           
         node->name = sceneNode->name;
@@ -124,8 +133,10 @@ public:
                 animationInstanceView->channels.push_back(channel);
             }
         }
-        
-        animationPlayer.instances = &animationInstances;
+        if (scenes->animations.size() != 0)
+        {
+            animDemo.animationInstances = &animationInstances;
+        }
 
         for (int i = 0; i < skinInstances.size(); i++)
         {

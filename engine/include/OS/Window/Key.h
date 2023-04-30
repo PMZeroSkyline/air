@@ -17,6 +17,10 @@ struct Key
 enum KEY
 {
     // Mouse buttons
+    MOUSE_LAST = GLFW_MOUSE_BUTTON_8,
+    MOUSE_LEFT = GLFW_MOUSE_BUTTON_1,
+    MOUSE_RIGHT = GLFW_MOUSE_BUTTON_2,
+    MOUSE_MIDDLE = GLFW_MOUSE_BUTTON_3,
     MOUSE_1 = 0,
     MOUSE_2 = 1,
     MOUSE_3 = 2,
@@ -25,10 +29,6 @@ enum KEY
     MOUSE_6 = 5,
     MOUSE_7 = 6,
     MOUSE_8 = 7,
-    MOUSE_LAST = GLFW_MOUSE_BUTTON_8,
-    MOUSE_LEFT = GLFW_MOUSE_BUTTON_1,
-    MOUSE_RIGHT = GLFW_MOUSE_BUTTON_2,
-    MOUSE_MIDDLE = GLFW_MOUSE_BUTTON_3,
 
     // Keyboard buttons
     SPACE = 32, 
@@ -157,7 +157,7 @@ enum KEY
 map<std::string, KEY> keyMap
 {
     // Custom
-    {"ml", MOUSE_RIGHT},
+    {"ml", MOUSE_LEFT},
     {"mr", MOUSE_RIGHT},
     {"space", SPACE},
     {"shift", LEFT_SHIFT},
