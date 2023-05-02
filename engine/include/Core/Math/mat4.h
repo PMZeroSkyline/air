@@ -151,12 +151,7 @@ inline mat4 mat4::operator*(float f) const
 }
 inline mat4 mat4::operator/(const mat4& m) const
 {
-	mat4 r;
-	for (int i = 0; i < MAT4_LOOP; i++)
-	{
-		r[i]=row[i]/m[i];
-	}
-	return r;
+	return (*this) * m.inverse();
 }
 inline vec4& mat4::operator[](int i)
 {

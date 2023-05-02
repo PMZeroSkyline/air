@@ -24,7 +24,7 @@ public:
         }
         return nullptr;
     }
-    Transform GetAnimationTransform() const
+    Transform GetAnimationTransform(float offset = 0) const
     {
         Transform result;
         for (int i = 0; i < animationViews.size(); i++)
@@ -40,15 +40,15 @@ public:
                 AnimationChannel* channel = view->channels[j];
                 if (channel->target.path == AnimationChannelTargetPath::translation)
                 {
-                    result.translation += channel->sampler->SampleVec3(animationInstance->time);
+                    result.translation += channel->sampler->SampleVec3(animationInstance->time + offset);
                 }
                 else if(channel->target.path == AnimationChannelTargetPath::rotation)
                 {
-                    result.rotation *= channel->sampler->SampleQuat(animationInstance->time);
+                    result.rotation *= channel->sampler->SampleQuat(animationInstance->time + offset);
                 }
                 else if(channel->target.path == AnimationChannelTargetPath::scale)
                 {
-                    result.scaling *= channel->sampler->SampleVec3(animationInstance->time);
+                    result.scaling *= channel->sampler->SampleVec3(animationInstance->time + offset);
                 }
                 else
                 {

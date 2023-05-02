@@ -2,11 +2,11 @@
     [ml] hit2
         [ml] hit3
             [ml] hit4
-    [ml](wait) hitEx1
-        [ml] hitEx2
-            [ml] hitEx3
-                [ml] hitEx4
-                    [ml] hitEx5
+        [ml](wait) hitEx1
+            [ml] hitEx2
+                [ml] hitEx3
+                    [ml] hitEx4
+                        [ml] hitEx5
 [ml](air) airHit1
     [ml](air) airHit2
         [ml](air) airHit3

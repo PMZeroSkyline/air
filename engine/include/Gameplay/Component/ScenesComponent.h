@@ -11,39 +11,6 @@
 
 #include "Core/Parse/TreeFileParse.h"
 
-class Animations
-{
-public:
-    AnimationInstance* currentAnimationInstance = nullptr;
-    vector<AnimationInstance>* animationInstances;
-    Window* win = GetCurrentWindowContext();
-
-    void Play(const string& name)
-    {
-        for_each(animationInstances->begin(), animationInstances->end(), [&name, this](AnimationInstance& curr){
-            if (curr.animation->name == name)
-            {
-                curr.weight = 1.f;
-                currentAnimationInstance = &curr;
-            }
-            else
-            {
-                curr.weight = 0.f;
-            }
-        });
-    }
-    void Tick()
-    {
-        if (currentAnimationInstance)
-        {
-            currentAnimationInstance->time += win->deltaTime;
-            if (currentAnimationInstance->time > currentAnimationInstance->animation->max)
-            {
-                currentAnimationInstance->time = currentAnimationInstance->animation->min;
-            }
-        }
-    }
-};
 class ScenesComponent : public Component
 {
 public:
@@ -51,7 +18,6 @@ public:
     vector<Actor*> nodes;
     vector<SkinInstance> skinInstances;
     vector<AnimationInstance> animationInstances;
-    Animations animDemo;
 
     void Load(const string& path)
     {
@@ -62,7 +28,6 @@ public:
             scenes->Load(path);
             scenesBlob.Set(path, scenes);
         }
-        FieldExpand();
     }
     void NodeExpand(SceneNode* sceneNode, Actor* node)
     {           
@@ -133,11 +98,6 @@ public:
                 animationInstanceView->channels.push_back(channel);
             }
         }
-        if (scenes->animations.size() != 0)
-        {
-            animDemo.animationInstances = &animationInstances;
-        }
-
         for (int i = 0; i < skinInstances.size(); i++)
         {
             SkinInstance* skinInstance = &skinInstances[i];

@@ -141,7 +141,17 @@ inline vec3t<T> vec3t<T>::normalize() const
 template<typename T>
 inline ostream& operator<<(ostream& os, const vec3t<T> &v)
 {
-	os << v.x << " " << v.y << " " << v.z << endl;
+	for (int i = 0; i < 3; i++)
+	{
+		T value = v[i];
+		if (value <= epsilon<T>())
+		{
+			value = 0;
+		}
+		os << value << " ";
+	}
+	os << endl;
+	//os << v.x << " " << v.y << " " << v.z << endl;
 	return os;
 }
 template<typename T>
