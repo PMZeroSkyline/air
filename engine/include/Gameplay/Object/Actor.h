@@ -3,6 +3,7 @@
 
 #include "Entity.h"
 #include "Gameplay/Component/AnimationNodeComponent.h"
+#include "OS/Window/Window.h"
 
 class Actor : public Entity
 {
@@ -27,7 +28,7 @@ public:
 		const vec4 c = worldMatrix.column(1);
 		return vec3(c.x, c.y, c.z);
 	}
-	void SetWorldMatrix(mat4 m)
+	void SetWorldMatrix(const mat4& m)
 	{
 		mat4 IW = parent ? ((Actor*)parent)->worldMatrix.inverse() : mat4();
 		mat4 localMatrix = IW * m;
@@ -53,29 +54,6 @@ public:
 			}
 		}
 		SetWorldMatrix(worldMatrix);
-	}
-	void ResetWorldMatrix(bool isForce = false)
-	{
-		AnimationNodeComponent* animationNodeComponent = GetComponent<AnimationNodeComponent>();
-		bool hasAnimation = false;
-		Transform animationTransform;
-		if (animationNodeComponent)
-		{
-			animationTransform = animationNodeComponent->GetAnimationTransform();
-			hasAnimation = animationTransform != Transform();
-		}
-		bool isReset = isForce || isDirty || hasAnimation;
-		if (isReset)
-		{
-			mat4 world = parent ? ((Actor*)parent)->worldMatrix : mat4();
-			mat4 local = hasAnimation ? animationTransform.ToMatrix() : localTransform.ToMatrix();
-			worldMatrix = world * local;
-			isDirty = false;
-		}
-		for (int i = 0; i < children.size(); i++)
-		{
-			((Actor*)children[i])->ResetWorldMatrix(isReset);
-		}
 	}
 	void ResetRoot(Actor* target)
 	{
@@ -106,6 +84,38 @@ public:
 		for (int i = 0; i < children.size(); i++)
 		{
 			((Actor*)children[i])->ResetRoot(target);
+		}
+	}
+	void ResetWorldMatrix(bool isForce = false, Actor* rootMotionApplyTarget = nullptr)
+	{
+		AnimationNodeComponent* animationNodeComponent = GetComponent<AnimationNodeComponent>();
+		bool hasAnimation = false;
+		Transform animationTransform;
+		if (animationNodeComponent)
+		{
+			animationTransform = animationNodeComponent->GetAnimationTransform();
+			hasAnimation = animationTransform != Transform();
+		}
+		bool isReset = isForce || isDirty || hasAnimation;
+		if (isReset)
+		{
+			mat4 world = parent ? ((Actor*)parent)->worldMatrix : mat4();
+			if (rootMotionApplyTarget && hasAnimation && name == "Root")
+			{
+				mat4 preAnimationMatrix = world * animationNodeComponent->GetAnimationTransform(-window->deltaTime).ToMatrix();
+				mat4 rootMotionMatrix = (world * animationTransform.ToMatrix()) / preAnimationMatrix;
+				rootMotionApplyTarget->SetWorldMatrix(rootMotionMatrix * rootMotionApplyTarget->worldMatrix);
+				worldMatrix = world * localTransform.ToMatrix();
+			}
+			else
+			{
+				worldMatrix = world * (hasAnimation ? animationTransform.ToMatrix() : localTransform.ToMatrix());
+			}
+			isDirty = false;
+		}
+		for (int i = 0; i < children.size(); i++)
+		{
+			((Actor*)children[i])->ResetWorldMatrix(isReset, rootMotionApplyTarget);
 		}
 	}
 };

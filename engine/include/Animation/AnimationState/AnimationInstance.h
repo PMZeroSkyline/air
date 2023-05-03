@@ -6,6 +6,7 @@
 class AnimationInstance
 {
 public:
+    bool isLoop = false;
     float weight = 0.f;
     float time = 0.f;
     Animation* animation = nullptr;

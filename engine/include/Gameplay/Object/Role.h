@@ -9,95 +9,183 @@
 class AnimationState : public Node
 {
 public:
-    KEY key = (KEY)-1;
-    vector<string> tags;
-    string animName;
+    Window* window = GetCurrentWindowContext();
+    AnimationInstance* animationInstance = nullptr;
+
     int depth = -1;
-    void Setup()
+    bool isRef = false;
+    
+    string key;
+    float time = 0.f;
+    vector<string> tags;
+
+    bool isKeyReady = false;
+    bool isTimeReady = false;
+
+    void Setup(vector<AnimationInstance>* animationInstances, map<string, AnimationState*>* stateMap)
     {
         depth = GetStringIndent(name);
         istringstream iss(name);
-        string mark;
-        iss >> mark >> animName;
-        size_t keyPos = mark.find_first_of("]");
-        if (keyPos != string::npos)
+        string mark, type;
+        iss >> type >> mark >> name;
+        isRef = type == "*";
+        if (!isRef)
         {
-            string keyStr = mark.substr(1, keyPos-1);
-            if (keyMap.find(keyStr) != keyMap.end())
+            (*stateMap)[name] = this;
+        }
+        size_t keyBeg, keyEnd, timeBeg, timeEnd, tagBeg, tagEnd;
+        string keyStr, tagsStr, timeStr;
+        keyBeg = mark.find_first_of("[");
+        keyEnd = mark.find_last_of("]");
+        if (keyBeg != string::npos && keyEnd != string::npos)
+        {
+            key = mark.substr(keyBeg+1, keyEnd-keyBeg-1);
+        }
+        timeBeg = mark.find_first_of("(");
+        timeEnd = mark.find_last_of(")");
+        if (timeBeg != string::npos && timeEnd != string::npos)
+        {
+            timeStr = mark.substr(timeBeg+1, timeEnd-timeBeg-1);
+            if (timeStr != "")
             {
-                key = keyMap[keyStr];
-            }
-            else
-            {
-                LOG("failed to find anim key code !")
+                time = atof(timeStr.c_str());
             }
         }
-        size_t tagPos = mark.find_first_of("(");
-        if (tagPos != string::npos)
+        tagBeg = mark.find_first_of("{");
+        tagEnd = mark.find_last_of("}");
+        if (tagBeg != string::npos && tagEnd != string::npos)
         {
-            string tagStr = mark.substr(tagPos+1, mark.size()-tagPos-2);
-            SplitToVector(tagStr, ",", tags);
+            tagsStr = mark.substr(tagBeg+1, tagEnd-tagBeg-1);
+            if (tagsStr != "")
+            {
+                SplitToVector(tagsStr, ",", tags);
+            }
         }
+        vector<AnimationInstance>::iterator found = find_if(animationInstances->begin(), animationInstances->end(), [this](AnimationInstance& curr){
+            return curr.animation->name == name;
+        });
+        if (found != animationInstances->end())
+        {
+            animationInstance = &(*found);
+            if (animationInstance)
+            {
+                if (name == "idle" || name == "run")
+                {
+                    animationInstance->isLoop = true;
+                }
+            }
+        }
+    }
+    virtual bool Check(AnimationState* currentState)
+    {
+        if (key == "")
+        {
+            isKeyReady = true;
+        }
+        else if (key == "w|a|s|d")
+        {
+            if (window->keys[KEY::W].pressing || window->keys[KEY::A].pressing || window->keys[KEY::S].pressing || window->keys[KEY::D].pressing)
+            {
+                isKeyReady = true;
+            }
+        }
+        else if (key == "!w&!a&!s&!d")
+        {
+            if (!window->keys[KEY::W].pressing && !window->keys[KEY::A].pressing && !window->keys[KEY::S].pressing && !window->keys[KEY::D].pressing)
+            {
+                isKeyReady = true;
+            }
+        }
+        else
+        {
+            auto found = keyMap.find(key);
+            if (found != keyMap.end())
+            {
+                if (window->keys[keyMap[key]].pressDown)
+                {
+                    isKeyReady = true;
+                }
+            }
+        }
+        if (time == 0)
+        {
+            isTimeReady = true;
+        }
+        else
+        {
+            if (currentState)
+            {
+                float currRate = currentState->animationInstance->time / currentState->animationInstance->animation->max;
+                if (currRate >= time)
+                {
+                    isTimeReady = true;
+                }
+            }
+        }
+        return isKeyReady && isTimeReady;
     }
 };
-
-class AnimationsComponent : public Component
+class AnimationStateMacine : public Component
 {
 public:
-
     Window* window = GetCurrentWindowContext();
-    vec3 dir;
-
-    vector<AnimationInstance>* animationInstances;
-    shared_ptr<AnimationState> root;
-
-    AnimationInstance* animInst = nullptr;
-    AnimationState* animState = nullptr;
-    
+    vector<AnimationInstance>* animationInstances = nullptr;
+    shared_ptr<AnimationState> rootState;
+    map<string, AnimationState*> stateMap;
+    AnimationState* currentState = nullptr;
     void Load(const string& path)
     {
-        root = TreeFileParse<AnimationState>(path);
-        RForEachNode<AnimationState>(root.get(), [](AnimationState* curr){
-            curr->Setup();
+        rootState = TreeFileParse<AnimationState>(path);
+        RForEachNode<AnimationState>(rootState.get(), [this](AnimationState* curr){
+            curr->Setup(animationInstances, &stateMap);
         });
+        currentState = rootState.get();
     }
-    void Play(const string& name)
+    void Switch(AnimationState* state)
     {
-        for_each(animationInstances->begin(), animationInstances->end(), [&name, this](AnimationInstance& curr){
-            if (curr.animation->name == name)
-            {
-                curr.weight = 1.f;
-                animInst = &curr;
-            }
-            else
-            {
+        state->isKeyReady = false;
+        state->isTimeReady = false;
+        if (state->name == currentState->name)
+        {
+            return;
+        }
+        map<string, AnimationState*>::iterator found = stateMap.find(state->name);
+        if (found != stateMap.end())
+        {
+            currentState = found->second;
+            for_each(animationInstances->begin(), animationInstances->end(), [this](AnimationInstance& curr){
                 curr.weight = 0.f;
+            });
+            if (currentState->animationInstance)
+            {
+                currentState->animationInstance->time = 0.f;
+                currentState->animationInstance->weight = 1.f;
             }
-        });
+        }
     }
     void Tick() override
     {
-        if (!animInst)
+        for (int i = currentState->children.size()-1; i >= 0; i--)
         {
-            Play("idle");
+            AnimationState* state = (AnimationState*)currentState->children[i];
+            if (state->Check(currentState))
+            {
+                Switch(state);
+                break;
+            }
         }
-        if (dir.length() >= .1f && animInst->animation->name != "run")
+        if (currentState->animationInstance)
         {
-            Play("run");
+            currentState->animationInstance->time += window->deltaTime;
+            if (currentState->animationInstance->isLoop && currentState->animationInstance->time >= currentState->animationInstance->animation->max)
+            {
+                currentState->animationInstance->time = 0.f;
+            }
+            ((Actor*)owner)->ResetWorldMatrix(false, (Actor*)owner);
         }
-        else if(dir.length() < .1f && animInst->animation->name != "idle")
-        {
-            Play("idle");
-        }
-        animInst->time += window->deltaTime;
-        if (animInst->time > animInst->animation->max)
-        {
-            animInst->time = animInst->animation->min;
-        }
-        ((Actor*)owner)->ResetWorldMatrix();
+        
     }
 };
-
 class Role : public Actor
 {
 public:
@@ -106,8 +194,7 @@ public:
     CameraComponent* camComp = aCam->AddComponent<CameraComponent>();
     Actor* aMesh = AddChild<Actor>();
     ScenesComponent* sMesh = aMesh->AddComponent<ScenesComponent>();
-    AnimationsComponent* cAnim = AddComponent<AnimationsComponent>();
-
+    AnimationStateMacine* cAnimMachine = AddComponent<AnimationStateMacine>();
     vec3 dir;
 
     Role()
@@ -119,8 +206,8 @@ public:
         aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
         sMesh->Load("vroid/vroid.gltf");
         sMesh->FieldExpand();
-        cAnim->animationInstances = &sMesh->animationInstances;
-        cAnim->Load("anim/anim.md");
+        cAnimMachine->animationInstances = &sMesh->animationInstances;
+        cAnimMachine->Load("anim/anim1.md");
     }
     virtual void Start() override
     {
@@ -144,72 +231,44 @@ public:
         aCamArm->localTransform.rotation = EulerToQuat(lArmEul);
         aCamArm->ResetWorldMatrix(true);
 
-        SetWorldRotation(EulerToQuat(0.f, 0.f, 30.f));
-
-        //if (window->keys[KEY::C].pressDown)
+        dir = vec3();
+        if (window->keys[KEY::W].pressing)
         {
-            for (int i = 0; i < sMesh->animationInstances.size(); i++)
-            {
-                if (sMesh->animationInstances[i].animation->name == "hit2")
-                {
-                    sMesh->animationInstances[i].weight = 1.f;
-                    sMesh->animationInstances[i].time += window->deltaTime;
-                    if (sMesh->animationInstances[i].time >= sMesh->animationInstances[0].animation->max)
-                    {
-                        sMesh->animationInstances[i].time = 0.f;
-                    }
-                }
-                else
-                {
-                    sMesh->animationInstances[i].weight = 0.f;
-                }
-            }
-            
-            
-            ResetRoot(this);
+            dir += aCamArm->GetForwardVector();
         }
-        
+        if (window->keys[KEY::S].pressing)
+        {
+            dir -= aCamArm->GetForwardVector();
+        }
+        if (window->keys[KEY::D].pressing)
+        {
+            dir -= aCamArm->GetRightVector();
+        }
+        if (window->keys[KEY::A].pressing)
+        {
+            dir += aCamArm->GetRightVector();
+        }
+        dir.z = 0.f;
+        if (dir.length() > 0.1f && cAnimMachine->currentState->name == "run")
+        {
+            dir = dir.normalize();
+            Transform wTrans = Transform(worldMatrix);
 
-        
-        // dir = vec3();
-        // if (window->keys[KEY::W].pressing)
-        // {
-        //     dir += aCamArm->GetForwardVector();
-        // }
-        // if (window->keys[KEY::S].pressing)
-        // {
-        //     dir -= aCamArm->GetForwardVector();
-        // }
-        // if (window->keys[KEY::D].pressing)
-        // {
-        //     dir -= aCamArm->GetRightVector();
-        // }
-        // if (window->keys[KEY::A].pressing)
-        // {
-        //     dir += aCamArm->GetRightVector();
-        // }
-        // dir.z = 0.f;
-        // if (dir.length() > 0.1f)
-        // {
-        //     dir = dir.normalize();
-        //     Transform wTrans = Transform(worldMatrix);
+            // rotate actor and clear arm local rotation
+            wTrans.rotation = EulerToQuat(0.f, 0.f, wArmEul.z);
+            vec3 lArmEul = QuatToEuler(aCamArm->localTransform.rotation);
+            aCamArm->localTransform.rotation = EulerToQuat(lArmEul.x, lArmEul.y, 0.f);
 
-        //     // rotate actor and clear arm local rotation
-        //     wTrans.rotation = EulerToQuat(0.f, 0.f, wArmEul.z);
-        //     vec3 lArmEul = QuatToEuler(aCamArm->localTransform.rotation);
-        //     aCamArm->localTransform.rotation = EulerToQuat(lArmEul.x, lArmEul.y, 0.f);
+            // add world location offset
+            wTrans.translation += dir * window->deltaTime * 5.f;
+            SetWorldMatrix(wTrans.ToMatrix());
 
-        //     // add world location offset
-        //     wTrans.translation += dir * window->deltaTime * 5.f;
-        //     SetWorldMatrix(wTrans.ToMatrix());
-
-        //     // Setup mesh rotation
-        //     Transform wMeshTrans = Transform(aMesh->worldMatrix);
-        //     float wAngleZ = atan2(dir.y, dir.x);
-        //     wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
-        //     aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
-        // }
-        // cAnim->dir = dir;
+            // Setup mesh rotation
+            Transform wMeshTrans = Transform(aMesh->worldMatrix);
+            float wAngleZ = atan2(dir.y, dir.x);
+            wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
+            aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
+        }
     }
 };
 
