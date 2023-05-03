@@ -14,7 +14,7 @@ public:
 
     int depth = -1;
     bool isRef = false;
-    
+
     string key;
     float time = 0.f;
     vector<string> tags;
@@ -33,33 +33,14 @@ public:
         {
             (*stateMap)[name] = this;
         }
-        size_t keyBeg, keyEnd, timeBeg, timeEnd, tagBeg, tagEnd;
-        string keyStr, tagsStr, timeStr;
-        keyBeg = mark.find_first_of("[");
-        keyEnd = mark.find_last_of("]");
-        if (keyBeg != string::npos && keyEnd != string::npos)
+        key = GetBracketContent(mark, "[]");
+        if (string timeStr = GetBracketContent(mark, "()"); timeStr != "")
         {
-            key = mark.substr(keyBeg+1, keyEnd-keyBeg-1);
+            time = atof(timeStr.c_str());
         }
-        timeBeg = mark.find_first_of("(");
-        timeEnd = mark.find_last_of(")");
-        if (timeBeg != string::npos && timeEnd != string::npos)
+        if (string tagStr = GetBracketContent(mark, "{}"); tagStr != "")
         {
-            timeStr = mark.substr(timeBeg+1, timeEnd-timeBeg-1);
-            if (timeStr != "")
-            {
-                time = atof(timeStr.c_str());
-            }
-        }
-        tagBeg = mark.find_first_of("{");
-        tagEnd = mark.find_last_of("}");
-        if (tagBeg != string::npos && tagEnd != string::npos)
-        {
-            tagsStr = mark.substr(tagBeg+1, tagEnd-tagBeg-1);
-            if (tagsStr != "")
-            {
-                SplitToVector(tagsStr, ",", tags);
-            }
+            SplitToVector(tagStr, ",", tags);
         }
         vector<AnimationInstance>::iterator found = find_if(animationInstances->begin(), animationInstances->end(), [this](AnimationInstance& curr){
             return curr.animation->name == name;
@@ -149,8 +130,7 @@ public:
         {
             return;
         }
-        map<string, AnimationState*>::iterator found = stateMap.find(state->name);
-        if (found != stateMap.end())
+        if (map<string, AnimationState*>::iterator found = stateMap.find(state->name); found != stateMap.end())
         {
             currentState = found->second;
             for_each(animationInstances->begin(), animationInstances->end(), [this](AnimationInstance& curr){

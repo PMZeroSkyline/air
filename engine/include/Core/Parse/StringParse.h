@@ -55,4 +55,15 @@ int GetStringIndent(const string& str)
     int depth = index / 4;
     return depth;
 }
+string GetBracketContent(const string& src, const string& bracket)
+{
+    size_t beg, end;
+    beg = src.find_first_of(bracket);
+    end = src.find_last_of(bracket);
+    if (beg != string::npos && end != string::npos)
+    {
+        return src.substr(beg+1, end-beg-1);
+    }
+    return "";
+}
 #endif
