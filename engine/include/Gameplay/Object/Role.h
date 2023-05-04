@@ -114,6 +114,8 @@ public:
     shared_ptr<AnimationState> rootState;
     map<string, AnimationState*> stateMap;
     AnimationState* currentState = nullptr;
+    vec3* dir = nullptr;
+    Actor* aMesh = nullptr;
     void Load(const string& path)
     {
         rootState = TreeFileParse<AnimationState>(path);
@@ -150,6 +152,10 @@ public:
             AnimationState* state = (AnimationState*)currentState->children[i];
             if (state->Check(currentState))
             {
+                Transform wMeshTrans = Transform(aMesh->worldMatrix);
+                float wAngleZ = atan2(dir->y, dir->x);
+                wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
+                aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
                 Switch(state);
                 break;
             }
@@ -188,6 +194,8 @@ public:
         sMesh->FieldExpand();
         cAnimMachine->animationInstances = &sMesh->animationInstances;
         cAnimMachine->Load("anim/anim1.md");
+        cAnimMachine->dir = &dir;
+        cAnimMachine->aMesh = aMesh;
     }
     virtual void Start() override
     {
@@ -248,6 +256,7 @@ public:
             float wAngleZ = atan2(dir.y, dir.x);
             wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
             aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
+            //aMesh->SetWorldRotation(EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f));
         }
     }
 };

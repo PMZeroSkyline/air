@@ -4,7 +4,7 @@
         * [!w&!a&!s&!d](){} idle
     - [ml](){} hit1
         * [](1){} idle
-        * [w|a|s|d](0.5){} run
-        - [ml](0.2){} hit2
+        * [w|a|s|d](0.4){} run
+        - [ml](0.1){} hit2
             * [](1){} idle
-            * [w|a|s|d](0.5){} run
+            * [w|a|s|d](0.4){} run
