@@ -66,4 +66,9 @@ string GetBracketContent(const string& src, const string& bracket)
     }
     return "";
 }
+string ToLower(std::string str) 
+{
+    transform(str.begin(), str.end(), str.begin(), ::tolower);
+    return str;
+}
 #endif

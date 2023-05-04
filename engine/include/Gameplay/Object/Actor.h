@@ -4,6 +4,7 @@
 #include "Entity.h"
 #include "Gameplay/Component/AnimationNodeComponent.h"
 #include "OS/Window/Window.h"
+#include "Core/Parse/StringParse.h"
 
 class Actor : public Entity
 {
@@ -66,7 +67,7 @@ public:
 			hasAnimation = animationTransform != Transform();
 		}
 		mat4 world = parent ? ((Actor*)parent)->worldMatrix : mat4();
-		if (name == "Root")
+		if (name == "root")
 		{
 			Transform preAnimationTransform = animationNodeComponent->GetAnimationTransform(-window->deltaTime);
 			mat4 animationMatrix = world * animationTransform.ToMatrix();

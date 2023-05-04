@@ -190,7 +190,7 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        sMesh->Load("vroid/vroid.gltf");
+        sMesh->Load("man/man.gltf");
         sMesh->FieldExpand();
         cAnimMachine->animationInstances = &sMesh->animationInstances;
         cAnimMachine->Load("anim/anim1.md");
