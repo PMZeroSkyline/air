@@ -144,7 +144,7 @@ inline ostream& operator<<(ostream& os, const vec3t<T> &v)
 	for (int i = 0; i < 3; i++)
 	{
 		T value = v[i];
-		if (value <= epsilon<T>())
+		if (abs(value) <= epsilon<T>())
 		{
 			value = 0;
 		}

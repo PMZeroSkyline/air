@@ -1,10 +1,10 @@
 - [](){} idle
-    - [w|a|s|d](){} run
+    - [](){move} run
         * [ml](){} hit1
-        * [!w&!a&!s&!d](){} idle
+        * [](){stop} idle
     - [ml](){} hit1
-        * [](1){} idle
-        * [w|a|s|d](0.4){} run
+        * [](1){stop} idle
+        * [](0.4){move} run
         - [ml](0.1){} hit2
-            * [](1){} idle
-            * [w|a|s|d](0.4){} run
+            * [](1){stop} idle
+            * [](0.4){move} run

@@ -15,12 +15,11 @@ public:
     int depth = -1;
     bool isRef = false;
 
-    string key;
+    KEY key = (KEY)-1;
     float time = 0.f;
     vector<string> tags;
 
     bool isKeyReady = false;
-    bool isTimeReady = false;
 
     void Setup(vector<AnimationInstance>* animationInstances, map<string, AnimationState*>* stateMap)
     {
@@ -33,7 +32,13 @@ public:
         {
             (*stateMap)[name] = this;
         }
-        key = GetBracketContent(mark, "[]");
+        if (string keyStr = GetBracketContent(mark, "[]"); keyStr != "")
+        {
+            if (keyMap.find(keyStr) != keyMap.end())
+            {
+                key = keyMap[keyStr];
+            }
+        }
         if (string timeStr = GetBracketContent(mark, "()"); timeStr != "")
         {
             time = atof(timeStr.c_str());
@@ -57,37 +62,20 @@ public:
             }
         }
     }
-    virtual bool Check(AnimationState* currentState)
+    virtual bool Check(AnimationState* currentState, vec3* dir)
     {
-        if (key == "")
+        if (key == (KEY)-1)
         {
             isKeyReady = true;
         }
-        else if (key == "w|a|s|d")
-        {
-            if (window->keys[KEY::W].pressing || window->keys[KEY::A].pressing || window->keys[KEY::S].pressing || window->keys[KEY::D].pressing)
-            {
-                isKeyReady = true;
-            }
-        }
-        else if (key == "!w&!a&!s&!d")
-        {
-            if (!window->keys[KEY::W].pressing && !window->keys[KEY::A].pressing && !window->keys[KEY::S].pressing && !window->keys[KEY::D].pressing)
-            {
-                isKeyReady = true;
-            }
-        }
         else
         {
-            auto found = keyMap.find(key);
-            if (found != keyMap.end())
+            if (window->keys[key].pressDown)
             {
-                if (window->keys[keyMap[key]].pressDown)
-                {
-                    isKeyReady = true;
-                }
+                isKeyReady = true;
             }
         }
+        bool isTimeReady = false;
         if (time == 0)
         {
             isTimeReady = true;
@@ -103,7 +91,20 @@ public:
                 }
             }
         }
-        return isKeyReady && isTimeReady;
+        bool isTagReady = true;
+        for (int i = 0; i < tags.size(); i++)
+        {
+            const string& tag = tags[i];
+            if (tag == "stop" && dir->length() > 0.1f)
+            {
+                isTagReady = false;
+            }
+            else if (tag == "move" && dir->length() < 0.1f)
+            {
+                isTagReady = false;
+            }
+        }
+        return isKeyReady && isTimeReady && isTagReady;
     }
 };
 class AnimationStateMacine : public Component
@@ -127,7 +128,6 @@ public:
     void Switch(AnimationState* state)
     {
         state->isKeyReady = false;
-        state->isTimeReady = false;
         if (state->name == currentState->name)
         {
             return;
@@ -150,12 +150,15 @@ public:
         for (int i = currentState->children.size()-1; i >= 0; i--)
         {
             AnimationState* state = (AnimationState*)currentState->children[i];
-            if (state->Check(currentState))
+            if (state->Check(currentState, dir))
             {
-                Transform wMeshTrans = Transform(aMesh->worldMatrix);
-                float wAngleZ = atan2(dir->y, dir->x);
-                wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
-                aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
+                if (dir->length() > 0.1f)
+                {
+                    Transform wMeshTrans = Transform(aMesh->worldMatrix);
+                    float wAngleZ = atan2(dir->y, dir->x);
+                    wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
+                    aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
+                }
                 Switch(state);
                 break;
             }
@@ -190,7 +193,7 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        sMesh->Load("man/man.gltf");
+        sMesh->Load("vroid/vroid.gltf");
         sMesh->FieldExpand();
         cAnimMachine->animationInstances = &sMesh->animationInstances;
         cAnimMachine->Load("anim/anim1.md");

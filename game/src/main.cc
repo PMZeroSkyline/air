@@ -22,13 +22,11 @@ int main()
 	Map map;
 	Role* roleActor = map.AddChild<Role>();
 	Actor* a1 = map.AddChild<Actor>();
-	a1->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
 	ScenesComponent* s1 = a1->AddComponent<ScenesComponent>();
 	s1->Load("sandbox/sandbox.gltf");
 	s1->FieldExpand();
-	// s1->animationInstances[0].weight = 1.f;
-	// s1->animationInstances[0].time = 1.f;							
-	//GLLineMode();
+	
+	
 	Renderables renderables;
 	map.Start();
 	map.ResetWorldMatrix(true);
@@ -40,10 +38,33 @@ int main()
 		map.Tick();
 		renderables.Load(&map);
 		renderables.Render();
+		Actor* cube = FindNodeByName<Actor>("Cube.010", a1);
+	if (cube)
+	{
+		MeshComponent* cCube = cube->GetComponent<MeshComponent>();
+		if (cCube)
+		{
+			mat4 cs = cube->worldMatrix.inverse() * roleActor->worldMatrix;
+			vec3 test(cs[0][3],cs[1][3],cs[2][3]);
+			LOG(cCube->mesh->primitives[0]->boundingBox.Check(test));
+		}
+	}
 		
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{
 			window.Close();
+		}
+		if (window.keys[KEY::F8].pressDown)
+		{
+			int mode = glfwGetInputMode(window.glfw_window, GLFW_CURSOR);
+			if (mode == GLFW_CURSOR_DISABLED)
+			{
+				glfwSetInputMode(window.glfw_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+			}
+			else
+			{
+				glfwSetInputMode(window.glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			}
 		}
 	}
 	return 0;

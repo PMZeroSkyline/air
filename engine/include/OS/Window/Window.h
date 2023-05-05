@@ -88,9 +88,11 @@ public:
 	}
 	void Tick()
 	{
+		// delta time
 		deltaTime = glfwGetTime() - time;
 		time = glfwGetTime();
 
+		// frame rate
 		int currentSecond = floor(time);
 		if (currentSecond == lastSecond)
 		{
@@ -103,10 +105,11 @@ public:
 			lastSecond = currentSecond;
 		}
 		
-
+		// mouse delta
 		mouseCursor.deltaPos = mouseCursor.pos - mouseCursor.lastPos;
 		mouseCursor.lastPos = mouseCursor.pos;
 
+		// key state
 		for (int i = 0; i < GLFW_KEY_LAST; i++)
 		{
 			Key &k = keys[i];
@@ -118,6 +121,7 @@ public:
 				k.pressDur = 0;
 		}
 
+		// opengl
 		glfwSwapBuffers(glfw_window);
         glfwPollEvents();
 	}
