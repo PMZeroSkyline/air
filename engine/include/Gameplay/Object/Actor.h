@@ -3,7 +3,6 @@
 
 #include "Entity.h"
 #include "Gameplay/Component/AnimationNodeComponent.h"
-#include "OS/Window/Window.h"
 #include "Core/Parse/StringParse.h"
 
 class Actor : public Entity
@@ -12,7 +11,6 @@ public:
 	bool isDirty = true;
 	mat4 worldMatrix;
 	Transform localTransform;
-	Window* window = GetCurrentWindowContext();
 	
 	vec3 GetForwardVector() const
 	{

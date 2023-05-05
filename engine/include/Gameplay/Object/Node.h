@@ -44,39 +44,67 @@ public:
 			children[i]->Tick();
 		}
 	}
+	template<typename T>
+	void RForEach(T* node, function<void(T*)> func)
+	{
+		for (int i = 0; i < node->children.size(); i++)
+		{
+			RForEach((T*)node->children[i], func);
+		}
+		func(node);
+	}
+	template<typename T>
+	void RForEach(function<void(T*)> func)
+	{
+		RForEach((T*)this, func);
+	}
+	template<typename T>
+	void ForEach(T* node, function<bool(T*)> func)
+	{
+		if (func(node))
+		{
+			return;
+		}
+		for (int i = 0; i < node->children.size(); i++)
+		{
+			ForEach((T*)node->children[i], func);
+		}
+	}
+	template<typename T>
+	void ForEach(function<bool(T*)> func)
+	{
+		ForEach((T*)this, func);
+	}
+	template<typename T>
+	T* FindByName(const string& findName)
+	{
+		T* result = nullptr;
+		ForEach<T>([&result, &findName](T* curr){
+			if (((Node*)curr)->name == findName)
+			{
+				result = curr;
+				return true;
+			}
+			return false;
+		});
+		return result;
+	}
+	template<typename T>
+	T* GetRoot(T* node)
+	{
+		T* parent = (T*)((Node*)node)->parent;
+		if (parent)
+		{
+			return GetRoot(parent);
+		}
+		return node;
+	}
+	template<typename T>
+	T* GetRoot()
+	{
+		return GetRoot((T*)this);
+	}
 };
 
-template<typename T>
-void RForEachNode(T* node, function<void(T*)> func)
-{
-	for (int i = 0; i < ((Node*)node)->children.size(); i++)
-	{
-		RForEachNode((T*)(((Node*)node)->children[i]), func);
-	}
-	func(node);
-}
-template<typename T>
-void ForEachNode(T* node, function<bool(T*)> func)
-{
-	if(!func(node))
-		return;
-	for (int i = 0; i < ((Node*)node)->children.size(); i++)
-	{
-		ForEachNode((T*)(((Node*)node)->children[i]), func);
-	}
-}
-template<typename T>
-T* FindNodeByName(const string& name, T* node)
-{
-	T* found = nullptr;
-	ForEachNode<T>(node, [&found, &name](T* current){
-		if (current->name == name)
-		{
-			found = current;
-			return false;
-		}
-		return true;
-	});
-	return found;
-}
+
 #endif

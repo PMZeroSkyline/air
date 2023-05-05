@@ -10,14 +10,10 @@ public:
     vec3 max = vec3(0.f);
     bool Check(const vec3& v)
     {
-        for (int i = 0; i < 3; i++)
-        {
-            if (v[i] > max[i] || v[i] < min[i])
-            {
-                return false;
-            }
-        }
-        return true;
+        bool x = v.x < max.x && v.x > min.x;
+        bool y = v.y < max.y && v.y > min.y;
+        //bool z = v.z < max.z && v.z > min.z;
+        return x && y;
     }
 };
 

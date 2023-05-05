@@ -44,6 +44,34 @@ public:
 		}
 		return nullptr;
 	}
+	template<typename T>
+	void GetComponents(vector<T*>& result)
+	{
+		for (int i = 0; i < components.size(); i++)
+		{
+			Component* c = components[i];
+			if (typeid(*c) == typeid(T))
+			{
+				result.push_back((T*)components[i]);
+			}
+		}
+	}
+	template<typename T>
+	vector<T*> GetComponents(bool isDeepSearch = false)
+	{
+		vector<T*> result;
+		if (isDeepSearch)
+		{
+			RForEach<Entity>([&result](Entity* curr){
+				curr->GetComponents<T>(result);
+			});
+		}
+		else
+		{
+			GetComponents<T>(result);
+		}
+		return result;
+	}
 	virtual void Start() override
 	{
 		Node::Start();

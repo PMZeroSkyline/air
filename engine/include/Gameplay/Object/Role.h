@@ -9,7 +9,6 @@
 class AnimationState : public Node
 {
 public:
-    Window* window = GetCurrentWindowContext();
     AnimationInstance* animationInstance = nullptr;
 
     int depth = -1;
@@ -110,7 +109,6 @@ public:
 class AnimationStateMacine : public Component
 {
 public:
-    Window* window = GetCurrentWindowContext();
     vector<AnimationInstance>* animationInstances = nullptr;
     shared_ptr<AnimationState> rootState;
     map<string, AnimationState*> stateMap;
@@ -120,7 +118,7 @@ public:
     void Load(const string& path)
     {
         rootState = TreeFileParse<AnimationState>(path);
-        RForEachNode<AnimationState>(rootState.get(), [this](AnimationState* curr){
+        rootState->RForEach<AnimationState>([this](AnimationState* curr){
             curr->Setup(animationInstances, &stateMap);
         });
         currentState = rootState.get();

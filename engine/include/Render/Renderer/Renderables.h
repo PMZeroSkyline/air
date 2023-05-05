@@ -12,25 +12,30 @@ public:
 	void Load(Actor* root)
 	{
 		renderables.clear();
-		RForEachNode<Actor>(root, [this](Actor* current){
+		root->RForEach<Actor>([this](Actor* current){
 			CameraComponent* cc = current->GetComponent<CameraComponent>();
 			if (!cameraComponent && cc)
 			{
 				cameraComponent = cc;
 			}
-			MeshComponent* mc = current->GetComponent<MeshComponent>();
-			if (mc)
+			vector<MeshComponent*> mcs = current->GetComponents<MeshComponent>();
+			for (int i = 0; i < mcs.size(); i++)
 			{
-				SkinComponent* sc = current->GetComponent<SkinComponent>();
-				for (int i = 0; i < mc->mesh->primitives.size(); i++)
+				MeshComponent* mc = mcs[i];
+				if (mc)
 				{
-					shared_ptr<Renderable> renderable = make_shared<Renderable>();
-					renderable->primitive = mc->mesh->primitives[i];
-					renderable->meshComponent = mc;
-					renderable->skinComponent = sc;
-					renderables.push_back(renderable);
+					SkinComponent* sc = current->GetComponent<SkinComponent>();
+					for (int i = 0; i < mc->mesh->primitives.size(); i++)
+					{
+						shared_ptr<Renderable> renderable = make_shared<Renderable>();
+						renderable->primitive = mc->mesh->primitives[i];
+						renderable->meshComponent = mc;
+						renderable->skinComponent = sc;
+						renderables.push_back(renderable);
+					}
 				}
 			}
+			
 		});
 	}
 	void Render()
