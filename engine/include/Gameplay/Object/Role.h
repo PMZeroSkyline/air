@@ -145,6 +145,11 @@ public:
     }
     void Tick() override
     {
+        if (!currentState)
+        {
+            return;
+        }
+        
         for (int i = currentState->children.size()-1; i >= 0; i--)
         {
             AnimationState* state = (AnimationState*)currentState->children[i];
@@ -191,12 +196,12 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        sMesh->Load("vroid/vroid.gltf");
-        sMesh->FieldExpand();
-        cAnimMachine->animationInstances = &sMesh->animationInstances;
-        cAnimMachine->Load("anim/anim1.md");
-        cAnimMachine->dir = &dir;
-        cAnimMachine->aMesh = aMesh;
+        //sMesh->Load("vroid/vroid.gltf");
+        //sMesh->FieldExpand();
+        // cAnimMachine->animationInstances = &sMesh->animationInstances;
+        // cAnimMachine->Load("anim/anim1.md");
+        // cAnimMachine->dir = &dir;
+        // cAnimMachine->aMesh = aMesh;
     }
     virtual void Start() override
     {
@@ -237,8 +242,8 @@ public:
         {
             dir += aCamArm->GetRightVector();
         }
-        dir.z = 0.f;
-        if (dir.length() > 0.1f && cAnimMachine->currentState->name == "run")
+        //dir.z = 0.f;
+        if (dir.length() > 0.1f)
         {
             dir = dir.normalize();
             Transform wTrans = Transform(worldMatrix);

@@ -25,14 +25,9 @@ int main()
 	Actor* a1 = map.AddChild<Actor>();
 	a1->name = "Sandbox";
 	ScenesComponent* s1 = a1->AddComponent<ScenesComponent>();
-	s1->Load("sandbox/sandbox.gltf");
+	s1->Load("model/temp/temp.gltf");
 	s1->FieldExpand();
 
-	Actor* a2 = map.AddChild<Actor>();
-	a2->name = "A2";
-	ScenesComponent* s2 = a2->AddComponent<ScenesComponent>();
-	s2->Load("vroid/vroid.gltf");
-	s2->FieldExpand();
 
 	Renderables renderables;
 	map.Start();
