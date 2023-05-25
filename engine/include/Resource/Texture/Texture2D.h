@@ -14,7 +14,7 @@ public:
     TextureSampler sampler;
     shared_ptr<Image> image;
     GLTexture2D glTexture2D;
-    void SetupGLTexture2D()
+    void SetupGLTexture2D(bool isGenMipmap = true)
     {
         LOG("SetupGLTexture2D " << name)
         GLenum format = GL_RGBA;
@@ -26,7 +26,11 @@ public:
         {
             format = GL_RGB;
         }
-        glTexture2D.Setup(sampler.wrapS, sampler.wrapT, sampler.minFilter, sampler.magFilter, format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
+        glTexture2D.Bind();
+        glTexture2D.SetupWrapST(sampler.wrapS, sampler.wrapT);
+        glTexture2D.SetupFilter(sampler.minFilter, sampler.magFilter);
+        glTexture2D.SetupPixels(format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
+        glTexture2D.GenMipmap();
     }
 };
 

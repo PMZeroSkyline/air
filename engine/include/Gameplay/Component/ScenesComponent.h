@@ -4,7 +4,7 @@
 #include "Component.h"
 #include "Resource/Model/Scenes.h"
 #include "Gameplay/Object/Actor.h"
-#include "Animation/AnimationState/AnimationView.h"
+#include "Animation/AnimationView.h"
 #include "AnimationNodeComponent.h"
 #include "MeshComponent.h"
 #include "SkinComponent.h"
@@ -87,15 +87,15 @@ public:
                     animationNodeComponent = targetNode->AddComponent<AnimationNodeComponent>();
                 }
 
-                AnimationView* animationInstanceView = animationNodeComponent->GetAnimationView(animationInstance);
-                if (!animationInstanceView)
+                AnimationView* animationView = animationNodeComponent->GetAnimationView(animationInstance);
+                if (!animationView)
                 {
                     animationNodeComponent->animationViews.push_back(AnimationView());
-                    animationInstanceView = &animationNodeComponent->animationViews.back();
-                    animationInstanceView->animationInstance = animationInstance;
+                    animationView = &animationNodeComponent->animationViews.back();
+                    animationView->animationInstance = animationInstance;
                 }
 
-                animationInstanceView->channels.push_back(channel);
+                animationView->channels.push_back(channel);
             }
         }
         for (int i = 0; i < skinInstances.size(); i++)

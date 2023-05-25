@@ -88,19 +88,11 @@ public:
             gltf::AccessResult result = gltf::Access(GLTF, gAnimationSampler->input);
             if (result.accessor->componentType == GL_FLOAT)
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->input);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->inputs);
             }
             if (result.accessor->min.size() == 1)
             {
                 animationSampler->min = result.accessor->min[0];
-                if (animation->min == -1)
-                {
-                    animation->min = animationSampler->min;
-                }
-                else
-                {
-                    animation->min = min(animation->min, animationSampler->min);
-                }
             }
             else
             {
@@ -109,14 +101,6 @@ public:
             if (result.accessor->max.size() == 1)
             {
                 animationSampler->max = result.accessor->max[0];
-                if (animation->max == -1)
-                {
-                    animation->max = animationSampler->max;
-                }
-                else
-                {
-                    animation->max = max(animation->max, animationSampler->max);
-                }
             }
             else
             {
@@ -125,14 +109,14 @@ public:
             result = gltf::Access(GLTF, gAnimationSampler->output);
             if (result.accessor->componentType == GL_FLOAT && result.accessor->type == "VEC3")
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->outputVec3);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->outputVec3s);
             }
             else if (result.accessor->componentType == GL_FLOAT && result.accessor->type == "VEC4")
             {
-                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->outputQuat);
+                VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, animationSampler->outputQuats);
             }
         }
-
+        animation->ResetMinMax();
         animation->name = gAnimation->name;
         animation->channels.resize(gAnimation->channels.size());
         for (int i = 0; i < gAnimation->channels.size(); i++)

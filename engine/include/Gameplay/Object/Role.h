@@ -4,22 +4,18 @@
 #include "Gameplay/Object/Actor.h"
 #include "Gameplay/Component/CameraComponent.h"
 #include "Gameplay/Component/ScenesComponent.h"
-#include "OS/Window/Window.h"
+#include "Gameplay/Component/AnimationPlayerComponent.h"
 
 class AnimationState : public Node
 {
 public:
-    AnimationInstance* animationInstance = nullptr;
-
     int depth = -1;
     bool isRef = false;
-
+    AnimationInstance* animInst = nullptr;
     KEY key = (KEY)-1;
-    float time = 0.f;
+    float percent = 0.f;
     vector<string> tags;
-
     bool isKeyReady = false;
-
     void Setup(vector<AnimationInstance>* animationInstances, map<string, AnimationState*>* stateMap)
     {
         depth = GetStringIndent(name);
@@ -38,9 +34,9 @@ public:
                 key = keyMap[keyStr];
             }
         }
-        if (string timeStr = GetBracketContent(mark, "()"); timeStr != "")
+        if (string percentStr = GetBracketContent(mark, "()"); percentStr != "")
         {
-            time = atof(timeStr.c_str());
+            percent = atof(percentStr.c_str());
         }
         if (string tagStr = GetBracketContent(mark, "{}"); tagStr != "")
         {
@@ -51,12 +47,12 @@ public:
         });
         if (found != animationInstances->end())
         {
-            animationInstance = &(*found);
-            if (animationInstance)
+            animInst = &(*found);
+            if (animInst)
             {
                 if (name == "idle" || name == "run")
                 {
-                    animationInstance->isLoop = true;
+                    animInst->isLoop = true;
                 }
             }
         }
@@ -74,19 +70,19 @@ public:
                 isKeyReady = true;
             }
         }
-        bool isTimeReady = false;
-        if (time == 0)
+        bool isPercentReady = false;
+        if (percent == 0)
         {
-            isTimeReady = true;
+            isPercentReady = true;
         }
         else
         {
             if (currentState)
             {
-                float currRate = currentState->animationInstance->time / currentState->animationInstance->animation->max;
-                if (currRate >= time)
+                float currRate = currentState->animInst->time / currentState->animInst->animation->max;
+                if (currRate >= percent)
                 {
-                    isTimeReady = true;
+                    isPercentReady = true;
                 }
             }
         }
@@ -103,7 +99,7 @@ public:
                 isTagReady = false;
             }
         }
-        return isKeyReady && isTimeReady && isTagReady;
+        return isKeyReady && isPercentReady && isTagReady;
     }
 };
 class AnimationStateMacine : public Component
@@ -118,7 +114,7 @@ public:
     void Load(const string& path)
     {
         rootState = TreeFileParse<AnimationState>(path);
-        rootState->RForEach<AnimationState>([this](AnimationState* curr){
+        rootState->REachNode<AnimationState>([this](AnimationState* curr){
             curr->Setup(animationInstances, &stateMap);
         });
         currentState = rootState.get();
@@ -136,10 +132,10 @@ public:
             for_each(animationInstances->begin(), animationInstances->end(), [this](AnimationInstance& curr){
                 curr.weight = 0.f;
             });
-            if (currentState->animationInstance)
+            if (currentState->animInst)
             {
-                currentState->animationInstance->time = 0.f;
-                currentState->animationInstance->weight = 1.f;
+                currentState->animInst->time = 0.f;
+                currentState->animInst->weight = 1.f;
             }
         }
     }
@@ -166,12 +162,12 @@ public:
                 break;
             }
         }
-        if (currentState->animationInstance)
+        if (currentState->animInst)
         {
-            currentState->animationInstance->time += window->deltaTime;
-            if (currentState->animationInstance->isLoop && currentState->animationInstance->time >= currentState->animationInstance->animation->max)
+            currentState->animInst->time += window->deltaTime;
+            if (currentState->animInst->isLoop && currentState->animInst->time >= currentState->animInst->animation->max)
             {
-                currentState->animationInstance->time = 0.f;
+                currentState->animInst->time = 0.f;
             }
             ((Actor*)owner)->ResetWorldMatrix(false, (Actor*)owner);
         }
@@ -181,12 +177,18 @@ public:
 class Role : public Actor
 {
 public:
+
+    // camera
     Actor* aCamArm = AddChild<Actor>();
     Actor* aCam = aCamArm->AddChild<Actor>();
     CameraComponent* camComp = aCam->AddComponent<CameraComponent>();
-    Actor* aMesh = AddChild<Actor>();
-    ScenesComponent* sMesh = aMesh->AddComponent<ScenesComponent>();
-    AnimationStateMacine* cAnimMachine = AddComponent<AnimationStateMacine>();
+
+    // mesh
+    Actor* aModel = AddChild<Actor>();
+    ScenesComponent* sModel = aModel->AddComponent<ScenesComponent>();
+    AnimationPlayerComponent* cPlayer = AddComponent<AnimationPlayerComponent>();
+
+    // motion
     vec3 dir;
 
     Role()
@@ -195,13 +197,11 @@ public:
         aCam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
-        aMesh->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        //sMesh->Load("vroid/vroid.gltf");
-        //sMesh->FieldExpand();
-        // cAnimMachine->animationInstances = &sMesh->animationInstances;
-        // cAnimMachine->Load("anim/anim1.md");
-        // cAnimMachine->dir = &dir;
-        // cAnimMachine->aMesh = aMesh;
+        aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
+        sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
+        sModel->FieldExpand();
+        cPlayer->animInsts = &sModel->animationInstances;
+        cPlayer->Play("idle", true);
     }
     virtual void Start() override
     {
@@ -242,7 +242,7 @@ public:
         {
             dir += aCamArm->GetRightVector();
         }
-        //dir.z = 0.f;
+        dir.z = 0.f;
         if (dir.length() > 0.1f)
         {
             dir = dir.normalize();
@@ -258,11 +258,10 @@ public:
             SetWorldMatrix(wTrans.ToMatrix());
 
             // Setup mesh rotation
-            Transform wMeshTrans = Transform(aMesh->worldMatrix);
+            Transform wMeshTrans = Transform(aModel->worldMatrix);
             float wAngleZ = atan2(dir.y, dir.x);
             wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
-            aMesh->SetWorldMatrix(wMeshTrans.ToMatrix());
-            //aMesh->SetWorldRotation(EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f));
+            aModel->SetWorldMatrix(wMeshTrans.ToMatrix());
         }
     }
 };

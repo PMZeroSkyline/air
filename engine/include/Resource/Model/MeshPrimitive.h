@@ -36,7 +36,7 @@ public:
     }
     
 };
-shared_ptr<MeshPrimitive> MakeCubePrimitive()
+shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive()
 {
     shared_ptr<MeshPrimitive> primitive = make_shared<MeshPrimitive>();
     primitive->material = make_shared<Material>();

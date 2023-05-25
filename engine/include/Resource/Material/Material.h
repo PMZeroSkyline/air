@@ -58,6 +58,7 @@ public:
             glBindTexture(GL_TEXTURE_2D, texturePairs[i].second->glTexture2D.id);
             shader->SetInt(texturePairs[i].first, i);
         }
+        shader->SetBool("isUseTexture", texturePairs.size() != 0);
     }
 };
 

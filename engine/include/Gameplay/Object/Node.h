@@ -45,21 +45,21 @@ public:
 		}
 	}
 	template<typename T>
-	void RForEach(T* node, function<void(T*)> func)
+	void REachNode(T* node, function<void(T*)> func)
 	{
 		for (int i = 0; i < node->children.size(); i++)
 		{
-			RForEach((T*)node->children[i], func);
+			REachNode((T*)node->children[i], func);
 		}
 		func(node);
 	}
 	template<typename T>
-	void RForEach(function<void(T*)> func)
+	void REachNode(function<void(T*)> func)
 	{
-		RForEach((T*)this, func);
+		REachNode((T*)this, func);
 	}
 	template<typename T>
-	void ForEach(T* node, function<bool(T*)> func)
+	void EachNode(T* node, function<bool(T*)> func)
 	{
 		if (func(node))
 		{
@@ -67,19 +67,19 @@ public:
 		}
 		for (int i = 0; i < node->children.size(); i++)
 		{
-			ForEach((T*)node->children[i], func);
+			EachNode((T*)node->children[i], func);
 		}
 	}
 	template<typename T>
-	void ForEach(function<bool(T*)> func)
+	void EachNode(function<bool(T*)> func)
 	{
-		ForEach((T*)this, func);
+		EachNode((T*)this, func);
 	}
 	template<typename T>
 	T* FindByName(const string& findName)
 	{
 		T* result = nullptr;
-		ForEach<T>([&result, &findName](T* curr){
+		EachNode<T>([&result, &findName](T* curr){
 			if (((Node*)curr)->name == findName)
 			{
 				result = curr;

@@ -57,12 +57,12 @@ public:
 		}
 	}
 	template<typename T>
-	vector<T*> GetComponents(bool isDeepSearch = false)
+	vector<T*> GetComponents(bool isTraversingTree = false)
 	{
 		vector<T*> result;
-		if (isDeepSearch)
+		if (isTraversingTree)
 		{
-			RForEach<Entity>([&result](Entity* curr){
+			REachNode<Entity>([&result](Entity* curr){
 				curr->GetComponents<T>(result);
 			});
 		}

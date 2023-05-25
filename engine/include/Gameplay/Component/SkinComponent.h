@@ -2,7 +2,7 @@
 #define SKIN_COMPONENT_H
 
 #include "Component.h"
-#include "Animation/SkinAnimation/SkinInstance.h"
+#include "Animation/SkinInstance.h"
 
 class SkinComponent : public Component
 {

@@ -1,0 +1,5 @@
+#ifndef ANIMATION_TREE_COMPONENT_H
+#define ANIMATION_TREE_COMPONENT_H
+
+
+#endif

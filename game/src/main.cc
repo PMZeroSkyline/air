@@ -7,52 +7,91 @@
 #include "Gameplay/Component/ScenesComponent.h"
 #include "Render/Camera/Camera.h"
 #include "Gameplay/Component/CameraComponent.h"
-#include "Map/Map.h"
 #include "Gameplay/Object/Actor.h"
 #include "Gameplay/Object/Role.h"
-#include "Render/Renderer/Renderables.h"
+#include "Render/Render/Render.h"
 #include "Core/Temp/Temp.h"
 #include "Core/Parse/TreeFileParse.h"
+#include "Gameplay/Component/AnimationPlayerComponent.h"
 
 int main()
 {
 	CDResourcesDir();
 	Window window;
 
-	Map map;
+	// Make Root
+	Actor map;
 	map.name = "Map";
+
+	// Add Player
 	map.AddChild<Role>();	
+
+	// Make floor
 	Actor* a1 = map.AddChild<Actor>();
-	a1->name = "Sandbox";
-	ScenesComponent* s1 = a1->AddComponent<ScenesComponent>();
-	s1->Load("model/temp/temp.gltf");
-	s1->FieldExpand();
+	MeshComponent* mc = a1->AddComponent<MeshComponent>();
+	a1->localTransform.scaling = vec3(10.f, 10.f, .1f);
+	a1->localTransform.translation = vec3(0.f, 0.f, -.1f);
+	mc->mesh = make_shared<Mesh>();
+	mc->mesh->primitives.push_back(MakeCubeMeshPrimitive());
 
+	// Add floor rotation
+	//vector<AnimationInstance> animInsts;
+	//animInsts.resize(1);
+	//AnimationInstance& animInst = animInsts[0];
+	//Animation anim;
+	//anim.name = "Test";
+	//anim.samplers.resize(1);
+	//anim.channels.resize(1);
+	//AnimationSampler& animSamp = anim.samplers[0];
+	//animSamp.outputQuats.resize(2);
+	//animSamp.outputQuats[0] = EulerToQuat(vec3(0.f,0.f,30.f));
+	//animSamp.outputQuats[1] = EulerToQuat(vec3(0.f,0.f,90.f));
+	//animSamp.inputs.resize(2);
+	//animSamp.inputs[0] = 0.f;
+	//animSamp.inputs[1] = 1.f;
+	//animSamp.max = 1.f;
+	//anim.ResetMinMax();
+	//AnimationChannel& animChanel = anim.channels[0];
+	//animChanel.sampler = &animSamp;
+	//animChanel.target.path = AnimationChannelTargetPath::rotation;
+	//animInst.animation = &anim;
+	//AnimationNodeComponent* an = a1->AddComponent<AnimationNodeComponent>();
+	//AnimationView av;
+	//av.animationInstance = &animInst;
+	//av.channels.push_back(&animChanel);
+	//an->animationViews.push_back(av);
+	//AnimationPlayerComponent* animPlay = a1->AddComponent<AnimationPlayerComponent>();
+	//animPlay->animInsts = &animInsts;
+	//animPlay->Play("Test", true);
 
-	Renderables renderables;
+	// Init
 	map.Start();
 	map.ResetWorldMatrix(true);
+
 	while (window.IsOpen())
 	{
 		window.Tick();
 		GLClear();
 		
+		// Tick each object
 		map.Tick();
-		renderables.Load(&map);
-		renderables.Render();
-	
-	// Actor* cube = FindNodeByName<Actor>("Cube.010", a1);
-	// if (cube)
-	// {
-	// 	MeshComponent* cCube = cube->GetComponent<MeshComponent>();
-	// 	if (cCube)
-	// 	{
-	// 		mat4 cs = cube->worldMatrix.inverse() * roleActor->worldMatrix;
-	// 		vec3 test(cs[0][3],cs[1][3],cs[2][3]);
-	// 		LOG(cCube->mesh->primitives[0]->boundingBox.Check(test));
-	// 	}
-	// }
+		map.ResetWorldMatrix();
+
+
+		// Render
+		GLFrameBuffer fbo;
+		fbo.Bind();
+		GLTexture2D colTex;
+		colTex.Bind();
+		colTex.SetupPixels(GL_RGB, window.GetSize().x, window.GetSize().y, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+		colTex.SetupFilter(GL_LINEAR, GL_LINEAR);
 		
+
+		Render render;
+		render.Load(&map);
+		render.Draw();
+	
+		// Others
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{
 			window.Close();

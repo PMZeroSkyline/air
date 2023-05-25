@@ -72,15 +72,26 @@ struct GLTexture2D
 	{
 		glGenTextures(1, &id);		
 	}
-	void Setup(GLint wrap_s, GLint wrap_t, GLint min_filter, GLint mag_filter, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
+	void Bind()
 	{
 		glBindTexture(GL_TEXTURE_2D, id);
-
+	}
+	void SetupWrapST(GLint wrap_s, GLint wrap_t)
+	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+	}
+	void SetupFilter(GLint min_filter, GLint mag_filter)
+	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+	}
+	void SetupPixels(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
+	{
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
+	}
+	void GenMipmap()
+	{
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	~GLTexture2D()
@@ -135,11 +146,38 @@ struct GLUniformBuffer : GLBuffer
 		glBindBufferBase(GL_UNIFORM_BUFFER, index, id);
 	}
 };
-struct GLElementArrayBuffer : GLArrayBuffer
+struct GLElementArrayBuffer : GLBuffer
 {
 	void Bind()
 	{
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+	}
+};
+struct GLFrameBuffer : GLBuffer
+{
+	void Bind()
+	{
+		glBindBuffer(GL_FRAMEBUFFER, id);
+	}
+	bool Check()
+	{
+		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+	}
+};
+struct GLRenderBuffer
+{
+	unsigned int id;
+	GLRenderBuffer()
+	{
+		glGenRenderbuffers(1, &id);
+	}
+	~GLRenderBuffer()
+	{
+		glDeleteRenderbuffers(1, &id);
+	}
+	void Bind()
+	{
+		glBindRenderbuffer(GL_RENDERBUFFER, id);
 	}
 };
 struct GLPrimitive

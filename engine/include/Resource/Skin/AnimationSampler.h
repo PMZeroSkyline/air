@@ -10,12 +10,12 @@ class AnimationSampler
 public:
 	string interpolation = "LINEAR";
 
-	vector<float> input;
+	vector<float> inputs;
 	float min;
 	float max;
 
-	vector<vec3> outputVec3;
-	vector<quat> outputQuat;
+	vector<vec3> outputVec3s;
+	vector<quat> outputQuats;
 
 	void GetInputInterp(float time, int& x, int& y, float& interp) const
 	{
@@ -29,16 +29,16 @@ public:
 		if (time >= max)
 		{
 			interp = 1.f;
-			x = input.size() - 1;
-			y = input.size() - 1;
+			x = inputs.size() - 1;
+			y = inputs.size() - 1;
 			return;
 		}
-		for (int i = 0; i < input.size() - 1; i++)
+		for (int i = 0; i < inputs.size() - 1; i++)
 		{
-			if (input[i] <= time && input[i+1] >= time)
+			if (inputs[i] <= time && inputs[i+1] >= time)
 			{
-				float localTime = time - input[i];
-				float localTimeRange = input[i+1] - input[i];
+				float localTime = time - inputs[i];
+				float localTimeRange = inputs[i+1] - inputs[i];
 				interp = localTime / localTimeRange;
 				x = i;
 				y = i + 1;
@@ -52,7 +52,7 @@ public:
 	}
 	vec3 SampleVec3(float time) const
 	{
-		if (outputVec3.size() == 0 || input.size() == 0)
+		if (outputVec3s.size() == 0 || inputs.size() == 0)
 		{
 			return vec3();
 		}
@@ -61,17 +61,17 @@ public:
 		GetInputInterp(time, x, y, interp);
 		if (interp == 0.f)
 		{
-			return outputVec3[x];
+			return outputVec3s[x];
 		}
 		if (interp == 1.f)
 		{
-			return outputVec3[y];
+			return outputVec3s[y];
 		}
-		return lerp(outputVec3[x], outputVec3[y], interp);
+		return lerp(outputVec3s[x], outputVec3s[y], interp);
 	}
 	quat SampleQuat(float time) const
 	{
-		if (outputQuat.size() == 0 || outputQuat.size() == 0)
+		if (outputQuats.size() == 0 || outputQuats.size() == 0)
 		{
 			return quat();
 		}
@@ -80,13 +80,13 @@ public:
 		GetInputInterp(time, x, y, interp);
 		if (interp == 0.f)
 		{
-			return outputQuat[x];
+			return outputQuats[x];
 		}
 		if (interp == 1.f)
 		{
-			return outputQuat[y];
+			return outputQuats[y];
 		}
-		return slerp(outputQuat[x], outputQuat[y], interp);
+		return slerp(outputQuats[x], outputQuats[y], interp);
 	}
 };
 

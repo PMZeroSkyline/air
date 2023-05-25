@@ -86,6 +86,12 @@ public:
 	{
 		return !glfwWindowShouldClose(glfw_window);
 	}
+	ivec2 GetSize()
+	{
+		int w, h;
+		glfwGetWindowSize(glfw_window, &w, &h);
+		return ivec2(w, h);
+	}
 	void Tick()
 	{
 		// delta time

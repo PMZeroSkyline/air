@@ -2,7 +2,7 @@
 #define ANIMATION_NODE_COMPONENT_H
 
 #include "SDK/STL/STL.h"
-#include "Animation/AnimationState/AnimationView.h"
+#include "Animation/AnimationView.h"
 #include "Component.h"
 #include "Core/Transform/Transform.h"
 #include "Core/Log/Log.h"
