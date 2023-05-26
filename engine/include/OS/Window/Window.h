@@ -20,7 +20,6 @@ void SetupOpenGL()
 	{
 		LOG("Failed to initialize GLAD !")
 	}
-	LOG("load glad succeed")
 }
 class Window
 {
@@ -52,7 +51,6 @@ public:
 			LOG("Failed to create GLFW window !")
 			glfwTerminate();
 		}
-		LOG("create window succeed")
 
 		glfwMakeContextCurrent(glfw_window);
 		glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -80,7 +78,6 @@ public:
 	~Window()
 	{
 	    glfwTerminate();
-		LOG("delete window")
 	}
 	bool IsOpen()
 	{
@@ -106,7 +103,6 @@ public:
 		}
 		else
 		{
-			LOG("frameRate:\t" << frameRate)
 			frameRate = 0;
 			lastSecond = currentSecond;
 		}

@@ -3,8 +3,9 @@
 
 #include "Shader.h"
 #include "Resource/Texture/Texture2D.h"
+#include "Render/Render/RenderContext.h"
 
-enum MaterialSort
+enum MaterialAlphaMode
 {
     OPAQUE,
     MASK,
@@ -17,31 +18,39 @@ public:
     string name;
     shared_ptr<Shader> shader;
     float alphaCutoff = 0.5f;
-    MaterialSort sortMode = MaterialSort::OPAQUE;
+    MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
     bool doubleSided = true;
+    GLFaceMode faceMode = GLFaceMode::FILL;
 
     vector<pair<string, shared_ptr<Texture2D>>> texturePairs;
     map<string, mat4> mat4Map;
     map<string, mat4*> mat4PtrMap;
     vector<mat4> jointMatrix;
 
-    bool operator<(const Material& rhs) const
+    
+    void Use()
     {
-        return sortMode < rhs.sortMode;
-    }
-
-    void UseDefaultShader()
-    {
-        shader = shaderBlob.Get("default");
-        if (!shader)
+        // Setup Render Context
+        bool isCullFace = !doubleSided;
+        if (renderContext.isCullFace != isCullFace)
         {
-            shader = make_shared<Shader>();
-            shader->Load("shader/default_vs.glsl", "shader/default_fs.glsl");
-            shaderBlob.Set("default", shader);
+            GLSetCullFace(isCullFace);
+            renderContext.isCullFace = isCullFace;
         }
-    }
-    void Bind()
-    {
+        bool isBlend = alphaMode == MaterialAlphaMode::BLEND;
+        if (renderContext.isBlend != isBlend)
+        {
+            GLSetBlend(isBlend);
+            renderContext.isBlend = isBlend;
+        }
+        if (renderContext.frontAndBackFaceMode != faceMode)
+        {
+            GLSetFaceMode(faceMode);
+            renderContext.frontAndBackFaceMode = faceMode;
+        }
+        
+        
+        // Set Shader
         shader->Use();
         for (auto it = mat4PtrMap.begin(); it != mat4PtrMap.end(); it++)
         {

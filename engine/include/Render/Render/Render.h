@@ -4,11 +4,13 @@
 #include "Renderable.h"
 #include "Gameplay/Component/CameraComponent.h"
 
+
 class Render
 {
 public:
 	CameraComponent* cameraComponent = nullptr;
 	vector<shared_ptr<Renderable>> renderables;
+
 	void Load(Actor* root)
 	{
 		renderables.clear();
@@ -37,11 +39,12 @@ public:
 			}
 		});
 		sort(renderables.begin(), renderables.end(), [](const shared_ptr<Renderable>& lhs, const shared_ptr<Renderable>& rhs){
-			return lhs->primitive->material->sortMode < rhs->primitive->material->sortMode;
+			return lhs->primitive->material->alphaMode < rhs->primitive->material->alphaMode;
 		});
 	}
 	void Draw()
 	{
+		GLClear();
 		mat4 V, P;
 		if (cameraComponent)
 		{

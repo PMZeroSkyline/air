@@ -5,7 +5,7 @@
 #include "MeshAttribute.h"
 #include "SDK/OpenGL/MeshCommit.h"
 #include "Resource/Material/Material.h"
-#include "Physic/Shape/BoundingBox.h"
+#include "Physic/Shape/AABB.h"
 
 class MeshPrimitive
 {
@@ -14,28 +14,34 @@ public:
     MeshAttribute attribute;
     vector<unsigned int> indices;
     shared_ptr<Material> material;
-    BoundingBox boundingBox;
+    AABB aabb;
 
     void SetupGLPrimitive()
     {
-        LOG("SetupGLPrimitive")
         glPrimitive.Bind();
         GLVaoData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
         GLEboData(indices);
     }
     void Draw()
     {
-        material->Bind();
+        material->Use();
         glPrimitive.Bind();
-        glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+        GLDrawElements(indices.size());
     }
     
 };
-shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive()
+shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = shared_ptr<Material>())
 {
     shared_ptr<MeshPrimitive> primitive = make_shared<MeshPrimitive>();
-    primitive->material = make_shared<Material>();
-    primitive->material->UseDefaultShader();
+    if (material)
+    {
+        primitive->material = material;
+    }
+    else
+    {
+        primitive->material = make_shared<Material>();
+        primitive->material->shader = GetPresetShader("default");
+    }
     primitive->attribute.POSITION = {
         {-1.0f, -1.0f, 0.0f},
         {1.0f, -1.0f, 0.0f},
@@ -61,14 +67,22 @@ shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive()
         {1.0f, 0.0f, 0.0f, 1.0f}
     };
     primitive->indices = {0, 1, 3, 0, 3, 2};
+    primitive->aabb = AABB(vec3(-1.f, -1.f, 0.f), vec3(1.f, 1.f, 0.f));
     primitive->SetupGLPrimitive();
     return primitive;
 }
-shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive()
+shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = shared_ptr<Material>())
 {
     shared_ptr<MeshPrimitive> primitive = make_shared<MeshPrimitive>();
-    primitive->material = make_shared<Material>();
-    primitive->material->UseDefaultShader();
+    if (material)
+    {
+        primitive->material = material;
+    }
+    else
+    {
+        primitive->material = make_shared<Material>();
+        primitive->material->shader = GetPresetShader("default");
+    }
     primitive->indices = {
         2, 4, 9,
         2, 9, 7,
@@ -187,6 +201,7 @@ shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive()
         {0.0f, 0.0f, 1.0f, 1.0f},
         {0.0f, 0.0f, 1.0f, 1.0f}
     };
+    primitive->aabb = AABB(vec3(-1.f), vec3(1.f));
     primitive->SetupGLPrimitive();
     return primitive;
 }

@@ -204,10 +204,10 @@ public:
         materials[i] = material;
 
         material->name = gMaterial->name;
-        material->UseDefaultShader();
-        material->sortMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialSort::OPAQUE : 
-                                gMaterial->alphaMode == "MASK" ? MaterialSort::MASK : 
-                                gMaterial->alphaMode == "BLEND" ? MaterialSort::BLEND : MaterialSort::OPAQUE;
+        material->shader = GetPresetShader("default");
+        material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
+                                gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
+                                gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
         material->doubleSided = gMaterial->doubleSided;
         material->alphaCutoff = gMaterial->alphaCutoff;
         
@@ -250,8 +250,8 @@ public:
                 }
                 if (result.accessor->min.size() == 3 && result.accessor->max.size() == 3)
                 {
-                    memcpy(&primitive->boundingBox.min, &result.accessor->min[0], sizeof(vec3));
-                    memcpy(&primitive->boundingBox.max, &result.accessor->max[0], sizeof(vec3));
+                    memcpy(&primitive->aabb.min, &result.accessor->min[0], sizeof(vec3));
+                    memcpy(&primitive->aabb.max, &result.accessor->max[0], sizeof(vec3));
                 }
             }
             id = gPrimitive->Find("NORMAL");
@@ -334,12 +334,10 @@ public:
             else
             {
                 primitive->material = make_shared<Material>();
-                primitive->material->UseDefaultShader();
+                primitive->material->shader = GetPresetShader("default");
             }
-            
             primitive->SetupGLPrimitive();
         }
-        
     }
     void SetupNode(const gltf::glTF& GLTF, int i)
     {

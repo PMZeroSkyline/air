@@ -68,7 +68,16 @@ public:
         glUniformMatrix4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_TRUE, &mat[0][0]);
     }
 };
-
 Blob<Shader> shaderBlob;
-
+shared_ptr<Shader> GetPresetShader(const string& name)
+{
+    shared_ptr<Shader> shader = shaderBlob.Get(name);
+    if (!shader)
+    {
+        shader = make_shared<Shader>();
+        shader->Load("shader/" + name + "_vs.glsl", "shader/" + name + "_fs.glsl");
+        shaderBlob.Set(name, shader);
+    }
+    return shader;
+}
 #endif

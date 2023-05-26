@@ -24,5 +24,5 @@ void main()
     }
     float nl = dot(i.worldNormal.xyz, normalize(vec3(1.f)));
     FragColor = vec4(nl);
-    FragColor = i.worldNormal;
+    //FragColor = i.worldNormal;
 }

@@ -10,7 +10,7 @@ class Object
 public:
 	string name;
 	Window* window = GetCurrentWindowContext();
-	virtual ~Object(){LOG("delete " << name)}
+	virtual ~Object(){}
 	virtual void Start(){}
 	virtual void Tick(){}
 };

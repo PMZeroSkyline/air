@@ -73,7 +73,6 @@ int main()
 	while (window.IsOpen())
 	{
 		window.Tick();
-		GLClear();
 		
 		// Tick each object
 		map.Tick();

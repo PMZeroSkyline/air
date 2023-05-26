@@ -5,6 +5,52 @@
 #include "Core/Log/Log.h"
 #include "SDK/STL/STL.h"
 
+enum GLRenderBufferMode
+{
+	Depth24Stencil8 = GL_DEPTH24_STENCIL8
+};
+enum GLFrameBufferParam
+{
+	ColorAttachment0 = GL_COLOR_ATTACHMENT0,
+	DepthStencilAttachment = GL_DEPTH_STENCIL_ATTACHMENT
+};
+enum GLBlendFactor
+{
+    ZERO = GL_ZERO,
+    ONE = GL_ONE,
+    SRC_COLOR = GL_SRC_COLOR,
+    ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR,
+    DST_COLOR = GL_DST_COLOR,
+    ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR,
+    SRC_ALPHA = GL_SRC_ALPHA,
+    ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA,
+    DST_ALPHA = GL_DST_ALPHA,
+    ONE_MINUS_DST_ALPHA = GL_ONE_MINUS_DST_ALPHA,
+    CONSTANT_COLOR = GL_CONSTANT_COLOR,
+    ONE_MINUS_CONSTANT_COLOR = GL_ONE_MINUS_CONSTANT_COLOR,
+    CONSTANT_ALPHA = GL_CONSTANT_ALPHA,
+    ONE_MINUS_CONSTANT_ALPHA = GL_ONE_MINUS_CONSTANT_ALPHA
+};
+enum GLFaceMode
+{
+	LINE = GL_LINE,
+	FILL = GL_FILL
+};
+enum GLTexParam
+{
+	REPEAT = GL_REPEAT,
+	NEAREST = GL_NEAREST,
+	LINEAR = GL_LINEAR,
+	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
+	LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
+	NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
+	LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
+	RED = GL_RED,
+	RGB = GL_RGB,
+	RGBA = GL_RGBA,
+	UBYTE = GL_UNSIGNED_BYTE
+};
+
 struct GLShader
 {
 public:
@@ -12,12 +58,10 @@ public:
 	GLShader(GLenum t)
 	{
 		id = glCreateShader(t);
-		LOG("create gl shader");
 	}
 	~GLShader()
 	{
 		glDeleteShader(id);
-		LOG("delete gl shader");
 	}
 	bool Compile(const char *code)
 	{
@@ -32,7 +76,6 @@ public:
 			LOG("compile shader failed ! : " << info << " !")
 			return false;
 		}
-		LOG("compile shader succeed")
 		return true;
 	}
 };
@@ -61,24 +104,8 @@ struct GLProgram
 			LOG("link GLShader failed : " << info << " !")
 			return false;
 		}
-		LOG("link program succeed")
 		return true;
 	}
-};
-enum GLTexParam
-{
-	REPEAT = GL_REPEAT,
-	NEAREST = GL_NEAREST,
-	LINEAR = GL_LINEAR,
-	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
-	LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
-	NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
-	LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
-	RED = GL_RED,
-	RGB = GL_RGB,
-	RGBA = GL_RGBA,
-	UBYTE = GL_UNSIGNED_BYTE
-
 };
 struct GLTexture2D
 {
@@ -168,15 +195,6 @@ struct GLElementArrayBuffer : GLBuffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	}
 };
-enum GLRenderBufferParam
-{
-	Depth24Stencil8 = GL_DEPTH24_STENCIL8
-};
-enum GLFrameBufferParam
-{
-	ColorAttachment0 = GL_COLOR_ATTACHMENT0,
-	DepthStencilAttachment = GL_DEPTH_STENCIL_ATTACHMENT
-};
 struct GLFrameBuffer : GLBuffer
 {
 	void Bind()
@@ -228,15 +246,48 @@ struct GLPrimitive
 		Ebo.Bind();
 	}
 };
+enum GLCullMode
+{
+    FRONT = GL_FRONT,
+    BACK = GL_BACK,
+    FRONT_AND_BACK = GL_FRONT_AND_BACK
+};
 
+void GLDrawElements(GLsizei count)
+{
+	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+}
 void GLClear()
 {
 	glEnable(GL_DEPTH_TEST);  
 	glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
 }
-void GLLineMode()
+void GLSetCullFace(bool isEnable)
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	if (isEnable)
+	{
+		glEnable(GL_CULL_FACE);
+		
+	}
+	else
+	{
+		glDisable(GL_CULL_FACE);
+	}
+}
+void GLSetBlend(bool isEnable)
+{
+	if (isEnable)
+	{
+		glEnable(GL_BLEND);
+	}
+	else
+	{
+		glDisable(GL_BLEND);
+	}
+}
+void GLSetFaceMode(GLFaceMode mode)
+{
+	glPolygonMode(GL_FRONT_AND_BACK, mode);
 }
 #endif

@@ -198,9 +198,13 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        sModel->Load("model/blender/aurelia/aurelia.gltf");
+        MeshComponent* mc = aModel->AddComponent<MeshComponent>();
+        mc->mesh = make_shared<Mesh>();
+        mc->mesh->primitives.push_back(MakeCubeMeshPrimitive());
+        mc->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
+        //sModel->Load("model/blender/aurelia/aurelia.gltf");
         //sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
-        sModel->FieldExpand();
+        //sModel->FieldExpand();
         //cPlayer->animInsts = &sModel->animationInstances;
         //cPlayer->Play("idle", true);
     }
