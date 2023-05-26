@@ -156,6 +156,7 @@ public:
         shared_ptr<Texture2D> texture2D = texture2DBlob.Get(key);
         if (texture2D)
         {
+            texture2Ds[i] = texture2D;
             return;
         }
         texture2D = make_shared<Texture2D>();
@@ -168,14 +169,14 @@ public:
             const gltf::Sampler* gSampler = &GLTF.samplers[gTexture->sampler];
             if (gSampler->magFilter != -1)
             {
-                texture2D->sampler.magFilter = gSampler->magFilter;
+                texture2D->sampler.magFilter = (GLTexParam)gSampler->magFilter;
             }
             if (gSampler->minFilter != -1)
             {
-                texture2D->sampler.minFilter = gSampler->minFilter;
+                texture2D->sampler.minFilter = (GLTexParam)gSampler->minFilter;
             }
-            texture2D->sampler.wrapS = gSampler->wrapS;
-            texture2D->sampler.wrapT = gSampler->wrapT;
+            texture2D->sampler.wrapS = (GLTexParam)gSampler->wrapS;
+            texture2D->sampler.wrapT = (GLTexParam)gSampler->wrapT;
         }
         if (gTexture->source != -1)
         {
@@ -204,9 +205,9 @@ public:
 
         material->name = gMaterial->name;
         material->UseDefaultShader();
-        material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
-                                gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
-                                gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
+        material->sortMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialSort::OPAQUE : 
+                                gMaterial->alphaMode == "MASK" ? MaterialSort::MASK : 
+                                gMaterial->alphaMode == "BLEND" ? MaterialSort::BLEND : MaterialSort::OPAQUE;
         material->doubleSided = gMaterial->doubleSided;
         material->alphaCutoff = gMaterial->alphaCutoff;
         
@@ -251,6 +252,24 @@ public:
                 {
                     memcpy(&primitive->boundingBox.min, &result.accessor->min[0], sizeof(vec3));
                     memcpy(&primitive->boundingBox.max, &result.accessor->max[0], sizeof(vec3));
+                }
+            }
+            id = gPrimitive->Find("NORMAL");
+            if (id != -1)
+            {
+                gltf::AccessResult result = gltf::Access(GLTF, id);
+                if (result.accessor->componentType == GL_FLOAT)
+                {
+                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, primitive->attribute.NORMAL);
+                }
+            }
+            id = gPrimitive->Find("TANGENT");
+            if (id != -1)
+            {
+                gltf::AccessResult result = gltf::Access(GLTF, id);
+                if (result.accessor->componentType == GL_FLOAT)
+                {
+                    VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, primitive->attribute.TANGENT);
                 }
             }
             id = gPrimitive->Find("TEXCOORD_0");

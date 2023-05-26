@@ -4,7 +4,7 @@
 #include "Shader.h"
 #include "Resource/Texture/Texture2D.h"
 
-enum MaterialAlphaMode
+enum MaterialSort
 {
     OPAQUE,
     MASK,
@@ -17,7 +17,7 @@ public:
     string name;
     shared_ptr<Shader> shader;
     float alphaCutoff = 0.5f;
-    int alphaMode = MaterialAlphaMode::OPAQUE;
+    MaterialSort sortMode = MaterialSort::OPAQUE;
     bool doubleSided = true;
 
     vector<pair<string, shared_ptr<Texture2D>>> texturePairs;
@@ -27,7 +27,7 @@ public:
 
     bool operator<(const Material& rhs) const
     {
-        return alphaMode < rhs.alphaMode;
+        return sortMode < rhs.sortMode;
     }
 
     void UseDefaultShader()

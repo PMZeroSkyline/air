@@ -6,10 +6,10 @@
 class TextureSampler
 {
 public:
-    int magFilter = GL_LINEAR;
-    int minFilter = GL_LINEAR;
-    int wrapS = GL_REPEAT;
-    int wrapT = GL_REPEAT;
+    GLTexParam magFilter = GLTexParam::LINEAR;
+    GLTexParam minFilter = GLTexParam::LINEAR;
+    GLTexParam wrapS = GLTexParam::REPEAT;
+    GLTexParam wrapT = GLTexParam::REPEAT;
 };
 
 

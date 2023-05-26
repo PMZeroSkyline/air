@@ -198,10 +198,11 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
+        sModel->Load("model/blender/aurelia/aurelia.gltf");
+        //sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
         sModel->FieldExpand();
-        cPlayer->animInsts = &sModel->animationInstances;
-        cPlayer->Play("idle", true);
+        //cPlayer->animInsts = &sModel->animationInstances;
+        //cPlayer->Play("idle", true);
     }
     virtual void Start() override
     {

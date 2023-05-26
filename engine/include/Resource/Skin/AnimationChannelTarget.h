@@ -6,9 +6,9 @@
 
 enum AnimationChannelTargetPath
 {
-	translation,
-	rotation,
-	scale
+	TRANSLATION,
+	ROTATION,
+	SCALE
 };
 
 class AnimationChannelTarget
@@ -21,20 +21,20 @@ public:
 	{
 		if (pathStr == "translation")
 		{
-			path = AnimationChannelTargetPath::translation;
-			return;
+			path = AnimationChannelTargetPath::TRANSLATION;
 		}
 		else if (pathStr == "rotation")
 		{
-			path = AnimationChannelTargetPath::rotation;
-			return;
+			path = AnimationChannelTargetPath::ROTATION;
 		}
 		else if (pathStr == "scale")
 		{
-			path = AnimationChannelTargetPath::scale;
-			return;
+			path = AnimationChannelTargetPath::SCALE;
 		}
-		LOG("failed setup AnimationChannelTargetPath " << pathStr << " !")
+		else
+		{
+			LOG("failed setup AnimationChannelTargetPath " << pathStr << " !")
+		}
 	}
 };
 

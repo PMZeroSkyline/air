@@ -36,6 +36,9 @@ public:
 				}
 			}
 		});
+		sort(renderables.begin(), renderables.end(), [](const shared_ptr<Renderable>& lhs, const shared_ptr<Renderable>& rhs){
+			return lhs->primitive->material->sortMode < rhs->primitive->material->sortMode;
+		});
 	}
 	void Draw()
 	{

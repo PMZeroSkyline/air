@@ -20,12 +20,12 @@ out V2F
 {
     vec2 uv;
     vec4 worldPos;
+    vec4 worldNormal;
 } o;
 
 void main()
 {
     o.uv = TEXCOORD_0;
-    vec4 pos = vec4(POSITION,1.0f);
     mat4 S = mat4(1.f);
     if (isSkin)
     {
@@ -35,8 +35,11 @@ void main()
         WEIGHTS_0[2] * J[int(JOINTS_0[2])] + 
         WEIGHTS_0[3] * J[int(JOINTS_0[3])];
     }
-    vec4 worldPos = M * S * pos;
+    mat4 Model = M * S;
+    vec4 worldPos = Model * vec4(POSITION, 1.f);
+    vec4 worldNormal = Model * vec4(NORMAL, 0.f);
     o.worldPos = worldPos;
-    gl_Position = P * V * M * S * pos;
+    o.worldNormal = worldNormal;
+    gl_Position = P * V * worldPos;
 
 }

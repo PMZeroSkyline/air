@@ -38,15 +38,15 @@ public:
             for (int j = 0; j < view->channels.size(); j++)
             {
                 AnimationChannel* channel = view->channels[j];
-                if (channel->target.path == AnimationChannelTargetPath::translation)
+                if (channel->target.path == AnimationChannelTargetPath::TRANSLATION)
                 {
                     result.translation += channel->sampler->SampleVec3(animationInstance->time + offset);
                 }
-                else if(channel->target.path == AnimationChannelTargetPath::rotation)
+                else if(channel->target.path == AnimationChannelTargetPath::ROTATION)
                 {
                     result.rotation *= channel->sampler->SampleQuat(animationInstance->time + offset);
                 }
-                else if(channel->target.path == AnimationChannelTargetPath::scale)
+                else if(channel->target.path == AnimationChannelTargetPath::SCALE)
                 {
                     result.scaling *= channel->sampler->SampleVec3(animationInstance->time + offset);
                 }

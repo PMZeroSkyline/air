@@ -65,6 +65,21 @@ struct GLProgram
 		return true;
 	}
 };
+enum GLTexParam
+{
+	REPEAT = GL_REPEAT,
+	NEAREST = GL_NEAREST,
+	LINEAR = GL_LINEAR,
+	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
+	LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
+	NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
+	LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
+	RED = GL_RED,
+	RGB = GL_RGB,
+	RGBA = GL_RGBA,
+	UBYTE = GL_UNSIGNED_BYTE
+
+};
 struct GLTexture2D
 {
 	unsigned int id = -1;
@@ -153,6 +168,15 @@ struct GLElementArrayBuffer : GLBuffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	}
 };
+enum GLRenderBufferParam
+{
+	Depth24Stencil8 = GL_DEPTH24_STENCIL8
+};
+enum GLFrameBufferParam
+{
+	ColorAttachment0 = GL_COLOR_ATTACHMENT0,
+	DepthStencilAttachment = GL_DEPTH_STENCIL_ATTACHMENT
+};
 struct GLFrameBuffer : GLBuffer
 {
 	void Bind()
@@ -162,6 +186,14 @@ struct GLFrameBuffer : GLBuffer
 	bool Check()
 	{
 		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
+	}
+	void SetAttachmentTexture2D(GLenum attachment, GLuint textureId)
+	{
+		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
+	}
+	void SetRenderbuffer(GLenum attachment, GLenum renderbuffer)
+	{
+		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
 };
 struct GLRenderBuffer
@@ -178,6 +210,10 @@ struct GLRenderBuffer
 	void Bind()
 	{
 		glBindRenderbuffer(GL_RENDERBUFFER, id);
+	}
+	void SetStorage(GLenum internalformat, GLsizei width, GLsizei height)
+	{
+		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
 	}
 };
 struct GLPrimitive

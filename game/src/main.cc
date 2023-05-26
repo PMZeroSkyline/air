@@ -29,10 +29,12 @@ int main()
 	// Make floor
 	Actor* a1 = map.AddChild<Actor>();
 	MeshComponent* mc = a1->AddComponent<MeshComponent>();
-	a1->localTransform.scaling = vec3(10.f, 10.f, .1f);
-	a1->localTransform.translation = vec3(0.f, 0.f, -.1f);
+	a1->localTransform.scaling = vec3(10.f);
 	mc->mesh = make_shared<Mesh>();
-	mc->mesh->primitives.push_back(MakeCubeMeshPrimitive());
+	mc->mesh->primitives.push_back(MakeQuadMeshPrimitive());
+	// ScenesComponent* sc = a1->AddComponent<ScenesComponent>();
+	// sc->Load("untitled.gltf");
+	// sc->FieldExpand();
 
 	// Add floor rotation
 	//vector<AnimationInstance> animInsts;
@@ -79,13 +81,21 @@ int main()
 
 
 		// Render
-		GLFrameBuffer fbo;
-		fbo.Bind();
-		GLTexture2D colTex;
-		colTex.Bind();
-		colTex.SetupPixels(GL_RGB, window.GetSize().x, window.GetSize().y, GL_RGB, GL_UNSIGNED_BYTE, NULL);
-		colTex.SetupFilter(GL_LINEAR, GL_LINEAR);
-		
+		// GLFrameBuffer fbo;
+		// fbo.Bind();
+		// GLTexture2D colTex;
+		// colTex.Bind();
+		// colTex.SetupPixels(GLTexParam::RGB, window.GetSize().x, window.GetSize().y, GLTexParam::RGB, GLTexParam::Ubyte, NULL);
+		// colTex.SetupFilter(GLTexParam::Linear, GLTexParam::Linear);
+		// fbo.SetAttachmentTexture2D(GLFrameBufferParam::ColorAttachment0, colTex.id);
+		// GLRenderBuffer rbo;
+		// rbo.Bind();
+		// rbo.SetStorage(GLRenderBufferParam::Depth24Stencil8, window.GetSize().x, window.GetSize().y);
+		// fbo.SetRenderbuffer(GLFrameBufferParam::DepthStencilAttachment, rbo.id);
+		// if (!fbo.Check())
+		// {
+		// 	LOG("framebuffer is not complete")
+		// }
 
 		Render render;
 		render.Load(&map);

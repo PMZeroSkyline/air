@@ -10,10 +10,6 @@ public:
 	shared_ptr<MeshPrimitive> primitive;
 	MeshComponent* meshComponent;
 	SkinComponent* skinComponent;
-    bool operator<(const Renderable& rhs) const
-    {
-        return *primitive < *(rhs.primitive);
-    }
 };
 
 #endif
