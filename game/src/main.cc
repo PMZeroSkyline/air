@@ -31,7 +31,16 @@ int main()
 	MeshComponent* mc = a1->AddComponent<MeshComponent>();
 	a1->localTransform.scaling = vec3(10.f);
 	mc->mesh = make_shared<Mesh>();
-	mc->mesh->primitives.push_back(MakeQuadMeshPrimitive());
+	shared_ptr<Material> material = make_shared<Material>();
+    material->shader = GetPresetShader("sandbox");
+	mc->mesh->primitives.push_back(MakeQuadMeshPrimitive(material));
+
+	Actor* a2 = map.AddChild<Actor>();
+	MeshComponent* mc2 = a2->AddComponent<MeshComponent>();
+	a2->localTransform.translation = vec3(1.f, 0.f, 0.f);
+	a2->localTransform.scaling = vec3(0.05f);
+	mc2->mesh = make_shared<Mesh>();
+	mc2->mesh->primitives.push_back(MakeCubeMeshPrimitive());
 	// ScenesComponent* sc = a1->AddComponent<ScenesComponent>();
 	// sc->Load("untitled.gltf");
 	// sc->FieldExpand();

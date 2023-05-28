@@ -9,4 +9,5 @@ public:
     string name;
     vector<shared_ptr<MeshPrimitive>> primitives;
 };
+
 #endif

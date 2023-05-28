@@ -19,7 +19,7 @@ public:
     shared_ptr<Shader> shader;
     float alphaCutoff = 0.5f;
     MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
-    bool doubleSided = true;
+    bool doubleSided = false;
     GLFaceMode faceMode = GLFaceMode::FILL;
 
     vector<pair<string, shared_ptr<Texture2D>>> texturePairs;
