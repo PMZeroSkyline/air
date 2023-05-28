@@ -4,7 +4,6 @@
 #include "Entity.h"
 #include "Gameplay/Component/AnimationNodeComponent.h"
 #include "Core/Parse/StringParse.h"
-#include "Gameplay/Component/MeshComponent.h"
 
 class Actor : public Entity
 {
@@ -69,22 +68,5 @@ public:
 	}
 };
 
-void GenCapsuleMan(Actor* target)
-{
-    Actor* aCapsule = target->AddChild<Actor>();
-    aCapsule->localTransform.translation = vec3(0.f, 0.f, 1.f);
-    aCapsule->localTransform.scaling = vec3(0.5f);
-    MeshComponent* cCapsule = aCapsule->AddComponent<MeshComponent>();
-    cCapsule->mesh = make_shared<Mesh>();
-	shared_ptr<Material> material = make_shared<Material>();
-    material->shader = GetPresetShader("sandbox");
-    cCapsule->mesh->primitives.push_back(MakeCapsulePrimitive(material));
 
-    Actor* aCube = target->AddChild<Actor>();
-    aCube->localTransform.translation = vec3(0.f, -0.5f, 1.5f);
-    aCube->localTransform.scaling = vec3(0.2f);
-    MeshComponent* cCube = aCube->AddComponent<MeshComponent>();
-    cCube->mesh = make_shared<Mesh>();
-    cCube->mesh->primitives.push_back(MakeCubeMeshPrimitive(material));
-}
 #endif

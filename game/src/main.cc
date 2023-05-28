@@ -13,79 +13,27 @@
 #include "Core/Temp/Temp.h"
 #include "Core/Parse/TreeFileParse.h"
 #include "Gameplay/Component/AnimationPlayerComponent.h"
+#include "Gameplay/World/WorldGenerate.h"
 
 int main()
 {
 	CDResourcesDir();
 	Window window;
-
-	// Make Root
-	Actor map;
-	map.name = "Map";
-
-	// Add Player
-	map.AddChild<Role>();	
-
-	// Make floor
-	Actor* a1 = map.AddChild<Actor>();
-	MeshComponent* mc = a1->AddComponent<MeshComponent>();
-	a1->localTransform.scaling = vec3(10.f);
-	mc->mesh = make_shared<Mesh>();
-	shared_ptr<Material> material = make_shared<Material>();
-    material->shader = GetPresetShader("sandbox");
-	mc->mesh->primitives.push_back(MakeQuadMeshPrimitive(material));
-
-	Actor* a2 = map.AddChild<Actor>();
-	MeshComponent* mc2 = a2->AddComponent<MeshComponent>();
-	a2->localTransform.translation = vec3(1.f, 0.f, 0.f);
-	a2->localTransform.scaling = vec3(0.05f);
-	mc2->mesh = make_shared<Mesh>();
-	mc2->mesh->primitives.push_back(MakeCubeMeshPrimitive());
-	// ScenesComponent* sc = a1->AddComponent<ScenesComponent>();
-	// sc->Load("untitled.gltf");
-	// sc->FieldExpand();
-
-	// Add floor rotation
-	//vector<AnimationInstance> animInsts;
-	//animInsts.resize(1);
-	//AnimationInstance& animInst = animInsts[0];
-	//Animation anim;
-	//anim.name = "Test";
-	//anim.samplers.resize(1);
-	//anim.channels.resize(1);
-	//AnimationSampler& animSamp = anim.samplers[0];
-	//animSamp.outputQuats.resize(2);
-	//animSamp.outputQuats[0] = EulerToQuat(vec3(0.f,0.f,30.f));
-	//animSamp.outputQuats[1] = EulerToQuat(vec3(0.f,0.f,90.f));
-	//animSamp.inputs.resize(2);
-	//animSamp.inputs[0] = 0.f;
-	//animSamp.inputs[1] = 1.f;
-	//animSamp.max = 1.f;
-	//anim.ResetMinMax();
-	//AnimationChannel& animChanel = anim.channels[0];
-	//animChanel.sampler = &animSamp;
-	//animChanel.target.path = AnimationChannelTargetPath::rotation;
-	//animInst.animation = &anim;
-	//AnimationNodeComponent* an = a1->AddComponent<AnimationNodeComponent>();
-	//AnimationView av;
-	//av.animationInstance = &animInst;
-	//av.channels.push_back(&animChanel);
-	//an->animationViews.push_back(av);
-	//AnimationPlayerComponent* animPlay = a1->AddComponent<AnimationPlayerComponent>();
-	//animPlay->animInsts = &animInsts;
-	//animPlay->Play("Test", true);
+	Actor world;
+	world.AddChild<Role>();	
+	GenSandbox(&world);
 
 	// Init
-	map.Start();
-	map.ResetWorldMatrix(true);
+	world.Start();
+	world.ResetWorldMatrix(true);
 
 	while (window.IsOpen())
 	{
 		window.Tick();
 		
 		// Tick each object
-		map.Tick();
-		map.ResetWorldMatrix();
+		world.Tick();
+		world.ResetWorldMatrix();
 
 
 		// Render
@@ -104,9 +52,8 @@ int main()
 		// {
 		// 	LOG("framebuffer is not complete")
 		// }
-
 		Render render;
-		render.Load(&map);
+		render.Load(&world);
 		render.Draw();
 	
 		// Others

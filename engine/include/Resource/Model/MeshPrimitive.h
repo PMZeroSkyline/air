@@ -41,33 +41,36 @@ shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = 
     else
     {
         primitive->material = make_shared<Material>();
-        primitive->material->shader = GetPresetShader("default");
+        primitive->material->shader = MakeShaderFromPreset("default");
     }
     primitive->attribute.POSITION = {
-        {-1.0f, -1.0f, 0.0f},
-        {1.0f, -1.0f, 0.0f},
-        {-1.0f, 1.0f, 0.0f},
-        {1.0f, 1.0f, 0.0f}
+        {-1.00000, -1.00000, 0.00000},
+        {1.00000, -1.00000, 0.00000},
+        {-1.00000, 1.00000, 0.00000},
+        {1.00000, 1.00000, 0.00000}
     };
     primitive->attribute.TEXCOORD_0 = {
-        {0.0f, 1.0f},
-        {1.0f, 1.0f},
-        {0.0, 1.0f},
-        {1.0f, 0.0f},
+        {0.00000, 1.00000},
+        {1.00000, 1.00000},
+        {0.00000, 0.00000},
+        {1.00000, 0.00000}
     };
     primitive->attribute.NORMAL = {
-        {0.0f, 0.0f, 1.0f},
-        {0.0f, 0.0f, 1.0f},
-        {0.0f, 0.0f, 1.0f},
-        {0.0f, 0.0f, 1.0f}
+        {0.00000, 0.00000, 1.00000},
+        {0.00000, 0.00000, 1.00000},
+        {0.00000, 0.00000, 1.00000},
+        {0.00000, 0.00000, 1.00000}
     };
     primitive->attribute.TANGENT = {
-        {1.0f, 0.0f, 0.0f, 1.0f},
-        {1.0f, 0.0f, 0.0f, 1.0f},
-        {1.0f, 0.0f, 0.0f, 1.0f},
-        {1.0f, 0.0f, 0.0f, 1.0f}
+        {1.00000, 0.00000, 0.00000, 1.00000},
+        {1.00000, 0.00000, 0.00000, 1.00000},
+        {1.00000, 0.00000, 0.00000, 1.00000},
+        {1.00000, 0.00000, 0.00000, 1.00000}
     };
-    primitive->indices = {0, 1, 3, 0, 3, 2};
+    primitive->indices = {
+        0, 1, 3,
+        0, 3, 2
+    };
     primitive->aabb = AABB(vec3(-1.f, -1.f, 0.f), vec3(1.f, 1.f, 0.f));
     primitive->SetupGLPrimitive();
     return primitive;
@@ -82,7 +85,7 @@ shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = 
     else
     {
         primitive->material = make_shared<Material>();
-        primitive->material->shader = GetPresetShader("default");
+        primitive->material->shader = MakeShaderFromPreset("default");
     }
     primitive->indices = {
         2, 4, 9,
@@ -216,7 +219,7 @@ shared_ptr<MeshPrimitive> MakeCapsulePrimitive(shared_ptr<Material> material = s
     else
     {
         primitive->material = make_shared<Material>();
-        primitive->material->shader = GetPresetShader("default");
+        primitive->material->shader = MakeShaderFromPreset("default");
     }
     primitive->indices = {
         78, 77, 5,

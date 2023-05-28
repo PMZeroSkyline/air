@@ -204,7 +204,7 @@ public:
         materials[i] = material;
 
         material->name = gMaterial->name;
-        material->shader = GetPresetShader("default");
+        material->shader = MakeShaderFromPreset("default");
         material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
                                 gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
                                 gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
@@ -334,7 +334,7 @@ public:
             else
             {
                 primitive->material = make_shared<Material>();
-                primitive->material->shader = GetPresetShader("default");
+                primitive->material->shader = MakeShaderFromPreset("default");
             }
             primitive->SetupGLPrimitive();
         }

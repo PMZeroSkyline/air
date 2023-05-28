@@ -8,26 +8,26 @@ in V2F
     vec3 worldNormal;
     vec3 viewPos;
 } i;
-
 void main()
 {   
-    // 1 meter
-    vec3 f = fract(i.worldPos.xyz);
-
-    float s = 0.01f;
     float a = sin(radians(45.f));
+
+    vec3 grid_src = i.worldPos.xyz;
+    
+    vec3 f = fract(grid_src);
+    float s = 0.01f;
     float lx_m = (f.x > s && f.x < (1.f-s)) ? 1.f : 0.f;
     float ly_m = (f.y > s && f.y < (1.f-s)) ? 1.f : 0.f;
     float lz_m = (f.z > s && f.z < (1.f-s)) ? 1.f : 0.f;
 
     s = 0.01f;
-    f = fract(i.worldPos.xyz * 5.f);
+    f = fract(grid_src * 5.f);
     float lx_20cm = (f.x > s && f.x < (1.f-s)) ? 1.f : 0.f;
     float ly_20cm = (f.y > s && f.y < (1.f-s)) ? 1.f : 0.f;
     float lz_20cm = (f.z > s && f.z < (1.f-s)) ? 1.f : 0.f;
 
     s = 0.0015f;
-    f = fract(i.worldPos.xyz * .1f);
+    f = fract(grid_src * .1f);
     float lx_10m = (f.x > s && f.x < (1.f-s)) ? 1.f : 0.f;
     float ly_10m = (f.y > s && f.y < (1.f-s)) ? 1.f : 0.f;
     float lz_10m = (f.z > s && f.z < (1.f-s)) ? 1.f : 0.f;
@@ -66,6 +66,7 @@ void main()
     }
     grid_20cm = 1.f - (1.f - distance(i.viewPos, i.worldPos.xyz) * 0.1f) * (1.f - grid_20cm);
     grid_m = 1.f - (1.f - distance(i.viewPos, i.worldPos.xyz) * 0.05f) * (1.f - grid_m);
+    grid_10m = 1.f - (1.f - distance(i.viewPos, i.worldPos.xyz) * 0.01f) * (1.f - grid_10m);
     float grid = mix(0.2f, 1.f, grid_10m) * mix(.3f, 1.f, grid_m) * mix(0.4f, 1.f, grid_20cm);
     grid = clamp(grid, 0.f, 1.f);
     float nl = dot(i.worldNormal, normalize(vec3(1.f)));

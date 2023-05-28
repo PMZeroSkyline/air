@@ -1,7 +1,7 @@
 #ifndef PERSPECITVE_CAMERA
 #define PERSPECITVE_CAMERA
 
-#include "OS/Window/Window.h"
+#include "OS/Window/window.h"
 #include "Core/Math/Math.h"
 
 class CameraPerspective

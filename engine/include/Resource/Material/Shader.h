@@ -69,7 +69,7 @@ public:
     }
 };
 Blob<Shader> shaderBlob;
-shared_ptr<Shader> GetPresetShader(const string& name)
+shared_ptr<Shader> MakeShaderFromPreset(const string& name)
 {
     shared_ptr<Shader> shader = shaderBlob.Get(name);
     if (!shader)

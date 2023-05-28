@@ -190,5 +190,4 @@ Window* GetCurrentWindowContext()
 {
     return (Window*)glfwGetWindowUserPointer(glfwGetCurrentContext());
 }
-
 #endif
