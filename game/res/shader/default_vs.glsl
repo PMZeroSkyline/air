@@ -21,8 +21,9 @@ out V2F
     vec2 uv;
     vec4 worldPos;
     vec3 worldNormal;
-    //vec3 viewPos;
+    vec3 viewPos;
 } o;
+
 
 void main()
 {
@@ -38,13 +39,16 @@ void main()
     }
     mat4 Model = M * S;
 
-    vec4 worldPos = M * vec4(POSITION, 1.f);
+    vec4 worldPos = Model * vec4(POSITION, 1.f);
     vec3 worldNormal = normalize((M * vec4(NORMAL, 0.f)).xyz);
 
     o.worldPos = worldPos;
     o.worldNormal = worldNormal;
-    //o.viewPos = -vec3(V[0][3], V[1][3], V[2][3]);
 
+    mat4 invertedViewMatrix = inverse(V);
+    vec3 cameraPosition = vec3(invertedViewMatrix[3]);
+    o.viewPos = cameraPosition;
+    
     gl_Position = P * V * worldPos;
 
 }

@@ -260,7 +260,7 @@ public:
             aCamArm->localTransform.rotation = EulerToQuat(lArmEul.x, lArmEul.y, 0.f);
 
             // add world location offset
-            wTrans.translation += dir * window->deltaTime * 5.f;
+            wTrans.translation += dir * window->deltaTime * 10.f;
             SetWorldMatrix(wTrans.ToMatrix());
 
             // Setup mesh rotation
