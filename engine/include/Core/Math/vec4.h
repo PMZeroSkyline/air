@@ -2,6 +2,7 @@
 #define VEC4_H
 
 #include "math_fwd.h"
+#include "vec3.h"
 
 template<typename T>
 struct vec4t
@@ -10,6 +11,7 @@ struct vec4t
 	vec4t<T>() : x(0), y(0), z(0), w(0) {}
 	vec4t<T>(T i) : x(i), y(i), z(i), w(i) {}
 	vec4t<T>(T _x, T _y, T _z, T _w) : x(_x), y(_y), z(_z), w(_w) {}
+	vec4t<T>(const vec3t<T> &v, T _w) : x(v.x), y(v.y), z(v.z), w(_w) {}
 	vec4t<T>(const vec4t<unsigned char> &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
 	vec4t<T>(const vec4t<unsigned short> &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
 	vec4t<T>(const vec4t<unsigned int> &v) : x(v.x), y(v.y), z(v.z), w(v.w) {}
@@ -111,8 +113,11 @@ inline vec4t<T> vec4t<T>::normalize() const
 {
     return (*this)/length();
 }
+
+// Outside
+
 template<typename T>
-inline ostream& operator<<(ostream& os, const vec4t<T> &v)
+ostream& operator<<(ostream& os, const vec4t<T> &v)
 {
 	os << v.x << " " << v.y << " " << v.z << " " << v.w << endl;
 	return os;

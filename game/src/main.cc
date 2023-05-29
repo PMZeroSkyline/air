@@ -14,14 +14,22 @@
 #include "Core/Parse/TreeFileParse.h"
 #include "Gameplay/Component/AnimationPlayerComponent.h"
 #include "Gameplay/World/WorldGenerate.h"
+#include "Physic/Casting/ShapeCasting.h"
 
 int main()
 {
 	CDResourcesDir();
 	Window window;
 	Actor world;
-	world.AddChild<Role>();	
+	Role* role = world.AddChild<Role>();	
 	GenSandbox(&world);
+
+
+	// MeshComponent* cTemp = aTemp->AddComponent<MeshComponent>();
+	// aTemp->localTransform.rotation = EulerToQuat(vec3(0.f, 90.f, -45.f));
+	// cTemp->mesh = make_shared<Mesh>();
+	// cTemp->mesh->primitives.push_back(MakeCapsulePrimitive());
+	// cTemp->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
 
 	// Init
 	world.Start();
@@ -35,6 +43,7 @@ int main()
 		world.Tick();
 		world.ResetWorldMatrix();
 
+		
 
 		// Render
 		// GLFrameBuffer fbo;

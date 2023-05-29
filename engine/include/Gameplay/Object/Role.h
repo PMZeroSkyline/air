@@ -6,6 +6,8 @@
 #include "Gameplay/Component/ScenesComponent.h"
 #include "Gameplay/Component/AnimationPlayerComponent.h"
 #include "Gameplay/World/WorldGenerate.h"
+#include "Physic/Casting/ShapeCasting.h"
+#include "Gameplay/Component/CollisionComponent.h"
 
 
 class AnimationState : public Node
@@ -189,6 +191,7 @@ public:
     Actor* aModel = AddChild<Actor>();
     ScenesComponent* sModel = aModel->AddComponent<ScenesComponent>();
     AnimationPlayerComponent* cPlayer = AddComponent<AnimationPlayerComponent>();
+    CollisionComponent* cCollision = aModel->AddComponent<CollisionComponent>();
 
     // motion
     vec3 dir;
@@ -202,6 +205,7 @@ public:
         aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
         
         GenCapsuleMan(aModel);
+
         //mc->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
         //sModel->Load("model/blender/aurelia/aurelia.gltf");
         //sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
@@ -268,6 +272,15 @@ public:
             float wAngleZ = atan2(dir.y, dir.x);
             wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
             aModel->SetWorldMatrix(wMeshTrans.ToMatrix());
+
+            cCollision->Query();
+
+            // float dis = QueryPointToLineSegmentDistance(LineSegment(vec3(-.707f, 0.707f, 0.f), vec3(.707f, -.707f, 0.f)), wMeshTrans.translation);
+            // string s = (dis <= 1.f) ? "true" : "false";
+            // LOG(s)
+
+            // float sd = SignedDistanceCapsuleFromPoint(Capsule(vec3(-.707f, 0.707f, 0.f), vec3(.707f, -.707f, 0.f), 1.f), wMeshTrans.translation);
+            // LOG(sd)
         }
     }
 };

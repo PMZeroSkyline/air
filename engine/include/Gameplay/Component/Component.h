@@ -8,6 +8,7 @@ class Component : public Object
 {
 public:
 	Entity* owner;
+
 };
 
 #endif

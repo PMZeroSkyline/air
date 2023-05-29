@@ -5,6 +5,7 @@
 #include "Core/Log/Log.h"
 #include "OS/Window/window.h"
 
+
 class Object
 {
 public:
@@ -13,6 +14,7 @@ public:
 	virtual ~Object(){}
 	virtual void Start(){}
 	virtual void Tick(){}
+	virtual void Message(const string& msg) {};
 };
 
 #endif
