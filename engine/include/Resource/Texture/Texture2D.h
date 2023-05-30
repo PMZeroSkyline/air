@@ -5,7 +5,7 @@
 #include "SDK/STL/STL.h"
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "Image.h"
-#include "Resource/Container/Blob.h"
+#include "Core/Container/WeakMap.h"
 
 class Texture2D
 {
@@ -17,7 +17,7 @@ public:
     void SetupGLTexture2D(bool isGenMipmap = true)
     {
         LOG("SetupGLTexture2D " << name)
-        GLenum format = GLTexParam::RGBA;
+        GLTexParam format = GLTexParam::RGBA;
         if (image->n == 1)
         {
             format = GLTexParam::RED;
@@ -28,12 +28,12 @@ public:
         }
         glTexture2D.Bind();
         glTexture2D.SetupWrapST(sampler.wrapS, sampler.wrapT);
-        glTexture2D.SetupFilter(sampler.minFilter, sampler.magFilter);
+        glTexture2D.SetupFilters(sampler.minFilter, sampler.magFilter);
         glTexture2D.SetupPixels(format, image->w, image->h, format, GLTexParam::UBYTE, image->d);
         glTexture2D.GenMipmap();
     }
 };
 
-Blob<Texture2D> texture2DBlob;
+WeakMap<Texture2D> texture2DWeakMap;
 
 #endif

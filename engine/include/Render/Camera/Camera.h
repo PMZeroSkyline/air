@@ -1,15 +1,14 @@
 #ifndef CAMERA
 #define CAMERA
 
-#include "OrthographicCamera.h"
-#include "PerspectiveCamera.h"
+#include "Core/Math/Math.h"
 
 class Camera
 {
 public:
-	CameraOrthographic orthographic;
-	CameraPerspective perspective;
-	string type = "perspective";
+	virtual ~Camera(){}
+
+	virtual mat4 GetProjectioMatrix() = 0;
 };
 
 #endif

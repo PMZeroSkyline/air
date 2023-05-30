@@ -4,11 +4,19 @@
 #include "Gameplay/Component/SkinComponent.h"
 #include "Gameplay/Component/MeshComponent.h"
 
-class Renderable
+class RenderablePrimitive
 {
 public:
 	shared_ptr<MeshPrimitive> primitive;
+};
+class RenderableMesh : public RenderablePrimitive
+{
+public:
 	MeshComponent* meshComponent;
+};
+class RenderableSkin : public RenderableMesh
+{
+public:
 	SkinComponent* skinComponent;
 };
 

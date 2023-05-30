@@ -21,12 +21,12 @@ public:
 
     void Load(const string& path)
     {
-        scenes = scenesBlob.Get(path);
+        scenes = scenesWeakMap.Get(path);
         if (!scenes)
         {
             scenes = make_shared<Scenes>();
             scenes->Load(path);
-            scenesBlob.Set(path, scenes);
+            scenesWeakMap.Set(path, scenes);
         }
     }
     void NodeExpand(SceneNode* sceneNode, Actor* node)

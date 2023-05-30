@@ -7,12 +7,13 @@
 
 enum GLRenderBufferMode
 {
-	Depth24Stencil8 = GL_DEPTH24_STENCIL8
+	DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
 };
 enum GLFrameBufferParam
 {
-	ColorAttachment0 = GL_COLOR_ATTACHMENT0,
-	DepthStencilAttachment = GL_DEPTH_STENCIL_ATTACHMENT
+	COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0,
+	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
+	DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT
 };
 enum GLBlendFactor
 {
@@ -48,7 +49,9 @@ enum GLTexParam
 	RED = GL_RED,
 	RGB = GL_RGB,
 	RGBA = GL_RGBA,
-	UBYTE = GL_UNSIGNED_BYTE
+	UBYTE = GL_UNSIGNED_BYTE,
+	FLOAT = GL_FLOAT,
+	DEPTH_COMPONENT = GL_DEPTH_COMPONENT
 };
 
 struct GLShader
@@ -123,12 +126,12 @@ struct GLTexture2D
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
 	}
-	void SetupFilter(GLint min_filter, GLint mag_filter)
+	void SetupFilters(GLint min_filter, GLint mag_filter)
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 	}
-	void SetupPixels(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
+	void SetupPixels(GLTexParam internalformat, GLsizei width, GLsizei height, GLTexParam format, GLTexParam type, const void *pixels)
 	{
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
 	}
@@ -195,21 +198,30 @@ struct GLElementArrayBuffer : GLBuffer
 		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	}
 };
-struct GLFrameBuffer : GLBuffer
+struct GLFrameBuffer
 {
+	unsigned int id;
+	GLFrameBuffer()
+	{
+		glGenFramebuffers(1, &id);
+	}
+	~GLFrameBuffer()
+	{
+		glDeleteFramebuffers(1, &id);
+	}
 	void Bind()
 	{
-		glBindBuffer(GL_FRAMEBUFFER, id);
+		glBindFramebuffer(GL_FRAMEBUFFER, id);
 	}
-	bool Check()
+	bool IsComplete()
 	{
 		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
-	void SetAttachmentTexture2D(GLenum attachment, GLuint textureId)
+	void SetAttachmentTexture2D(GLFrameBufferParam attachment, GLuint textureId)
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
 	}
-	void SetRenderbuffer(GLenum attachment, GLenum renderbuffer)
+	void SetRenderbuffer(GLFrameBufferParam attachment, GLenum renderbuffer)
 	{
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
@@ -253,6 +265,14 @@ enum GLCullMode
     FRONT_AND_BACK = GL_FRONT_AND_BACK
 };
 
+void GLBindDefaultFrameBuffer()
+{
+	glBindFramebuffer(GL_FRAMEBUFFER, 0);
+}
+void GLActiveTexture(int slotIndex)
+{
+	glActiveTexture(GL_TEXTURE0 + slotIndex);
+}
 void GLDrawElements(GLsizei count)
 {
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
@@ -261,7 +281,7 @@ void GLClear()
 {
 	glEnable(GL_DEPTH_TEST);  
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);  
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);  
 }
 void GLSetCullFace(bool isEnable)
 {
@@ -289,5 +309,16 @@ void GLSetBlend(bool isEnable)
 void GLSetFaceMode(GLFaceMode mode)
 {
 	glPolygonMode(GL_FRONT_AND_BACK, mode);
+}
+void GLSetDepthTest(bool isEnable)
+{
+	if (isEnable)
+	{
+		glEnable(GL_DEPTH_TEST);
+	}
+	else
+	{
+		glDisable(GL_DEPTH_TEST);
+	}
 }
 #endif

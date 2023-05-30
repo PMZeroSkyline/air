@@ -12,7 +12,7 @@
 #include "Resource/Texture/Texture2D.h"
 #include "Resource/Skin/Skin.h"
 #include "Resource/Skin/Animation.h"
-#include "Resource/Container/Blob.h"
+#include "Core/Container/WeakMap.h"
 
 class Scenes
 {
@@ -153,7 +153,7 @@ public:
         const gltf::Sampler* gSampler = &GLTF.samplers[gTexture->sampler];
         const gltf::Image* gImage = &GLTF.images[gTexture->source];
         string key = dir + gImage->uri + ":" + gSampler->ToString();
-        shared_ptr<Texture2D> texture2D = texture2DBlob.Get(key);
+        shared_ptr<Texture2D> texture2D = texture2DWeakMap.Get(key);
         if (texture2D)
         {
             texture2Ds[i] = texture2D;
@@ -161,7 +161,7 @@ public:
         }
         texture2D = make_shared<Texture2D>();
         texture2Ds[i] = texture2D;
-        texture2DBlob.Set(key, texture2D);
+        texture2DWeakMap.Set(key, texture2D);
 
         texture2D->name = gTexture->name;
         if (gTexture->sampler != -1)
@@ -181,13 +181,13 @@ public:
         if (gTexture->source != -1)
         {
             const gltf::Image* gImage = &GLTF.images[gTexture->source];
-            shared_ptr<Image> image = imageBlob.Get(dir + gImage->uri);
+            shared_ptr<Image> image = imageWeakMap.Get(dir + gImage->uri);
             if (!image)
             {
                 image = make_shared<Image>();
                 image->name = gImage->name;
                 image->Load(dir + gImage->uri);
-                imageBlob.Set(dir + gImage->uri, image);
+                imageWeakMap.Set(dir + gImage->uri, image);
             }
             texture2D->image = image;
         }
@@ -204,7 +204,7 @@ public:
         materials[i] = material;
 
         material->name = gMaterial->name;
-        material->shader = MakeShaderFromPreset("default");
+        material->shader = MakeShaderFromRes("default");
         material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
                                 gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
                                 gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
@@ -213,7 +213,7 @@ public:
         
         if (gMaterial->pbrMetallicRoughness.baseColorTexture.index != -1)
         {
-            material->texturePairs.push_back(make_pair("baseColorTex", texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]));
+            material->textureMap["baseColorTex"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
         }
     }
     void SetupMesh(const gltf::glTF& GLTF, int i)
@@ -334,7 +334,7 @@ public:
             else
             {
                 primitive->material = make_shared<Material>();
-                primitive->material->shader = MakeShaderFromPreset("default");
+                primitive->material->shader = MakeShaderFromRes("default");
             }
             primitive->SetupGLPrimitive();
         }
@@ -372,6 +372,6 @@ public:
     }
 };
 
-Blob<Scenes> scenesBlob;
+WeakMap<Scenes> scenesWeakMap;
 
 #endif

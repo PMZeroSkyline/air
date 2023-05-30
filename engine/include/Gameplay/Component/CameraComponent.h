@@ -3,16 +3,24 @@
 
 #include "Component.h"
 #include "Render/Camera/Camera.h"
+#include "Render/Camera/OrthographicCamera.h"
+#include "Render/Camera/PerspectiveCamera.h"
 
 class CameraComponent : public Component
 {
 public:
-	Camera camera;
-	mat4 GetProjectionMatrix()
+
+	shared_ptr<Camera> camera;
+
+	mat4 GetProjectioMatrix()
 	{
-		if (camera.type == "perspective")
+		if (IsSharedType(camera, PerspectiveCamera))
 		{
-			return camera.perspective.GetPerspectiveMatrix();
+			return camera->GetProjectioMatrix();
+		}
+		if (IsSharedType(camera, OrthographicCamera))
+		{
+			return camera->GetProjectioMatrix();
 		}
 		return mat4();
 	}

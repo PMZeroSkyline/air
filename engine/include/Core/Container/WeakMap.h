@@ -1,10 +1,10 @@
-#ifndef BLOB_H
-#define BLOB_H
+#ifndef WEAK_MAP_H
+#define WEAK_MAP_H
 
 #include "SDK/STL/STL.h"
 
 template<typename T>
-class Blob
+class WeakMap
 {
 public:
     map<string, weak_ptr<T>> m;
@@ -22,5 +22,6 @@ public:
         m[key] = value;
     }
 };
+
 
 #endif

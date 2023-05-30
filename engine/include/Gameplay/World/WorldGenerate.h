@@ -13,7 +13,7 @@ void GenCapsuleMan(Actor* target)
     MeshComponent* cCapsule = aCapsule->AddComponent<MeshComponent>();
     cCapsule->mesh = make_shared<Mesh>();
 	shared_ptr<Material> material = make_shared<Material>();
-    material->shader = MakeShaderFromPreset("uv_grid");
+    material->shader = MakeShaderFromRes("uv_grid");
     cCapsule->mesh->primitives.push_back(MakeCapsulePrimitive(material));
 
     Actor* aCube = target->AddChild<Actor>();
@@ -27,9 +27,9 @@ void GenCapsuleMan(Actor* target)
 void GenSandbox(Actor* target)
 {
     shared_ptr<Material> world_grid = make_shared<Material>();
-    world_grid->shader = MakeShaderFromPreset("world_grid");
+    world_grid->shader = MakeShaderFromRes("world_grid");
     shared_ptr<Material> world_normal = make_shared<Material>();
-    world_normal->shader = MakeShaderFromPreset("world_normal");
+    world_normal->shader = MakeShaderFromRes("world_normal");
 
     float edgeDistance = 10.f;
 

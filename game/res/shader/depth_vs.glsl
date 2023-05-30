@@ -15,16 +15,10 @@ uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
 uniform mat4 J[128];
-uniform mat4 L;
-
 
 out V2F
 {
     vec2 uv;
-    vec4 worldPos;
-    vec3 worldNormal;
-    vec3 viewPos;
-    vec3 lightPos;
 } o;
 
 
@@ -41,19 +35,7 @@ void main()
         WEIGHTS_0[3] * J[int(JOINTS_0[3])];
     }
     mat4 Model = M * S;
-
     vec4 worldPos = Model * vec4(POSITION, 1.f);
-    vec3 worldNormal = normalize((M * vec4(NORMAL, 0.f)).xyz);
-
-    o.worldPos = worldPos;
-    o.worldNormal = worldNormal;
-
-    mat4 invertedViewMatrix = inverse(V);
-    vec3 cameraPosition = vec3(invertedViewMatrix[3]);
-    o.viewPos = cameraPosition;
-
-    //o.lightPos = L * worldPos;
-    
     gl_Position = P * V * worldPos;
 
 }

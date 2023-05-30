@@ -7,6 +7,7 @@ in V2F
     vec4 worldPos;
     vec3 worldNormal;
     vec3 viewPos;
+    vec4 lightPos;
 } i;
 void main()
 {   

@@ -203,6 +203,7 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
+        camComp->camera = make_shared<PerspectiveCamera>();
         
         GenCapsuleMan(aModel);
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();

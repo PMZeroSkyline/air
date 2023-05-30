@@ -2,7 +2,7 @@
 #define MESH_H
 
 #include "MeshPrimitive.h"
-#include "Resource/Container/Blob.h"
+#include "Core/Container/WeakMap.h"
 class Mesh
 {
 public:

@@ -14,7 +14,10 @@ public:
     GLBlendFactor dfactor = GLBlendFactor::ONE_MINUS_SRC_ALPHA;
 
     GLFaceMode frontAndBackFaceMode = GLFaceMode::FILL;
+
+    bool depthTest = false;
 };
 RenderContext renderContext;
+
 
 #endif

@@ -5,7 +5,7 @@
 #include "Platform/File/BinFileRead.h"
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "Core/Math/Math.h"
-#include "Resource/Container/Blob.h"
+#include "Core/Container/WeakMap.h"
 
 class Shader
 {
@@ -68,15 +68,15 @@ public:
         glUniformMatrix4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_TRUE, &mat[0][0]);
     }
 };
-Blob<Shader> shaderBlob;
-shared_ptr<Shader> MakeShaderFromPreset(const string& name)
+WeakMap<Shader> shaderWeakMap;
+shared_ptr<Shader> MakeShaderFromRes(const string& name)
 {
-    shared_ptr<Shader> shader = shaderBlob.Get(name);
+    shared_ptr<Shader> shader = shaderWeakMap.Get(name);
     if (!shader)
     {
         shader = make_shared<Shader>();
         shader->Load("shader/" + name + "_vs.glsl", "shader/" + name + "_fs.glsl");
-        shaderBlob.Set(name, shader);
+        shaderWeakMap.Set(name, shader);
     }
     return shader;
 }

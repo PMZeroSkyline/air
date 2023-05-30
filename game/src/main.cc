@@ -21,15 +21,40 @@ int main()
 	CDResourcesDir();
 	Window window;
 	Actor world;
-	world.AddChild<Role>();	
+	Role* aRole = world.AddChild<Role>();	
 	GenSandbox(&world);
 
 
-	// MeshComponent* cTemp = aTemp->AddComponent<MeshComponent>();
-	// aTemp->localTransform.rotation = EulerToQuat(vec3(0.f, 90.f, -45.f));
-	// cTemp->mesh = make_shared<Mesh>();
-	// cTemp->mesh->primitives.push_back(MakeCapsulePrimitive());
-	// cTemp->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
+
+	Actor* aDirLight = world.AddChild<Actor>();
+	aDirLight->localTransform.translation = vec3(0.f, 0.f, 10.f);
+	aDirLight->localTransform.rotation = EulerToQuat(vec3(-90.f, 0.f, 0.f));
+	CameraComponent* cLightCam = aDirLight->AddComponent<CameraComponent>();
+	shared_ptr<OrthographicCamera> depthCamera = make_shared<OrthographicCamera>();
+	depthCamera->isUseFramebufferAspect = false;
+	cLightCam->camera = depthCamera;
+
+	shared_ptr<MeshPrimitive> mpQuad = MakeQuadMeshPrimitive();
+	mpQuad->material->shader = MakeShaderFromRes("screen");
+	mpQuad->material->depthTest = false;
+
+
+	// Render
+	GLFrameBuffer depthFBO;
+	depthFBO.Bind();
+	GLTexture2D depthTex;
+	depthTex.Bind();
+	depthTex.SetupPixels(GLTexParam::DEPTH_COMPONENT, 1024, 1024, GLTexParam::DEPTH_COMPONENT, GLTexParam::FLOAT, NULL);
+	//depthTex.SetupPixels(GLTexParam::DEPTH_COMPONENT, window.GetSize().x, window.GetSize().y, GLTexParam::DEPTH_COMPONENT, GLTexParam::FLOAT, NULL);
+	depthTex.SetupFilters(GLTexParam::LINEAR, GLTexParam::NEAREST);
+	depthTex.SetupWrapST(GLTexParam::REPEAT, GLTexParam::REPEAT);
+	depthFBO.SetAttachmentTexture2D(GLFrameBufferParam::DEPTH_ATTACHMENT, depthTex.id);
+	// glDrawBuffer(GL_NONE);
+	// glReadBuffer(GL_NONE);
+	// glViewport(0, 0, 1024, 1024);
+	
+	
+	mpQuad->material->textureMap["screenTex"] = &depthTex;
 
 	// Init
 	world.Start();
@@ -43,27 +68,22 @@ int main()
 		world.Tick();
 		world.ResetWorldMatrix();
 
-		
-
-		// Render
-		// GLFrameBuffer fbo;
-		// fbo.Bind();
-		// GLTexture2D colTex;
-		// colTex.Bind();
-		// colTex.SetupPixels(GLTexParam::RGB, window.GetSize().x, window.GetSize().y, GLTexParam::RGB, GLTexParam::Ubyte, NULL);
-		// colTex.SetupFilter(GLTexParam::Linear, GLTexParam::Linear);
-		// fbo.SetAttachmentTexture2D(GLFrameBufferParam::ColorAttachment0, colTex.id);
-		// GLRenderBuffer rbo;
-		// rbo.Bind();
-		// rbo.SetStorage(GLRenderBufferParam::Depth24Stencil8, window.GetSize().x, window.GetSize().y);
-		// fbo.SetRenderbuffer(GLFrameBufferParam::DepthStencilAttachment, rbo.id);
-		// if (!fbo.Check())
-		// {
-		// 	LOG("framebuffer is not complete")
-		// }
+		depthFBO.Bind();
+		GLClear();	
 		Render render;
 		render.Load(&world);
+		render.cameraComponent = cLightCam;
 		render.Draw();
+
+		GLBindDefaultFrameBuffer();
+		// render.cameraComponent = aRole->camComp;
+		// for (int i = 0; i < render.renderables.size(); i++)
+		// {
+		// 	render.renderables[i]->primitive->material->textureMap["shadowTex"] = &depthTex;
+		// 	render.renderables[i]->primitive->material->matrixMap["L"] = cLightCam->GetProjectioMatrix() * RightHandZUpToYUpProjection() * ((Actor*)cLightCam->owner)->worldMatrix.inverse();
+		// }
+		mpQuad->Draw();
+		
 	
 		// Others
 		if (window.keys[KEY::ESCAPE].pressDown)

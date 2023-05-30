@@ -1,17 +1,18 @@
 #ifndef PERSPECITVE_CAMERA
 #define PERSPECITVE_CAMERA
 
-#include "Core/Math/Math.h"
+#include "Camera.h"
 
-class CameraPerspective
+class PerspectiveCamera : public Camera
 {
 public:
 	bool isUseFramebufferAspect = true;
 	float aspectRatio = 1.f;
 	float yfov = 60.0f;
 	float zfar = 0.1f;
-	float znear = 1000.f;
-	mat4 GetPerspectiveMatrix()
+	float znear = 100.f;
+
+	virtual mat4 GetProjectioMatrix() override
 	{
 		float aspect;
 		if (isUseFramebufferAspect)
