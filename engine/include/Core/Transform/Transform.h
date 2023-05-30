@@ -25,7 +25,7 @@ public:
 	{
 		return !(*this == rhs);
 	}
-	mat4 ToMatrix()
+	mat4 ToMatrix() const
 	{
 		return mat4().translate(translation) * mat4(rotation) * mat4().scale(scaling);
 	}

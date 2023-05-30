@@ -14,7 +14,7 @@ public:
 	void Load(Actor* root)
 	{
 		renderables.clear();
-		root->REachNode<Actor>([this](Actor* current){
+		root->RForEachNode<Actor>([this](Actor* current){
 			CameraComponent* cc = current->GetComponent<CameraComponent>();
 			if (!cameraComponent && cc)
 			{

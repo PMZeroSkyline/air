@@ -49,4 +49,10 @@ namespace fs = std::filesystem;
 using std::initializer_list;
 using std::function;
 using std::sort;
+
+
+#define IsSharedType(sp, type) auto& r = *sp.get(); typeid(r) == typeid(type)
+
+
+
 #endif

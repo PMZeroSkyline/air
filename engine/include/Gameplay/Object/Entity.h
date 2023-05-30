@@ -62,7 +62,7 @@ public:
 		vector<T*> result;
 		if (isTraversingTree)
 		{
-			REachNode<Entity>([&result](Entity* curr){
+			RForEachNode<Entity>([&result](Entity* curr){
 				curr->GetComponents<T>(result);
 			});
 		}

@@ -3,7 +3,6 @@
 
 #include "SDK/STL/STL.h"
 #include "Core/Log/Log.h"
-#include "OS/Window/window.h"
 
 
 class Object

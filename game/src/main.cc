@@ -14,14 +14,14 @@
 #include "Core/Parse/TreeFileParse.h"
 #include "Gameplay/Component/AnimationPlayerComponent.h"
 #include "Gameplay/World/WorldGenerate.h"
-#include "Physic/Casting/ShapeCasting.h"
+#include "Physic/Casting/Casting.h"
 
 int main()
 {
 	CDResourcesDir();
 	Window window;
 	Actor world;
-	Role* role = world.AddChild<Role>();	
+	world.AddChild<Role>();	
 	GenSandbox(&world);
 
 

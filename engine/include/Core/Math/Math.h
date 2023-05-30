@@ -22,6 +22,10 @@ quatt<T> EulerToQuat(T roll, T pitch, T yaw)
 {
     return EulerToQuat(vec3t<T>(roll, pitch, yaw));
 }
+vec3 ToVec3(const vec4 &v)
+{   
+    return vec3(v.x, v.y, v.z);
+}
 
 
 

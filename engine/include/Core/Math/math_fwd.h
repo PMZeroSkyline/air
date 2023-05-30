@@ -16,6 +16,7 @@
 
 #define CP_XYZW(a, b) a.x=b.x; a.y=b.y; a.z=b.z; a.w=b.w;
 #define CP_XYZ(a, b) a.x=b.x; a.y=b.y; a.z=b.z;
+#define P_XYZ(a) a.x, a.y, a.z
 
 #ifndef PI
 #define PI 3.14159265358979323846

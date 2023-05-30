@@ -14,18 +14,15 @@ public:
 	
 	vec3 GetForwardVector() const
 	{
-		const vec4 c = worldMatrix.column(0);
-		return vec3(c.x, c.y, c.z);
+		return ToVec3(worldMatrix.column(0));
 	}
 	vec3 GetUpVector() const
 	{
-		const vec4 c = worldMatrix.column(2);
-		return vec3(c.x, c.y, c.z);
+		return ToVec3(worldMatrix.column(2));
 	}
 	vec3 GetRightVector() const
 	{
-		const vec4 c = worldMatrix.column(1);
-		return vec3(c.x, c.y, c.z);
+		return ToVec3(worldMatrix.column(1));
 	}
 	void SetWorldMatrix(const mat4& m)
 	{
@@ -58,10 +55,6 @@ public:
 			else
 			{
 				worldMatrix = world * (hasAnimation ? animationTransform.ToMatrix() : localTransform.ToMatrix());
-			}
-			for (int i = 0; i < components.size(); i++)
-			{
-				components[i]->Message("ResetWorldMatrix");
 			}
 			isDirty = false;
 		}
