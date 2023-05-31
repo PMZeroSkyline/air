@@ -207,12 +207,20 @@ public:
         
         //GenCapsuleMan(aModel);
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
-        cCollision->a = sCapsule;
+        cCollision->shape = sCapsule;
 
-        sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
+        Actor* aTemp = aModel->AddChild<Actor>();
+        MeshComponent* cTemp = aTemp->AddComponent<MeshComponent>();
+        aTemp->localTransform.scaling = vec3(.5f);
+        aTemp->localTransform.translation = vec3(0.f, 0.f, 1.f);
+        cTemp->mesh = make_shared<Mesh>();
+        cTemp->mesh->primitives.push_back(MakeCapsulePrimitive());
+        cTemp->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
+
+        sModel->Load("model/blender/mixamo/ybot/ybot.gltf");
         sModel->FieldExpand();
         cPlayer->animInsts = &sModel->animationInstances;
-        cPlayer->Play("idle", true);
+        
     }
     virtual void Start() override
     {
@@ -254,8 +262,10 @@ public:
             dir += aCamArm->GetRightVector();
         }
         dir.z = 0.f;
+        cPlayer->Play("idle", true);
         if (dir.length() > 0.1f)
         {
+            cPlayer->Play("run", true);
             dir = dir.normalize();
             Transform wTrans = Transform(worldMatrix);
 
@@ -266,7 +276,31 @@ public:
 
             // add world location offset
             // * window->deltaTime * 10.f
-            SetWorldMatrix(cCollision->GetMoveMatrix(dir * window->deltaTime * 10.f, wTrans));
+            Transform tMove = wTrans;
+            tMove.translation += dir * window->deltaTime * 10.f;
+            if (cCollision->IsIntersect(tMove.ToMatrix()))
+            {
+                tMove = wTrans;
+                tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, -60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
+                if (!cCollision->IsIntersect(tMove.ToMatrix()))
+                {
+                    SetWorldMatrix(tMove.ToMatrix());
+                }
+                else
+                {
+                    tMove = wTrans;
+                    tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, 60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
+                    if (!cCollision->IsIntersect(tMove.ToMatrix()))
+                    {
+                        SetWorldMatrix(tMove.ToMatrix());
+                    }
+                }
+            }
+            else
+            {
+                SetWorldMatrix(tMove.ToMatrix());
+
+            }
 
             // Setup mesh rotation
             Transform wMeshTrans = Transform(aModel->worldMatrix);

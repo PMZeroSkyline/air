@@ -74,13 +74,6 @@ shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = 
     primitive->SetupGLPrimitive();
     return primitive;
 }
-shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(const string& shaderResName, bool isDepthTest = false)
-{
-    shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
-	quad->material->shader = MakeShaderFromRes(shaderResName);
-	quad->material->depthTest = isDepthTest;
-    return quad;
-}
 shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = shared_ptr<Material>())
 {
     shared_ptr<MeshPrimitive> primitive = make_shared<MeshPrimitive>();
@@ -214,13 +207,6 @@ shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = 
     primitive->aabb = AABB(vec3(-1.f), vec3(1.f));
     primitive->SetupGLPrimitive();
     return primitive;
-}
-shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(const string& shaderResName, bool isDepthTest = false)
-{
-    shared_ptr<MeshPrimitive> cube = MakeCubeMeshPrimitive();
-	cube->material->shader = MakeShaderFromRes(shaderResName);
-	cube->material->depthTest = isDepthTest;
-    return cube;
 }
 shared_ptr<MeshPrimitive> MakeCapsulePrimitive(shared_ptr<Material> material = shared_ptr<Material>())
 {

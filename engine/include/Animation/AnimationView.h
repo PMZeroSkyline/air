@@ -4,6 +4,7 @@
 #include "AnimationInstance.h"
 #include "Resource/Skin/Animation.h"
 
+// Define single animation part.
 class AnimationView
 {
 public:

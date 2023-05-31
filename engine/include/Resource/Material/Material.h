@@ -77,4 +77,10 @@ public:
     }
 };
 
+shared_ptr<Material> MakeMaterialFromShaderRes(const string& name)
+{
+    shared_ptr<Material> material = make_shared<Material>();
+    material->shader = MakeShaderFromRes(name);
+    return material;
+}
 #endif

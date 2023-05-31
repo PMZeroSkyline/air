@@ -123,7 +123,7 @@ public:
         {
             AnimationChannel* animationChannel = &animation->channels[i];
             const gltf::AnimationChannel* gAnimationChannel = &gAnimation->channels[i];
-            animationChannel->sampler = &animation->samplers[gAnimationChannel->sampler];
+            animationChannel->samplerId = gAnimationChannel->sampler;
             animationChannel->target.nodeID = gAnimationChannel->target.node;
             animationChannel->target.SetupPath(gAnimationChannel->target.path);
         }

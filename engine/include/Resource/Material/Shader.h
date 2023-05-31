@@ -19,9 +19,9 @@ public:
         string vsStr, fsStr;
         StringFromFile(vsPath, vsStr);
         StringFromFile(fsPath, fsStr);
-        vsShader.Compile(vsStr.c_str(), "vs compile failed : " + vsPath + " : \t");
-        fsShader.Compile(fsStr.c_str(), "fs compile failed : " + vsPath + " : \t");
-        glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + ":" + fsPath + " : \t");
+        vsShader.Compile(vsStr.c_str(), "vs compile failed : " + vsPath + " : \n");
+        fsShader.Compile(fsStr.c_str(), "fs compile failed : " + fsPath + " : \n");
+        glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + "," + fsPath + " : \n");
     }
     void Use()
     {
@@ -69,6 +69,7 @@ public:
     }
 };
 WeakMap<Shader> shaderWeakMap;
+
 shared_ptr<Shader> MakeShaderFromRes(const string& name)
 {
     shared_ptr<Shader> shader = shaderWeakMap.Get(name);

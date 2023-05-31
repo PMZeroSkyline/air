@@ -10,13 +10,13 @@ public:
     AnimationInstance* current = nullptr;
     vector<AnimationInstance>* animInsts = nullptr;
     
-    void Play(const string& animationName, bool isLoop = false, bool isPlayFromStart = false)
+    void Play(const string& animationName, bool isLoop = false)
     {
         if (!animInsts)
         {
             return;
         }
-        if (current && current->animation->name == animationName && !isPlayFromStart)
+        if (current && current->animation->name == animationName)
         {
             return;
         }
@@ -29,7 +29,6 @@ public:
             for_each(animInsts->begin(), animInsts->end(), [](AnimationInstance& animInst){
                 animInst.weight = 0.f;
             });
-            current->time = 0.f;
             current->weight = 1.f;
             current->isLoop = isLoop;
         }
@@ -44,7 +43,7 @@ public:
         if (current)
         {
             current->time += window->deltaTime * current->speed;
-            if (current->isLoop && current->time > current->animation->max)
+            if (current->time > current->animation->max)
             {
                 current->time = current->animation->min;
             }

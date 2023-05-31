@@ -5,6 +5,7 @@
 #include "Physic/Shape/Capsule.h"
 #include "Physic/Shape/Sphere.h"
 #include "Physic/Shape/OBB.h"
+#include "SDK/STL/STL.h"
 
 Sphere Transf(Sphere* s, const mat4& m)
 {
@@ -84,16 +85,62 @@ float SDF(Capsule* c, OBB* o) // not exact
 }
 float SDF(Sphere* s, Capsule* c) // not exact
 {
-    float sdA = SDF(s, c->a) - (s->r + c->r);
-    float sdB = SDF(s, c->b) - (s->r + c->r);
+    float sdA = SDF(s, c->a) - c->r;
+    float sdB = SDF(s, c->b) - c->r;
     float sd = min(sdA, sdB);
     return sd;
 }
 float SDF(Capsule* a, Capsule* b) // not exact
 {
-    float sdA = SDF(a, b->a) - (a->r + b->r);
-    float sdB = SDF(a, b->b) - (a->r + b->r);
+    float sdA = SDF(a, b->a) - b->r;
+    float sdB = SDF(a, b->b) - b->r;
     float sd = min(sdA, sdB);
     return sd;
+}
+float SDF(Shape* a, const mat4& aMatrix, Shape* b, const mat4& bMatrix)
+{
+    if (IsType(a, Sphere))
+    {
+        if (IsType(b, OBB))
+        {
+            Sphere x = Transf((Sphere*)a, aMatrix);
+            OBB y = Transf((OBB*)b, bMatrix);
+            return SDF(&x, &y);
+        }
+        if (IsType(b, Sphere))
+        {
+            Sphere x = Transf((Sphere*)a, aMatrix);
+            Sphere y = Transf((Sphere*)b, bMatrix);
+            return SDF(&x, &y);
+        }
+        if (IsType(b, Capsule))
+        {
+            Sphere x = Transf((Sphere*)a, aMatrix);
+            Capsule y = Transf((Capsule*)b, bMatrix);
+            return SDF(&x, &y);
+        }
+    }
+    if (IsType(a, Capsule))
+    {
+        if (IsType(b, OBB))
+        {
+            Capsule x = Transf((Capsule*)a, aMatrix);
+            OBB y = Transf((OBB*)b, bMatrix);
+            return SDF(&x, &y);
+        }
+        if (IsType(b, Sphere))
+        {
+            Capsule x = Transf((Capsule*)a, aMatrix);
+            Sphere y = Transf((Sphere*)b, bMatrix);
+            return SDF(&y, &x);
+        }
+        if (IsType(b, Capsule))
+        {
+            Capsule x = Transf((Capsule*)a, aMatrix);
+            Capsule y = Transf((Capsule*)b, bMatrix);
+            return SDF(&x, &y);
+        }
+    }
+    return 0.f;
 }
 #endif

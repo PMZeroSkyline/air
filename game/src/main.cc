@@ -10,27 +10,10 @@ int main()
 	CDResourcesDir();
 	Window window;
 
-	shared_ptr<MeshPrimitive> quad = MakeCubeMeshPrimitive("default");
 	shared_ptr<Actor> world = make_shared<Actor>();
 	GenSandbox(world.get());
 	Role* role = world->AddChild<Role>();
-	//shared_ptr<MeshPrimitive> cube = MakeQuadMeshPrimitive("screen");
-
-	// Render
-	// GLFrameBuffer depthFBO;
-	// depthFBO.Bind();
-	// GLTexture2D depthTex;
-	// depthTex.Bind();
-	// depthTex.SetupPixels(GLTexParam::DEPTH_COMPONENT, 1024, 1024, GLTexParam::DEPTH_COMPONENT, GLTexParam::FLOAT, NULL);
-	// //depthTex.SetupPixels(GLTexParam::DEPTH_COMPONENT, window.GetSize().x, window.GetSize().y, GLTexParam::DEPTH_COMPONENT, GLTexParam::FLOAT, NULL);
-	// depthTex.SetupFilters(GLTexParam::LINEAR, GLTexParam::NEAREST);
-	// depthTex.SetupWrapST(GLTexParam::REPEAT, GLTexParam::REPEAT);
-	// depthFBO.SetAttachmentTexture2D(GLFrameBufferParam::DEPTH_ATTACHMENT, depthTex.id);
-	// glDrawBuffer(GL_NONE);
-	// glReadBuffer(GL_NONE);
-	// glViewport(0, 0, 1024, 1024);
 	
-	// Init
 	world->ResetWorldMatrix();
 	while (window.IsOpen())
 	{
@@ -43,7 +26,6 @@ int main()
 		for (RenderPrimitive& rp : rps)
 		{
 			shared_ptr<Shader> s = rp.material->shader;
-			s = MakeShaderFromRes("default");
 			s->Use();
 			s->SetMat4("M", *rp.worldMatrix);
 			s->SetMat4("V", RightHandZUpToYUpProjection() * role->aCam->worldMatrix.inverse());
@@ -63,6 +45,7 @@ int main()
 					s->SetMat4("J[" + to_string(i) + "]", JM);
 				}
 			}
+			rp.material->ResetRenderContext();
 			rp.meshPrimitive->Draw();
 		}
 		

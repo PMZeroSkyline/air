@@ -52,6 +52,7 @@ using std::sort;
 
 
 #define IsSharedType(sp, type) auto& r = *sp.get(); typeid(r) == typeid(type)
+#define IsType(p, type) typeid(*p) == typeid(type)
 
 
 

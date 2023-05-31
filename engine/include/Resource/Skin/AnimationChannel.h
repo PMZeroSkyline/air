@@ -9,7 +9,7 @@
 class AnimationChannel
 {
 public:
-	AnimationSampler* sampler;
+	int samplerId;
 	AnimationChannelTarget target;
 };
 
