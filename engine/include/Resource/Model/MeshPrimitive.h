@@ -22,16 +22,8 @@ public:
         GLVaoData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
         GLEboData(indices);
     }
-    void Draw(shared_ptr<Material> overrideMaterial = make_shared<Material>())
+    void Draw()
     {
-        if (overrideMaterial)
-        {
-            overrideMaterial->Use();
-        }
-        else
-        {
-            material->Use();
-        }
         glPrimitive.Bind();
         GLDrawElements(indices.size());
     }
@@ -57,10 +49,10 @@ shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = 
         {1.00000, 1.00000, 0.00000}
     };
     primitive->attribute.TEXCOORD_0 = {
-        {0.00000, 1.00000},
-        {1.00000, 1.00000},
         {0.00000, 0.00000},
-        {1.00000, 0.00000}
+        {1.00000, 0.00000},
+        {0.00000, 1.00000},
+        {1.00000, 1.00000}
     };
     primitive->attribute.NORMAL = {
         {0.00000, 0.00000, 1.00000},
@@ -81,6 +73,13 @@ shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = 
     primitive->aabb = AABB(vec3(-1.f, -1.f, 0.f), vec3(1.f, 1.f, 0.f));
     primitive->SetupGLPrimitive();
     return primitive;
+}
+shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(const string& shaderResName, bool isDepthTest = false)
+{
+    shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
+	quad->material->shader = MakeShaderFromRes(shaderResName);
+	quad->material->depthTest = isDepthTest;
+    return quad;
 }
 shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = shared_ptr<Material>())
 {
@@ -215,6 +214,13 @@ shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = 
     primitive->aabb = AABB(vec3(-1.f), vec3(1.f));
     primitive->SetupGLPrimitive();
     return primitive;
+}
+shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(const string& shaderResName, bool isDepthTest = false)
+{
+    shared_ptr<MeshPrimitive> cube = MakeCubeMeshPrimitive();
+	cube->material->shader = MakeShaderFromRes(shaderResName);
+	cube->material->depthTest = isDepthTest;
+    return cube;
 }
 shared_ptr<MeshPrimitive> MakeCapsulePrimitive(shared_ptr<Material> material = shared_ptr<Material>())
 {
@@ -722,5 +728,6 @@ shared_ptr<MeshPrimitive> MakeCapsulePrimitive(shared_ptr<Material> material = s
     primitive->SetupGLPrimitive();
     return primitive;
 }
+
 
 #endif

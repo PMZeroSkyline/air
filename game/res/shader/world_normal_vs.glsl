@@ -27,20 +27,18 @@ out V2F
 
 void main()
 {
-    o.uv = TEXCOORD_0;
     mat4 S = mat4(1.f);
     if (isSkin)
     {
-        S = 
-        WEIGHTS_0[0] * J[int(JOINTS_0[0])] + 
-        WEIGHTS_0[1] * J[int(JOINTS_0[1])] + 
-        WEIGHTS_0[2] * J[int(JOINTS_0[2])] + 
-        WEIGHTS_0[3] * J[int(JOINTS_0[3])];
+        S = WEIGHTS_0[0] * J[int(JOINTS_0[0])] + 
+            WEIGHTS_0[1] * J[int(JOINTS_0[1])] + 
+            WEIGHTS_0[2] * J[int(JOINTS_0[2])] + 
+            WEIGHTS_0[3] * J[int(JOINTS_0[3])];
     }
-    mat4 Model = M * S;
+    S = M * S;
 
-    vec4 worldPos = Model * vec4(POSITION, 1.f);
-    vec3 worldNormal = normalize((M * vec4(NORMAL, 0.f)).xyz);
+    vec4 worldPos = S * vec4(POSITION, 1.f);
+    vec3 worldNormal = normalize((S * vec4(NORMAL, 0.f)).xyz);
 
     o.worldPos = worldPos;
     o.worldNormal = worldNormal;

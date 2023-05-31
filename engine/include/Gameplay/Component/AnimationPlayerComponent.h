@@ -8,10 +8,14 @@ class AnimationPlayerComponent : public Component
 {
 public:
     AnimationInstance* current = nullptr;
-    vector<AnimationInstance>* animInsts;
+    vector<AnimationInstance>* animInsts = nullptr;
     
     void Play(const string& animationName, bool isLoop = false, bool isPlayFromStart = false)
     {
+        if (!animInsts)
+        {
+            return;
+        }
         if (current && current->animation->name == animationName && !isPlayFromStart)
         {
             return;

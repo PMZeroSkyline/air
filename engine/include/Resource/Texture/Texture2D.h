@@ -16,7 +16,6 @@ public:
     GLTexture2D glTexture2D;
     void SetupGLTexture2D(bool isGenMipmap = true)
     {
-        LOG("SetupGLTexture2D " << name)
         GLTexParam format = GLTexParam::RGBA;
         if (image->n == 1)
         {

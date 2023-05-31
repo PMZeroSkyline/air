@@ -66,7 +66,7 @@ public:
 	{
 		glDeleteShader(id);
 	}
-	bool Compile(const char *code)
+	bool Compile(const char *code, const string& error)
 	{
 		glShaderSource(id, 1, &code, NULL);
 		glCompileShader(id);
@@ -76,7 +76,7 @@ public:
 		if (!succ)
 		{
 			glGetShaderInfoLog(id, 1024, NULL, info);
-			LOG("compile shader failed ! : " << info << " !")
+			LOG(error << info << " !")
 			return false;
 		}
 		return true;
@@ -93,7 +93,7 @@ struct GLProgram
 	{
 		glDeleteProgram(id);
 	}
-	bool Link(unsigned int a, unsigned int b)
+	bool Link(unsigned int a, unsigned int b, const string& error)
 	{
 		glAttachShader(id, a);
 		glAttachShader(id, b);
@@ -104,7 +104,7 @@ struct GLProgram
 		if (!succ)
 		{
 			glGetProgramInfoLog(id, 1024, NULL, info);
-			LOG("link GLShader failed : " << info << " !")
+			LOG(error << info << " !")
 			return false;
 		}
 		return true;
@@ -265,7 +265,7 @@ enum GLCullMode
     FRONT_AND_BACK = GL_FRONT_AND_BACK
 };
 
-void GLBindDefaultFrameBuffer()
+void GLBindFrameBuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
 }

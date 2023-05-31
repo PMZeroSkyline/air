@@ -7,8 +7,7 @@
 #include "Animation/AnimationView.h"
 #include "AnimationNodeComponent.h"
 #include "MeshComponent.h"
-#include "SkinComponent.h"
-
+#include "Animation/SkinInstance.h"
 #include "Core/Parse/TreeFileParse.h"
 
 class ScenesComponent : public Component
@@ -34,15 +33,19 @@ public:
         node->name = sceneNode->name;
         node->localTransform = sceneNode->localTransform;
 
+        MeshComponent* meshComponent = nullptr;
         if (sceneNode->meshID != -1)
         {
-            MeshComponent* meshComponent = node->AddComponent<MeshComponent>();
+            meshComponent = node->AddComponent<MeshComponent>();
             meshComponent->mesh = scenes->meshs[sceneNode->meshID];
         }
         if (sceneNode->skinID != -1)
         {
-            SkinComponent* skinComponent = node->AddComponent<SkinComponent>();
-            skinComponent->skinInstance = &skinInstances[sceneNode->skinID];
+            if (!meshComponent)
+            {
+                meshComponent = node->AddComponent<MeshComponent>();
+            }
+            meshComponent->skinInstance = &skinInstances[sceneNode->skinID];
         }
 
         for (int i = 0; i < sceneNode->childrenID.size(); i++)

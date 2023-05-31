@@ -19,9 +19,9 @@ public:
         string vsStr, fsStr;
         StringFromFile(vsPath, vsStr);
         StringFromFile(fsPath, fsStr);
-        vsShader.Compile(vsStr.c_str());
-        fsShader.Compile(fsStr.c_str());
-        glProgram.Link(vsShader.id, fsShader.id);
+        vsShader.Compile(vsStr.c_str(), "vs compile failed : " + vsPath + " : \t");
+        fsShader.Compile(fsStr.c_str(), "fs compile failed : " + vsPath + " : \t");
+        glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + ":" + fsPath + " : \t");
     }
     void Use()
     {

@@ -1,94 +1,53 @@
 #ifndef RENDER_H
 #define RENDER_H
 
-#include "Renderable.h"
 #include "Gameplay/Object/Actor.h"
-#include "Gameplay/Component/CameraComponent.h"
+#include "Gameplay/Component/MeshComponent.h"
 
-class Render
+class RenderPrimitive
 {
 public:
-    vector<shared_ptr<RenderablePrimitive>> renderables;
-    virtual void Load(Actor* root) = 0;
-    virtual void Draw(shared_ptr<Material> material = make_shared<Material>()) = 0;
+    mat4* parentWorldMatrix = nullptr;
+    mat4* worldMatrix = nullptr;
+    MeshPrimitive* meshPrimitive = nullptr;
+    SkinInstance* skinInstance = nullptr;
+    Material* material = nullptr;
 };
-// class Render2D : public Render
-// {
-
-// };
-class WorldRender : public Render
+void CollectionRenderPrimitives(MeshComponent* meshComponent, vector<RenderPrimitive>& renderPrimitives)
 {
-public:
-    CameraComponent* cameraComponent;
-    virtual void Load(Actor* root) override
+    RenderPrimitive renderPrimitive;
+    if (meshComponent->mesh)
     {
-        renderables.clear();
-        root->RForEachNode<Actor>([this](Actor* actor){
-            vector<MeshComponent*> mcs = actor->GetComponents<MeshComponent>();
-            SkinComponent* sc = actor->GetComponent<SkinComponent>();
-			for (int i = 0; i < mcs.size(); i++)
-			{
-				MeshComponent* mc = mcs[i];
-				for (int i = 0; i < mc->mesh->primitives.size(); i++)
-				{
-                    if (sc)
-                    {
-                        shared_ptr<RenderableSkin> renderableSkin = make_shared<RenderableSkin>();
-                        renderableSkin->meshComponent = mc;
-                        renderableSkin->skinComponent = sc;
-                        renderableSkin->primitive = mc->mesh->primitives[i];
-                        renderables.push_back(renderableSkin);
-                    }
-                    else
-                    {
-                        shared_ptr<RenderableMesh> renderableMesh = make_shared<RenderableMesh>();
-                        renderableMesh->meshComponent = mc;
-                        renderableMesh->primitive = mc->mesh->primitives[i];
-                        renderables.push_back(renderableMesh);
-                    }
-				}
-			}        
-		});
-        sort(renderables.begin(), renderables.end(), [](const shared_ptr<RenderablePrimitive>& lhs, const shared_ptr<RenderablePrimitive>& rhs){
-			return lhs->primitive->material->alphaMode < rhs->primitive->material->alphaMode;
-		});
-    }
-    virtual void Draw(shared_ptr<Material> overrideMaterial = make_shared<Material>()) override
-    {
-        mat4 V, P;
-		if (cameraComponent)
-		{
-			V = RightHandZUpToYUpProjection() * ((Actor*)cameraComponent->owner)->worldMatrix.inverse();
-			P = cameraComponent->camera->GetProjectioMatrix();
-		}
-		else
-		{
-			V = RightHandZUpToYUpProjection();
-			P = PerspectiveCamera().GetProjectioMatrix();
-		}
-		for (int i = 0; i < renderables.size(); i++)
-		{
-            shared_ptr<RenderablePrimitive> renderable = renderables[i];
-            RenderableMesh* renderableMesh = (RenderableMesh*)renderable.get();
-            mat4 M = ((Actor*)renderableMesh->meshComponent->owner)->worldMatrix;
-			renderable->primitive->material->matrixMap["M"] = M;
-			renderable->primitive->material->matrixMap["V"] = V;
-			renderable->primitive->material->matrixMap["P"] = P;
-            if(IsSharedType(renderable, RenderableSkin))
+        for (shared_ptr<MeshPrimitive> meshPrimitive : meshComponent->mesh->primitives)
+        {
+            renderPrimitive.meshPrimitive = meshPrimitive.get();
+            renderPrimitive.material = meshPrimitive->material.get();
+            renderPrimitive.skinInstance = meshComponent->skinInstance;
+            if (meshComponent->owner)
             {
-                RenderableSkin* renderableSkin = (RenderableSkin*)renderable.get();
-				mat4 IW = renderableSkin->meshComponent->owner->parent ? ((Actor*)renderableSkin->meshComponent->owner->parent)->worldMatrix.inverse() : mat4();
-				vector<mat4> jointMatrices;
-				jointMatrices.resize(128);
-				for (int j = 0; j < renderableSkin->skinComponent->skinInstance->joints.size(); j++)
-				{
-					jointMatrices[j] = IW * renderableSkin->skinComponent->skinInstance->joints[j]->worldMatrix * renderableSkin->skinComponent->skinInstance->skin->inverseBindMatrices[j];
-				}
-				renderableSkin->primitive->material->matricesMap["J"] = move(jointMatrices);
+                renderPrimitive.worldMatrix = &((Actor*)meshComponent->owner)->worldMatrix;
             }
-			renderableMesh->primitive->Draw(overrideMaterial);
-		}
+            if (meshComponent->owner->parent)
+            {
+                renderPrimitive.parentWorldMatrix = &((Actor*)meshComponent->owner->parent)->worldMatrix;
+            }
+            renderPrimitives.push_back(renderPrimitive);
+        }
     }
-};
+}
+void CollectionRenderPrimitives(Actor* root, vector<RenderPrimitive>& renderPrimitives)
+{
+    vector<MeshComponent*> meshComponents = root->GetComponents<MeshComponent>(true);
+    for (MeshComponent* meshComponent : meshComponents)
+    {
+        CollectionRenderPrimitives(meshComponent, renderPrimitives);
+    }
+}
+vector<RenderPrimitive> CollectionRenderPrimitives(Actor* root)
+{
+    vector<RenderPrimitive> renderPrimitives;
+    CollectionRenderPrimitives(root, renderPrimitives);
+    return renderPrimitives;
+}
 
 #endif

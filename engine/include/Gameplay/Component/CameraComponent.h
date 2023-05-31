@@ -12,18 +12,6 @@ public:
 
 	shared_ptr<Camera> camera;
 
-	mat4 GetProjectioMatrix()
-	{
-		if (IsSharedType(camera, PerspectiveCamera))
-		{
-			return camera->GetProjectioMatrix();
-		}
-		if (IsSharedType(camera, OrthographicCamera))
-		{
-			return camera->GetProjectioMatrix();
-		}
-		return mat4();
-	}
 };
 
 #endif

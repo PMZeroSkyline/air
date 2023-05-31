@@ -27,10 +27,8 @@ public:
     map<string, mat4> matrixMap;
     map<string, vector<mat4>> matricesMap;
 
-    
-    void Use()
+    void ResetRenderContext()
     {
-        // Setup Render Context
         bool isCullFace = !doubleSided;
         if (renderContext.isCullFace != isCullFace)
         {
@@ -53,10 +51,9 @@ public:
             GLSetDepthTest(depthTest);
             renderContext.depthTest = depthTest;
         }
-        
-
-        shader->Use();
-
+    }
+    void Setup()
+    {        
         for (auto const& pair : matricesMap)
         {
             for (int i = 0; i < pair.second.size(); i++)

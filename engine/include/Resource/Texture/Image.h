@@ -29,7 +29,6 @@ public:
 			LOG("failed to load Image " << path << " !");
 			return;
 		}
-		LOG("load Image succeed");
 	}
 	bool IsLoaded()
 	{

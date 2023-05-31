@@ -11,6 +11,7 @@ public:
 	vec3 scaling;
 
 	Transform() : scaling(1.f) {};
+	Transform(vec3 _translation, quat _rotation, vec3 _scaling) : translation(_translation), rotation(_rotation), scaling(_scaling) {}
 	Transform(const mat4 &m)
 	{
 		vec3 Skew; vec4 Perspective;

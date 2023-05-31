@@ -12,5 +12,5 @@ void main()
 {   
     float c = texture(screenTex, i.uv).r;
     FragColor = vec4(vec3(c), 1.0);
-    //FragColor = vec4(0.f, i.uv.y, 0.f, 1.0);
+    FragColor = vec4(0.f, i.uv.y, 0.f, 1.0);
 }

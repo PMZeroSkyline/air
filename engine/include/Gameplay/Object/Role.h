@@ -185,7 +185,7 @@ public:
     // camera
     Actor* aCamArm = AddChild<Actor>();
     Actor* aCam = aCamArm->AddChild<Actor>();
-    CameraComponent* camComp = aCam->AddComponent<CameraComponent>();
+    CameraComponent* cCam = aCam->AddComponent<CameraComponent>();
 
     // mesh
     Actor* aModel = AddChild<Actor>();
@@ -203,18 +203,16 @@ public:
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        camComp->camera = make_shared<PerspectiveCamera>();
+        cCam->camera = make_shared<PerspectiveCamera>();
         
-        GenCapsuleMan(aModel);
+        //GenCapsuleMan(aModel);
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->a = sCapsule;
 
-        //mc->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
-        //sModel->Load("model/blender/aurelia/aurelia.gltf");
-        //sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
-        //sModel->FieldExpand();
-        //cPlayer->animInsts = &sModel->animationInstances;
-        //cPlayer->Play("idle", true);
+        sModel->Load("model/blender/mixamo/ybot_idle/ybot_idle.gltf");
+        sModel->FieldExpand();
+        cPlayer->animInsts = &sModel->animationInstances;
+        cPlayer->Play("idle", true);
     }
     virtual void Start() override
     {
