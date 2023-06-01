@@ -10,7 +10,7 @@ public:
     mat4* parentWorldMatrix = nullptr;
     mat4* worldMatrix = nullptr;
     MeshPrimitive* meshPrimitive = nullptr;
-    SkinInstance* skinInstance = nullptr;
+    ArmatureInstance* armatureInstance = nullptr;
     Material* material = nullptr;
 };
 void CollectionRenderPrimitives(MeshComponent* meshComponent, vector<RenderPrimitive>& renderPrimitives)
@@ -22,7 +22,7 @@ void CollectionRenderPrimitives(MeshComponent* meshComponent, vector<RenderPrimi
         {
             renderPrimitive.meshPrimitive = meshPrimitive.get();
             renderPrimitive.material = meshPrimitive->material.get();
-            renderPrimitive.skinInstance = meshComponent->skinInstance;
+            renderPrimitive.armatureInstance = meshComponent->armatureInstance;
             if (meshComponent->owner)
             {
                 renderPrimitive.worldMatrix = &((Actor*)meshComponent->owner)->worldMatrix;

@@ -8,7 +8,8 @@
 int main()
 {
 	CDResourcesDir();
-	Window window;
+	Window window(200, 200, "air");
+	renderContext.Reset();
 
 	shared_ptr<Actor> world = make_shared<Actor>();
 	GenSandbox(world.get());
@@ -23,6 +24,9 @@ int main()
 
 		GLClear();	
 		vector<RenderPrimitive> rps = CollectionRenderPrimitives(world.get());
+		sort(rps.begin(), rps.end(), [](const RenderPrimitive& lhs, const RenderPrimitive& rhs){
+			return lhs.material->alphaMode < rhs.material->alphaMode;
+		});
 		for (RenderPrimitive& rp : rps)
 		{
 			shared_ptr<Shader> s = rp.material->shader;
@@ -30,11 +34,11 @@ int main()
 			s->SetMat4("M", *rp.worldMatrix);
 			s->SetMat4("V", RightHandZUpToYUpProjection() * role->aCam->worldMatrix.inverse());
 			s->SetMat4("P", role->cCam->camera->GetProjectioMatrix());
-			s->SetBool("isSkin", rp.skinInstance);
-			if (rp.skinInstance)
+			s->SetBool("isSkin", rp.armatureInstance);
+			if (rp.armatureInstance)
 			{
-				SkinInstance* si = rp.skinInstance;
-				Skin* sk = si->skin;
+				ArmatureInstance* si = rp.armatureInstance;
+				Armature* sk = si->armature;
 				vector<Actor*> js = si->joints;
 				mat4 IW = rp.parentWorldMatrix ? rp.parentWorldMatrix->inverse() : mat4();
 				vector<mat4> jms;
@@ -58,14 +62,25 @@ int main()
 		}
 		if (window.keys[KEY::F8].pressDown)
 		{
-			int mode = glfwGetInputMode(window.glfw_window, GLFW_CURSOR);
+			int mode = glfwGetInputMode(window.glfwWindow, GLFW_CURSOR);
 			if (mode == GLFW_CURSOR_DISABLED)
 			{
-				glfwSetInputMode(window.glfw_window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 			}
 			else
 			{
-				glfwSetInputMode(window.glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			}
+		}
+		if (window.keys[KEY::F10].pressDown)
+		{
+			if (window.GetSize() == ivec2(200, 200))
+			{
+				window.FullScreen();
+			}
+			else
+			{
+				window.SetSize(200, 200, 1920-200, 1080-200);
 			}
 		}
 	}

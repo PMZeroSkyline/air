@@ -86,5 +86,5 @@ void main()
 
     vec3 col = (i.worldNormal * .5f + .5f) * grid * nl;
 
-    FragColor = vec4(col, 1.f);
+    FragColor = vec4(col, .2f);
 }

@@ -3,13 +3,13 @@
 
 #include "Component.h"
 #include "Resource/Model/Mesh.h"
-#include "Animation/SkinInstance.h"
+#include "Animation/ArmatureInstance.h"
 
 class MeshComponent : public Component
 {
 public:
     shared_ptr<Mesh> mesh;
-    SkinInstance* skinInstance = nullptr;
+    ArmatureInstance* armatureInstance = nullptr;
 };
 
 

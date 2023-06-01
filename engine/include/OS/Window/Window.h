@@ -24,7 +24,7 @@ void SetupOpenGL()
 class Window
 {
 public:
-	GLFWwindow* glfw_window;
+	GLFWwindow* glfwWindow;
 	float time = 0, deltaTime = 0;
 	vector<Key> keys;
 	CursorPos mouseCursor;
@@ -45,33 +45,34 @@ public:
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		#endif
 		}
-		glfw_window = glfwCreateWindow(w, h, title, NULL, NULL);
-		if (glfw_window == NULL)
+		glfwWindow = glfwCreateWindow(w, h, title, NULL, NULL);
+		if (glfwWindow == NULL)
 		{
 			LOG("Failed to create GLFW window !")
 			glfwTerminate();
 		}
+		glfwSetWindowPos(glfwWindow, 1920-200, 1080-200);
 
-		glfwMakeContextCurrent(glfw_window);
-		glfwSetInputMode(glfw_window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-		glfwSetWindowUserPointer(glfw_window, this);
+		glfwMakeContextCurrent(glfwWindow);
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		glfwSetWindowUserPointer(glfwWindow, this);
 		SetupOpenGL();
         
-		// macos vscode debug has bug : use vector reserve or const size array mad by out of memory !
+		// MacOS vscode debug has bug : use vector reserve or use const size array mad by out of memory !
 		keys.resize(GLFW_KEY_LAST);
-		glfwSetFramebufferSizeCallback(glfw_window, [](GLFWwindow *w, int width, int height){
+		glfwSetFramebufferSizeCallback(glfwWindow, [](GLFWwindow *w, int width, int height){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->FramebufferSizeCallback(w, width, height);
 		});
-		glfwSetKeyCallback(glfw_window, [](GLFWwindow* w, int key, int scancode, int action, int mods){
+		glfwSetKeyCallback(glfwWindow, [](GLFWwindow* w, int key, int scancode, int action, int mods){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->KeyCallback(w, key, scancode, action, mods);
 		});
-		glfwSetMouseButtonCallback(glfw_window, [](GLFWwindow* w, int button, int action, int mods){
+		glfwSetMouseButtonCallback(glfwWindow, [](GLFWwindow* w, int button, int action, int mods){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->MouseButtonCallback(w, button, action, mods);
 		});
-		glfwSetDropCallback(glfw_window, [](GLFWwindow* w, int path_count, const char* paths[]){
+		glfwSetDropCallback(glfwWindow, [](GLFWwindow* w, int path_count, const char* paths[]){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->DropCallback(w, path_count, paths);
 		});
-		glfwSetCursorPosCallback(glfw_window, [](GLFWwindow* w, double xpos, double ypos){
+		glfwSetCursorPosCallback(glfwWindow, [](GLFWwindow* w, double xpos, double ypos){
 			reinterpret_cast<Window*>(glfwGetWindowUserPointer(w))->CursorPosCallback(w, xpos, ypos);
 		});
 	}
@@ -79,16 +80,35 @@ public:
 	{
 	    glfwTerminate();
 	}
+	
+	// Utility
 	bool IsOpen()
 	{
-		return !glfwWindowShouldClose(glfw_window);
+		return !glfwWindowShouldClose(glfwWindow);
+	}
+	void Close()
+	{
+		glfwSetWindowShouldClose(glfwWindow, true);
 	}
 	ivec2 GetSize()
 	{
 		int w, h;
-		glfwGetWindowSize(glfw_window, &w, &h);
+		glfwGetWindowSize(glfwWindow, &w, &h);
 		return ivec2(w, h);
 	}
+	void SetSize(int width, int height, int xpos = 0, int ypos = 0)
+	{
+		glfwSetWindowMonitor(glfwWindow, NULL, xpos, ypos, width, height, GLFW_DONT_CARE);
+		//glfwSetWindowSize()
+	}
+	void FullScreen()
+	{
+		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+		glfwSetWindowMonitor(glfwWindow, glfwGetPrimaryMonitor(), 0, 0, videoMode->width, videoMode->height, GLFW_DONT_CARE);
+	}
+	
+	/// Delta data process
 	void Tick()
 	{
 		// delta time
@@ -124,9 +144,11 @@ public:
 		}
 
 		// opengl
-		glfwSwapBuffers(glfw_window);
+		glfwSwapBuffers(glfwWindow);
         glfwPollEvents();
 	}
+	
+	// Callback
 	void FramebufferSizeCallback(GLFWwindow* w, int width, int height)
 	{
     	glViewport(0, 0, width, height);
@@ -180,10 +202,6 @@ public:
 			mouseCursor.lastPos = vec2(xpos, ypos);
 		}
 		mouseCursor.pos = vec2(xpos, ypos);
-	}
-	void Close()
-	{
-		glfwSetWindowShouldClose(glfw_window, true);
 	}
 };
 Window* GetCurrentWindowContext()

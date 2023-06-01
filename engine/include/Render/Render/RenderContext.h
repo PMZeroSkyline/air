@@ -6,16 +6,23 @@
 class RenderContext
 {
 public:
-    bool isCullFace = false;
-    GLCullMode cullFace = GLCullMode::BACK;
 
-    bool isBlend = false;
-    GLBlendFactor sfactor = GLBlendFactor::SRC_ALPHA;
-    GLBlendFactor dfactor = GLBlendFactor::ONE_MINUS_SRC_ALPHA;
+    bool blend = false;
+    bool depthTest = true;
+    bool depthMask = true;
+    bool cullFace = true;
+    GLPolygonMode frontAndBackFaceMode = GLPolygonMode::FILL;
 
-    GLFaceMode frontAndBackFaceMode = GLFaceMode::FILL;
+    void Reset()
+    {
+        GLBlend(blend);
+        GLDepthTest(depthTest);
+        GLDepthMask(depthMask);
+        GLCullFace(cullFace);
+        GLPolygon(frontAndBackFaceMode);
 
-    bool depthTest = false;
+        GLBlendFunc(GLBlendFactor::SRC_ALPHA, GLBlendFactor::ONE_MINUS_SRC_ALPHA);
+    }
 };
 RenderContext renderContext;
 

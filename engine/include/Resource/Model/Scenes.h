@@ -10,7 +10,7 @@
 #include "Resource/Model/Mesh.h"
 #include "Resource/Material/Material.h"
 #include "Resource/Texture/Texture2D.h"
-#include "Resource/Skin/Skin.h"
+#include "Resource/Skin/Armature.h"
 #include "Resource/Skin/Animation.h"
 #include "Core/Container/WeakMap.h"
 
@@ -23,11 +23,11 @@ public:
     vector<shared_ptr<Mesh>> meshs;
     vector<shared_ptr<Material>> materials;
     vector<shared_ptr<Texture2D>> texture2Ds;
-    vector<shared_ptr<Skin>> skins;
+    vector<shared_ptr<Armature>> armatures;
     vector<shared_ptr<Animation>> animations;
     string path;
     string dir;
-    void Load(const string &_path)
+    void Load(const string& _path)
     {
         path = _path;
         size_t found = path.find_last_of('/');
@@ -41,7 +41,7 @@ public:
         materials.resize(GLTF.materials.size());
         meshs.resize(GLTF.meshes.size());
         texture2Ds.resize(GLTF.textures.size());
-        skins.resize(GLTF.skins.size());
+        armatures.resize(GLTF.skins.size());
         animations.resize(GLTF.animations.size());
 
         for (int i = 0; i < GLTF.animations.size(); i++)
@@ -131,21 +131,21 @@ public:
     void SetupSkin(const gltf::glTF& GLTF, int i)
     {
         const gltf::Skin* gSkin = &GLTF.skins[i];
-        shared_ptr<Skin> skin = make_shared<Skin>();
-        skins[i] = skin;
+        shared_ptr<Armature> armature = make_shared<Armature>();
+        armatures[i] = armature;
 
-        skin->name = gSkin->name;
+        armature->name = gSkin->name;
         gltf::AccessResult result = gltf::Access(GLTF, gSkin->inverseBindMatrices);
         if (result.accessor->componentType == GL_FLOAT)
         {
-            VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, skin->inverseBindMatrices);
+            VectorFromFile(dir+result.buffer->uri, result.accessor->byteOffset+result.bufferView->byteOffset, result.accessor->count, armature->inverseBindMatrices);
         }
-        for (int i = 0; i < skin->inverseBindMatrices.size(); i++)
+        for (int i = 0; i < armature->inverseBindMatrices.size(); i++)
         {
-            skin->inverseBindMatrices[i] = skin->inverseBindMatrices[i].transpose();
+            armature->inverseBindMatrices[i] = armature->inverseBindMatrices[i].transpose();
         }
-        skin->jointIDs.resize(gSkin->joints.size());
-        memcpy(&skin->jointIDs[0], &gSkin->joints[0], sizeof(int)*gSkin->joints.size());
+        armature->jointIDs.resize(gSkin->joints.size());
+        memcpy(&armature->jointIDs[0], &gSkin->joints[0], sizeof(int)*gSkin->joints.size());
     }
     void SetupTexture(const gltf::glTF& GLTF, int i)
     {

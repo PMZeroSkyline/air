@@ -11,20 +11,19 @@ class CollisionComponent : public Component
 public:
     shared_ptr<Shape> shape;
 
-    float IsIntersect(const mat4& expectMatrix)
+    bool IsIntersectQuery(const mat4& expectMatrix)
     {
         Actor* root = owner->GetRoot<Actor>();
-        float result = 0.f;
+        bool result = false;
         root->ForEachNode<Actor>([this, &result, &expectMatrix](Actor* curr){
             CollisionComponent* cCompare = curr->GetComponent<CollisionComponent>();
             if (!cCompare || cCompare == this)
             {
                 return false;
             }
-            float sd = SDF(shape.get(), expectMatrix, cCompare->shape.get(), ((Actor*)cCompare->owner)->worldMatrix);
-            if (sd <= 0.f)
+            if (IsIntersect(shape.get(), expectMatrix, cCompare->shape.get(), ((Actor*)cCompare->owner)->worldMatrix))
             {
-                result = sd;
+                result = true;
                 return true;
             }
             return false;

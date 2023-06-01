@@ -17,40 +17,53 @@ class Material
 public:
     string name;
     shared_ptr<Shader> shader;
-    float alphaCutoff = 0.5f;
-    MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
-    bool doubleSided = true;
-    GLFaceMode faceMode = GLFaceMode::FILL;
-    bool depthTest = true;
 
+    // Params
+    float alphaCutoff = 0.5f;
     map<string, GLTexture2D*> textureMap;
     map<string, mat4> matrixMap;
     map<string, vector<mat4>> matricesMap;
 
+    // Render Context
+    MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
+    bool depthTest = true;
+    bool depthMask = true;
+    bool doubleSided = false;
+    GLPolygonMode faceMode = GLPolygonMode::FILL;
+
+
     void ResetRenderContext()
     {
         bool isCullFace = !doubleSided;
-        if (renderContext.isCullFace != isCullFace)
+        if (renderContext.cullFace != isCullFace)
         {
-            GLSetCullFace(isCullFace);
-            renderContext.isCullFace = isCullFace;
+            GLCullFace(isCullFace);
+            renderContext.cullFace = isCullFace;
         }
         bool isBlend = alphaMode == MaterialAlphaMode::BLEND;
-        if (renderContext.isBlend != isBlend)
+        if (renderContext.blend != isBlend)
         {
-            GLSetBlend(isBlend);
-            renderContext.isBlend = isBlend;
+            GLBlend(isBlend);
+            renderContext.blend = isBlend;
+            
         }
         if (renderContext.frontAndBackFaceMode != faceMode)
         {
-            GLSetFaceMode(faceMode);
+            GLPolygon(faceMode);
             renderContext.frontAndBackFaceMode = faceMode;
         }
         if (renderContext.depthTest != depthTest)
         {
-            GLSetDepthTest(depthTest);
+            GLDepthTest(depthTest);
             renderContext.depthTest = depthTest;
         }
+        if (renderContext.depthMask != depthMask)
+        {
+            GLDepthMask(depthMask);
+            renderContext.depthMask = depthMask;
+        }
+        
+        
     }
     void Setup()
     {        

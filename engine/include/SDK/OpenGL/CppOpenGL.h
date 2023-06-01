@@ -32,7 +32,7 @@ enum GLBlendFactor
     CONSTANT_ALPHA = GL_CONSTANT_ALPHA,
     ONE_MINUS_CONSTANT_ALPHA = GL_ONE_MINUS_CONSTANT_ALPHA
 };
-enum GLFaceMode
+enum GLPolygonMode
 {
 	LINE = GL_LINE,
 	FILL = GL_FILL
@@ -265,6 +265,7 @@ enum GLCullMode
     FRONT_AND_BACK = GL_FRONT_AND_BACK
 };
 
+// Direct Call
 void GLBindFrameBuffer()
 {
 	glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -283,7 +284,9 @@ void GLClear()
 	glClearColor(0.f, 0.f, 0.f, 1.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);  
 }
-void GLSetCullFace(bool isEnable)
+
+// RenderContext
+void GLCullFace(bool isEnable)
 {
 	if (isEnable)
 	{
@@ -295,7 +298,7 @@ void GLSetCullFace(bool isEnable)
 		glDisable(GL_CULL_FACE);
 	}
 }
-void GLSetBlend(bool isEnable)
+void GLBlend(bool isEnable)
 {
 	if (isEnable)
 	{
@@ -306,11 +309,11 @@ void GLSetBlend(bool isEnable)
 		glDisable(GL_BLEND);
 	}
 }
-void GLSetFaceMode(GLFaceMode mode)
+void GLPolygon(GLPolygonMode mode)
 {
 	glPolygonMode(GL_FRONT_AND_BACK, mode);
 }
-void GLSetDepthTest(bool isEnable)
+void GLDepthTest(bool isEnable)
 {
 	if (isEnable)
 	{
@@ -320,5 +323,15 @@ void GLSetDepthTest(bool isEnable)
 	{
 		glDisable(GL_DEPTH_TEST);
 	}
+}
+void GLDepthMask(bool isEnable)
+{
+	glDepthMask(isEnable);
+}
+
+// Utility
+void GLBlendFunc(GLBlendFactor sfactor, GLBlendFactor dfactor)
+{
+	glBlendFunc(sfactor, dfactor);
 }
 #endif

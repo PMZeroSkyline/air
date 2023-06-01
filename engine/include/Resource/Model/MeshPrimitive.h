@@ -715,5 +715,4 @@ shared_ptr<MeshPrimitive> MakeCapsulePrimitive(shared_ptr<Material> material = s
     return primitive;
 }
 
-
 #endif

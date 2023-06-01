@@ -1,9 +1,9 @@
-#ifndef SKIN_H
-#define SKIN_H
+#ifndef ARMATURE_H
+#define ARMATURE_H
 
 #include "Core/Math/Math.h"
 
-class Skin
+class Armature
 {
 public:
     string name;

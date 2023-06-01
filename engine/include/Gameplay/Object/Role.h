@@ -215,7 +215,8 @@ public:
         aTemp->localTransform.translation = vec3(0.f, 0.f, 1.f);
         cTemp->mesh = make_shared<Mesh>();
         cTemp->mesh->primitives.push_back(MakeCapsulePrimitive());
-        cTemp->mesh->primitives[0]->material->faceMode = GLFaceMode::LINE;
+        cTemp->mesh->primitives[0]->material->alphaMode = MaterialAlphaMode::BLEND;
+
 
         sModel->Load("model/blender/mixamo/ybot/ybot.gltf");
         sModel->FieldExpand();
@@ -261,11 +262,11 @@ public:
         {
             dir += aCamArm->GetRightVector();
         }
-        dir.z = 0.f;
-        cPlayer->Play("idle", true);
+        dir.z = 0.f;        
         if (dir.length() > 0.1f)
         {
             cPlayer->Play("run", true);
+
             dir = dir.normalize();
             Transform wTrans = Transform(worldMatrix);
 
@@ -278,11 +279,11 @@ public:
             // * window->deltaTime * 10.f
             Transform tMove = wTrans;
             tMove.translation += dir * window->deltaTime * 10.f;
-            if (cCollision->IsIntersect(tMove.ToMatrix()))
+            if (cCollision->IsIntersectQuery(tMove.ToMatrix()))
             {
                 tMove = wTrans;
                 tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, -60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
-                if (!cCollision->IsIntersect(tMove.ToMatrix()))
+                if (!cCollision->IsIntersectQuery(tMove.ToMatrix()))
                 {
                     SetWorldMatrix(tMove.ToMatrix());
                 }
@@ -290,7 +291,7 @@ public:
                 {
                     tMove = wTrans;
                     tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, 60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
-                    if (!cCollision->IsIntersect(tMove.ToMatrix()))
+                    if (!cCollision->IsIntersectQuery(tMove.ToMatrix()))
                     {
                         SetWorldMatrix(tMove.ToMatrix());
                     }
@@ -307,16 +308,10 @@ public:
             float wAngleZ = atan2(dir.y, dir.x);
             wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
             aModel->SetWorldMatrix(wMeshTrans.ToMatrix());
-            
-            
-
-
-            // float dis = QueryPointToLineSegmentDistance(LineSegment(vec3(-.707f, 0.707f, 0.f), vec3(.707f, -.707f, 0.f)), wMeshTrans.translation);
-            // string s = (dis <= 1.f) ? "true" : "false";
-            // LOG(s)
-
-            // float sd = SignedDistanceCapsuleFromPoint(Capsule(vec3(-.707f, 0.707f, 0.f), vec3(.707f, -.707f, 0.f), 1.f), wMeshTrans.translation);
-            // LOG(sd)
+        }
+        else
+        {
+            cPlayer->Play("idle", true);
         }
     }
 };

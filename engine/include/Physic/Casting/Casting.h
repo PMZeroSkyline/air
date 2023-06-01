@@ -5,6 +5,7 @@
 #include "Physic/Shape/Capsule.h"
 #include "Physic/Shape/Sphere.h"
 #include "Physic/Shape/OBB.h"
+#include "Physic/Shape/Plane.h"
 #include "SDK/STL/STL.h"
 
 Sphere Transf(Sphere* s, const mat4& m)
@@ -20,9 +21,16 @@ Capsule Transf(Capsule* c, const mat4& m)
 {
     return Capsule(ToVec3(m * vec4(c->a, 1.f)), ToVec3(m * vec4(c->b, 1.f)), c->r);
 }
-
-// Point SDF
-float SDF(LineSegment* l, const vec3& p)
+Plane Transf(Plane* p, const mat4& m)
+{
+    return Plane(ToVec3(m * vec4(p->p, 1.f)), ToVec3(m * vec4(p->n, 0.f)));
+}
+// Distance Function
+float SDF(Plane* a, const vec3& p)
+{
+    return dot((p - a->p), a->n);
+}
+float UDF(LineSegment* l, const vec3& p)
 {
     vec3 ab = l->b - l->a;
     vec3 ap = p - l->a;
@@ -47,7 +55,7 @@ float SDF(LineSegment* l, const vec3& p)
 float SDF(Capsule* c, const vec3& p)
 {
     LineSegment l = LineSegment(c->a, c->b);
-    float d = SDF(&l, p);
+    float d = UDF(&l, p);
     return d - c->r;
 }
 float SDF(Sphere* s, const vec3& p)
@@ -67,37 +75,35 @@ float SDF(OBB* o, const vec3& p)
     return inside + outside;
 }
 
-// Shape SDF
-float SDF(Sphere* a, Sphere* b)
+// Intersect Test Function
+bool IsIntersect(Sphere* s1, Sphere* s2)
 {
-    return (distance(a->c, b->c) - (a->r + b->r));
+    return (SDF(s1, s2->c) - s2->r) <= 0.f;
 }
-float SDF(Sphere* s, OBB* o)
+bool IsIntersect(Sphere* s, OBB* o)
 {
-    return (SDF(o, s->c) - s->r);
+    return (SDF(o, s->c) - s->r) <= 0.f;
 }
-float SDF(Capsule* c, OBB* o) // not exact
+bool IsIntersect(Capsule* c, OBB* o) // not exact
 {
-    float sdA = SDF(o, c->a) - c->r;
-    float sdB = SDF(o, c->b) - c->r;
-    float sd = min(sdA, sdB);
-    return sd;
+    float sdA = SDF(o, c->a);
+    float sdB = SDF(o, c->b);
+    float sd = min(sdA, sdB) - c->r;
+    return sd <= 0.f;
 }
-float SDF(Sphere* s, Capsule* c) // not exact
+bool IsIntersect(Sphere* s, Capsule* c) // not exact
 {
-    float sdA = SDF(s, c->a) - c->r;
-    float sdB = SDF(s, c->b) - c->r;
-    float sd = min(sdA, sdB);
-    return sd;
+    float sd = SDF(c, s->c) - c->r;
+    return sd <= 0.f;
 }
-float SDF(Capsule* a, Capsule* b) // not exact
+bool IsIntersect(Capsule* c1, Capsule* c2) // not exact
 {
-    float sdA = SDF(a, b->a) - b->r;
-    float sdB = SDF(a, b->b) - b->r;
-    float sd = min(sdA, sdB);
-    return sd;
+    float sdA = SDF(c1, c2->a);
+    float sdB = SDF(c1, c2->b);
+    float sd = min(sdA, sdB) - c2->r;
+    return sd <= 0.f;
 }
-float SDF(Shape* a, const mat4& aMatrix, Shape* b, const mat4& bMatrix)
+bool IsIntersect(Shape* a, const mat4& aMatrix, Shape* b, const mat4& bMatrix)
 {
     if (IsType(a, Sphere))
     {
@@ -105,19 +111,19 @@ float SDF(Shape* a, const mat4& aMatrix, Shape* b, const mat4& bMatrix)
         {
             Sphere x = Transf((Sphere*)a, aMatrix);
             OBB y = Transf((OBB*)b, bMatrix);
-            return SDF(&x, &y);
+            return IsIntersect(&x, &y);
         }
         if (IsType(b, Sphere))
         {
             Sphere x = Transf((Sphere*)a, aMatrix);
             Sphere y = Transf((Sphere*)b, bMatrix);
-            return SDF(&x, &y);
+            return IsIntersect(&x, &y);
         }
         if (IsType(b, Capsule))
         {
             Sphere x = Transf((Sphere*)a, aMatrix);
             Capsule y = Transf((Capsule*)b, bMatrix);
-            return SDF(&x, &y);
+            return IsIntersect(&x, &y);
         }
     }
     if (IsType(a, Capsule))
@@ -126,19 +132,19 @@ float SDF(Shape* a, const mat4& aMatrix, Shape* b, const mat4& bMatrix)
         {
             Capsule x = Transf((Capsule*)a, aMatrix);
             OBB y = Transf((OBB*)b, bMatrix);
-            return SDF(&x, &y);
+            return IsIntersect(&x, &y);
         }
         if (IsType(b, Sphere))
         {
             Capsule x = Transf((Capsule*)a, aMatrix);
             Sphere y = Transf((Sphere*)b, bMatrix);
-            return SDF(&y, &x);
+            return IsIntersect(&y, &x);
         }
         if (IsType(b, Capsule))
         {
             Capsule x = Transf((Capsule*)a, aMatrix);
             Capsule y = Transf((Capsule*)b, bMatrix);
-            return SDF(&x, &y);
+            return IsIntersect(&x, &y);
         }
     }
     return 0.f;

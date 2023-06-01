@@ -26,10 +26,12 @@ public:
         if (found != animInsts->end())
         {
             current = &(*found);
+
             for_each(animInsts->begin(), animInsts->end(), [](AnimationInstance& animInst){
                 animInst.weight = 0.f;
             });
             current->weight = 1.f;
+            current->time = 0.f;
             current->isLoop = isLoop;
         }
         else

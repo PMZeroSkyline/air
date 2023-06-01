@@ -7,7 +7,7 @@
 #include "Animation/AnimationView.h"
 #include "AnimationNodeComponent.h"
 #include "MeshComponent.h"
-#include "Animation/SkinInstance.h"
+#include "Animation/ArmatureInstance.h"
 #include "Core/Parse/TreeFileParse.h"
 
 class ScenesComponent : public Component
@@ -15,7 +15,7 @@ class ScenesComponent : public Component
 public:
     shared_ptr<Scenes> scenes;
     vector<Actor*> nodes;
-    vector<SkinInstance> skinInstances;
+    vector<ArmatureInstance> armatureInstances;
     vector<AnimationInstance> animationInstances;
 
     void Load(const string& path)
@@ -45,7 +45,7 @@ public:
             {
                 meshComponent = node->AddComponent<MeshComponent>();
             }
-            meshComponent->skinInstance = &skinInstances[sceneNode->skinID];
+            meshComponent->armatureInstance = &armatureInstances[sceneNode->skinID];
         }
 
         for (int i = 0; i < sceneNode->childrenID.size(); i++)
@@ -59,7 +59,7 @@ public:
     void FieldExpand()
     {
         nodes.resize(scenes->nodes.size());
-        skinInstances.resize(scenes->skins.size());
+        armatureInstances.resize(scenes->armatures.size());
         animationInstances.resize(scenes->animations.size());
 
         Scene* scene = &scenes->scenes[scenes->sceneID];
@@ -101,15 +101,15 @@ public:
                 animationView->channels.push_back(channel);
             }
         }
-        for (int i = 0; i < skinInstances.size(); i++)
+        for (int i = 0; i < armatureInstances.size(); i++)
         {
-            SkinInstance* skinInstance = &skinInstances[i];
-            Skin* skin = scenes->skins[i].get();
-            skinInstance->skin = skin;
-            skinInstance->joints.resize(skin->jointIDs.size());
-            for (int j = 0; j < skin->jointIDs.size(); j++)
+            ArmatureInstance* skinInstance = &armatureInstances[i];
+            Armature* armature = scenes->armatures[i].get();
+            skinInstance->armature = armature;
+            skinInstance->joints.resize(armature->jointIDs.size());
+            for (int j = 0; j < armature->jointIDs.size(); j++)
             {
-                skinInstance->joints[j] = nodes[skin->jointIDs[j]];
+                skinInstance->joints[j] = nodes[armature->jointIDs[j]];
             }
         }
     }
