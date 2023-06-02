@@ -8,6 +8,12 @@
 #include "Core/Math/vec2.h"
 #include "Key.h"
 
+enum WindowCursorMode
+{
+	CURSOR_NORMAL = GLFW_CURSOR_NORMAL,
+	CURSOR_HIDDEN = GLFW_CURSOR_HIDDEN,
+	CURSOR_DISABLED = GLFW_CURSOR_DISABLED
+};
 struct CursorPos
 {
 	vec2 pos = vec2(-1.f);
@@ -51,7 +57,6 @@ public:
 			LOG("Failed to create GLFW window !")
 			glfwTerminate();
 		}
-		glfwSetWindowPos(glfwWindow, 1920-200, 1080-200);
 
 		glfwMakeContextCurrent(glfwWindow);
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
@@ -107,8 +112,20 @@ public:
 		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
 		glfwSetWindowMonitor(glfwWindow, glfwGetPrimaryMonitor(), 0, 0, videoMode->width, videoMode->height, GLFW_DONT_CARE);
 	}
+	WindowCursorMode GetCursorMode()
+	{
+		return (WindowCursorMode)glfwGetInputMode(glfwWindow, GLFW_CURSOR);
+	}
+	void SetCursorMode(WindowCursorMode mode)
+	{
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, mode);
+	}
+	void SetPos(int x, int y)
+	{
+		glfwSetWindowPos(glfwWindow, x, y);
+	}
 	
-	/// Delta data process
+	// Delta data process
 	void Tick()
 	{
 		// delta time

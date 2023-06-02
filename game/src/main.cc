@@ -8,7 +8,7 @@
 int main()
 {
 	CDResourcesDir();
-	Window window(200, 200, "air");
+	Window window;
 	renderContext.Reset();
 
 	shared_ptr<Actor> world = make_shared<Actor>();
@@ -24,8 +24,10 @@ int main()
 
 		GLClear();	
 		vector<RenderPrimitive> rps = CollectionRenderPrimitives(world.get());
-		sort(rps.begin(), rps.end(), [](const RenderPrimitive& lhs, const RenderPrimitive& rhs){
-			return lhs.material->alphaMode < rhs.material->alphaMode;
+		sort(rps.begin(), rps.end(), [&role](const RenderPrimitive& lhs, const RenderPrimitive& rhs){
+			float lo = lhs.material->alphaMode == MaterialAlphaMode::BLEND ? distance(role->aCam->worldMatrix.column(3), lhs.worldMatrix->column(3)) : 0.f;
+			float ro = rhs.material->alphaMode == MaterialAlphaMode::BLEND ? distance(role->aCam->worldMatrix.column(3), rhs.worldMatrix->column(3)) : 0.f;
+			return lo < ro;
 		});
 		for (RenderPrimitive& rp : rps)
 		{
@@ -53,34 +55,31 @@ int main()
 			rp.meshPrimitive->Draw();
 		}
 		
-
-		
-
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{
 			window.Close();
 		}
 		if (window.keys[KEY::F8].pressDown)
 		{
-			int mode = glfwGetInputMode(window.glfwWindow, GLFW_CURSOR);
-			if (mode == GLFW_CURSOR_DISABLED)
+			WindowCursorMode mode = window.GetCursorMode();
+			if (mode == WindowCursorMode::CURSOR_DISABLED)
 			{
-				glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+				window.SetCursorMode(WindowCursorMode::CURSOR_NORMAL);
 			}
 			else
 			{
-				glfwSetInputMode(window.glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+				window.SetCursorMode(WindowCursorMode::CURSOR_DISABLED);
 			}
 		}
 		if (window.keys[KEY::F10].pressDown)
 		{
-			if (window.GetSize() == ivec2(200, 200))
+			if (window.GetSize() == ivec2(800, 600))
 			{
 				window.FullScreen();
 			}
 			else
 			{
-				window.SetSize(200, 200, 1920-200, 1080-200);
+				window.SetSize(800, 600);
 			}
 		}
 	}

@@ -232,11 +232,13 @@ public:
         Actor::Tick();
 
         // set arm world z
+        
         Transform wArmTrans = Transform(aCamArm->worldMatrix);
         vec3 wArmEul = QuatToEuler(wArmTrans.rotation);
         wArmEul.z -= window->mouseCursor.deltaPos.x;
         wArmTrans.rotation = EulerToQuat(wArmEul);
         aCamArm->SetWorldMatrix(wArmTrans.ToMatrix());
+
 
         // set arm local y
         vec3 lArmEul = QuatToEuler(aCamArm->localTransform.rotation);

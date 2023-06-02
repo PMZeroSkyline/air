@@ -127,6 +127,13 @@ T dot(const vec4t<T>& a, const vec4t<T>& b)
 {
     return a.x*b.x + a.y*b.y + a.z*b.z + a.w*b.w;
 }
+template<typename T>
+T distance(const vec4t<T>& a, const vec4t<T>& b)
+{
+	vec4t<T> c = a - b;
+	T d = dot(c, c);
+	return sqrt(d);
+}
 
 using u8vec4 = vec4t<unsigned char>;
 using u16vec4 = vec4t<unsigned short>;
