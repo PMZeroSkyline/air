@@ -169,14 +169,14 @@ public:
             const gltf::Sampler* gSampler = &GLTF.samplers[gTexture->sampler];
             if (gSampler->magFilter != -1)
             {
-                texture2D->sampler.magFilter = (GLTexParam)gSampler->magFilter;
+                texture2D->sampler.magFilter = (GLFilter)gSampler->magFilter;
             }
             if (gSampler->minFilter != -1)
             {
-                texture2D->sampler.minFilter = (GLTexParam)gSampler->minFilter;
+                texture2D->sampler.minFilter = (GLFilter)gSampler->minFilter;
             }
-            texture2D->sampler.wrapS = (GLTexParam)gSampler->wrapS;
-            texture2D->sampler.wrapT = (GLTexParam)gSampler->wrapT;
+            texture2D->sampler.wrapS = (GLWrap)gSampler->wrapS;
+            texture2D->sampler.wrapT = (GLWrap)gSampler->wrapT;
         }
         if (gTexture->source != -1)
         {

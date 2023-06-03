@@ -5,11 +5,7 @@
 #include "Core/Log/Log.h"
 #include "SDK/STL/STL.h"
 
-enum GLRenderBufferMode
-{
-	DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
-};
-enum GLFrameBufferParam
+enum GLAttachment
 {
 	COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0,
 	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
@@ -37,23 +33,59 @@ enum GLPolygonMode
 	LINE = GL_LINE,
 	FILL = GL_FILL
 };
-enum GLTexParam
+enum GLFormat
 {
-	REPEAT = GL_REPEAT,
+	RED = GL_RED,
+	RGB = GL_RGB,
+	RGBA = GL_RGBA,
+	DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
+	DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
+};
+enum GLType
+{
+	UBYTE = GL_UNSIGNED_BYTE,
+	FLOAT = GL_FLOAT,
+};
+enum GLMask
+{
+	COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT,
+	DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT,
+	STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT
+};
+enum GLFilter
+{
 	NEAREST = GL_NEAREST,
 	LINEAR = GL_LINEAR,
 	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
 	LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
 	NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
 	LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
-	RED = GL_RED,
-	RGB = GL_RGB,
-	RGBA = GL_RGBA,
-	UBYTE = GL_UNSIGNED_BYTE,
-	FLOAT = GL_FLOAT,
-	DEPTH_COMPONENT = GL_DEPTH_COMPONENT
 };
+enum GLWrap
+{
+	REPEAT = GL_REPEAT,
+	CLAMP =	GL_CLAMP
+};
+enum GLCullMode
+{
+    FRONT = GL_FRONT,
+    BACK = GL_BACK,
+    FRONT_AND_BACK = GL_FRONT_AND_BACK
+};
+class RenderContext
+{
+public:
 
+    bool blend = false;
+    bool depthTest = true;
+    bool depthMask = true;
+    bool cullFace = true;
+    GLPolygonMode frontAndBackFaceMode = GLPolygonMode::FILL;
+
+	unsigned int shader = -1;
+	unsigned int texture = -1;
+};
+RenderContext renderContext;
 struct GLShader
 {
 public:
@@ -119,24 +151,32 @@ struct GLTexture2D
 	}
 	void Bind()
 	{
-		glBindTexture(GL_TEXTURE_2D, id);
+		if (renderContext.texture != id)
+		{
+			glBindTexture(GL_TEXTURE_2D, id);
+			renderContext.texture = id;
+		}
 	}
-	void SetupWrapST(GLint wrap_s, GLint wrap_t)
+	void WrapST(GLWrap wrap_s, GLWrap wrap_t)
 	{
+		Bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
 	}
-	void SetupFilters(GLint min_filter, GLint mag_filter)
+	void Filters(GLFilter min_filter, GLFilter mag_filter)
 	{
+		Bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 	}
-	void SetupPixels(GLTexParam internalformat, GLsizei width, GLsizei height, GLTexParam format, GLTexParam type, const void *pixels)
+	void Image2D(GLFormat internalformat, GLsizei width, GLsizei height, GLFormat format, GLType type, const void *pixels)
 	{
+		Bind();
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
 	}
 	void GenMipmap()
 	{
+		Bind();
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	~GLTexture2D()
@@ -217,11 +257,11 @@ struct GLFrameBuffer
 	{
 		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
-	void SetAttachmentTexture2D(GLFrameBufferParam attachment, GLuint textureId)
+	void Texture2D(GLAttachment attachment, GLuint textureId)
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
 	}
-	void SetRenderbuffer(GLFrameBufferParam attachment, GLenum renderbuffer)
+	void SetRenderbuffer(GLAttachment attachment, GLenum renderbuffer)
 	{
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
@@ -241,7 +281,7 @@ struct GLRenderBuffer
 	{
 		glBindRenderbuffer(GL_RENDERBUFFER, id);
 	}
-	void SetStorage(GLenum internalformat, GLsizei width, GLsizei height)
+	void SetStorage(GLFormat internalformat, GLsizei width, GLsizei height)
 	{
 		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
 	}
@@ -258,12 +298,8 @@ struct GLPrimitive
 		Ebo.Bind();
 	}
 };
-enum GLCullMode
-{
-    FRONT = GL_FRONT,
-    BACK = GL_BACK,
-    FRONT_AND_BACK = GL_FRONT_AND_BACK
-};
+
+
 
 // Direct Call
 void GLBindFrameBuffer()
@@ -278,11 +314,13 @@ void GLDrawElements(GLsizei count)
 {
 	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 }
-void GLClear()
+void GLClearColor(vec4 color)
 {
-	glEnable(GL_DEPTH_TEST);  
-	glClearColor(0.f, 0.f, 0.f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);  
+	glClearColor(color.x, color.y, color.z, color.w);
+}
+void GLClear(GLbitfield mask)
+{
+	glClear(mask);  
 }
 
 // RenderContext
@@ -333,5 +371,15 @@ void GLDepthMask(bool isEnable)
 void GLBlendFunc(GLBlendFactor sfactor, GLBlendFactor dfactor)
 {
 	glBlendFunc(sfactor, dfactor);
+}
+
+void GLResetRenderContext(RenderContext& context)
+{
+    GLBlend(context.blend);
+    GLDepthTest(context.depthTest);
+    GLDepthMask(context.depthMask);
+    GLCullFace(context.cullFace);
+    GLPolygon(context.frontAndBackFaceMode);
+    GLBlendFunc(GLBlendFactor::SRC_ALPHA, GLBlendFactor::ONE_MINUS_SRC_ALPHA);
 }
 #endif

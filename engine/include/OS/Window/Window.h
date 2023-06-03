@@ -8,12 +8,6 @@
 #include "Core/Math/vec2.h"
 #include "Key.h"
 
-enum WindowCursorMode
-{
-	CURSOR_NORMAL = GLFW_CURSOR_NORMAL,
-	CURSOR_HIDDEN = GLFW_CURSOR_HIDDEN,
-	CURSOR_DISABLED = GLFW_CURSOR_DISABLED
-};
 struct CursorPos
 {
 	vec2 pos = vec2(-1.f);
@@ -101,24 +95,36 @@ public:
 		glfwGetWindowSize(glfwWindow, &w, &h);
 		return ivec2(w, h);
 	}
-	void SetSize(int width, int height, int xpos = 0, int ypos = 0)
+	void SetSize(int width, int height, bool nullMonitor = false)
 	{
-		glfwSetWindowMonitor(glfwWindow, NULL, xpos, ypos, width, height, GLFW_DONT_CARE);
-		//glfwSetWindowSize()
+		if (nullMonitor)
+		{
+			glfwSetWindowMonitor(glfwWindow, NULL, 0, 0, width, height, GLFW_DONT_CARE);
+		}
+		else
+		{
+			glfwSetWindowSize(glfwWindow, width, height);
+		}
 	}
-	void FullScreen()
+	ivec2 GetMonitorSize()
+	{
+		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
+		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
+		return ivec2(videoMode->width, videoMode->height);
+	}
+	void SetFullScreen()
 	{
 		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
 		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
 		glfwSetWindowMonitor(glfwWindow, glfwGetPrimaryMonitor(), 0, 0, videoMode->width, videoMode->height, GLFW_DONT_CARE);
 	}
-	WindowCursorMode GetCursorMode()
+	bool GetCursor()
 	{
-		return (WindowCursorMode)glfwGetInputMode(glfwWindow, GLFW_CURSOR);
+		return glfwGetInputMode(glfwWindow, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
 	}
-	void SetCursorMode(WindowCursorMode mode)
+	void SetCursor(bool isNormal)
 	{
-		glfwSetInputMode(glfwWindow, GLFW_CURSOR, mode);
+		glfwSetInputMode(glfwWindow, GLFW_CURSOR, isNormal ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 	}
 	void SetPos(int x, int y)
 	{
