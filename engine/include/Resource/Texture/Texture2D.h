@@ -16,7 +16,7 @@ public:
     GLTexture2D glTexture2D;
     void SetupGLTexture2D(bool isGenMipmap = true)
     {
-        GLFormat format = GLFormat::RGBA;
+        GLenum format = GLFormat::RGBA;
         if (image->n == 1)
         {
             format = GLFormat::RED;

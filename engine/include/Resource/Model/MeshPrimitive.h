@@ -3,7 +3,6 @@
 
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "MeshAttribute.h"
-#include "SDK/OpenGL/MeshCommit.h"
 #include "Resource/Material/Material.h"
 #include "Physic/Shape/AABB.h"
 
@@ -19,15 +18,14 @@ public:
     void SetupGLPrimitive()
     {
         glPrimitive.Bind();
-        GLVaoData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
-        GLEboData(indices);
+        glPrimitive.VaoData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
+        glPrimitive.EboData(indices);
     }
     void Draw()
     {
         glPrimitive.Bind();
-        GLDrawElements(indices.size());
+        glPrimitive.Draw(indices.size());
     }
-    
 };
 
 shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = shared_ptr<Material>())

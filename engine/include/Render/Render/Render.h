@@ -3,6 +3,8 @@
 
 #include "Gameplay/Object/Actor.h"
 #include "Gameplay/Component/MeshComponent.h"
+#include "Gameplay/Component/CameraComponent.h"
+#include "OS/Window/Window.h"
 
 class RenderPrimitive
 {
@@ -12,6 +14,32 @@ public:
     MeshPrimitive* meshPrimitive = nullptr;
     ArmatureInstance* armatureInstance = nullptr;
     Material* material = nullptr;
+
+    void DrawMVP(const mat4& V, const mat4& P)
+    {
+        shared_ptr<Shader> s = material->shader;
+    	s->Use();
+    	s->SetMat4("M", *worldMatrix);
+    	s->SetMat4("V", V);
+    	s->SetMat4("P", P);
+    	s->SetBool("isSkin", armatureInstance);
+    	if (armatureInstance)
+    	{
+    		Armature* armature = armatureInstance->armature;
+    		vector<Actor*> bones = armatureInstance->joints;
+    		mat4 IW = parentWorldMatrix ? parentWorldMatrix->inverse() : mat4();
+    		vector<mat4> jms;
+    		for (int i = 0; i < bones.size(); i++)
+    		{
+    			Actor* bone = bones[i];
+    			mat4 B = IW * bone->worldMatrix * armature->inverseBindMatrices[i];
+    			s->SetMat4("J[" + to_string(i) + "]", B);
+    		}
+    	}
+        material->SetUniform();
+    	material->ResetRenderContext();
+    	meshPrimitive->Draw();
+    }
 };
 
 void RenderQuery(Actor* root, vector<RenderPrimitive>& opaqueAndMasks, vector<RenderPrimitive>& blends, vector<CameraComponent*>& cameraComponents)
@@ -54,16 +82,29 @@ void RenderQuery(Actor* root, vector<RenderPrimitive>& opaqueAndMasks, vector<Re
 class Render
 {
 public:
+    Window* window = GetCurrentWindowContext();
     vector<RenderPrimitive> opaqueAndMasks, blends;
     vector<CameraComponent*> cameraComponents;
-    GLFrameBuffer gBuffer;
-    GLTexture2D gColor;
-    GLTexture2D gPosition;
-    GLTexture2D gNormal;
+
+    GLFrameBuffer fbo;
+    GLTexture2D col;
+    GLRenderBuffer rbo;
     Render()
     {
-        // gPosition.Bind();
-        // gPosition.Image2D()
+        ivec2 s = window->GetSize();
+
+        fbo.Bind();
+        col.Bind();
+        col.Image2D(GL_RGBA, s.x, s.y, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+        col.Filters(GL_LINEAR, GL_LINEAR);
+        fbo.Texture2D(GL_COLOR_ATTACHMENT0, col.id);
+
+        rbo.Bind();
+        fbo.Bind();
+        rbo.SetStorage(GL_DEPTH24_STENCIL8, s.x, s.y);
+        fbo.Renderbuffer(GL_DEPTH_STENCIL_ATTACHMENT, rbo.id);
+
+        LOG("fbo: " << fbo.IsComplete())
     }
     void Load(Actor* world)
     {
@@ -74,54 +115,11 @@ public:
     }
     void RenderShadow()
     {        
-        // depthTex.Bind();
-        // glDrawBuffer(GL_NONE);
-        // glReadBuffer(GL_NONE);
-        // GLBindFrameBuffer();
-        // glViewport(0, 0, 1024, 1024);
-        // depthAttachment.Bind();
     }
+
     void RenderGBuffer()
     {
-        mat4 V, P;
-        if (cameraComponents.size() && cameraComponents[0]->owner)
-        {
-            Actor* cameraActor = (Actor*)cameraComponents[0]->owner;
-            V = RightHandZUpToYUpProjection() * cameraActor->worldMatrix.inverse();
-            P =  cameraComponents[0]->camera->GetProjectioMatrix();
-        }
-        else
-        {
-            V = RightHandZUpToYUpProjection();
-            P = PerspectiveCamera().GetProjectioMatrix();
-        }
-        GLClear(GLMask::COLOR_BUFFER_BIT | GLMask::DEPTH_BUFFER_BIT);
-
-    	for (RenderPrimitive& rp : opaqueAndMasks)
-    	{
-    		shared_ptr<Shader> s = rp.material->shader;
-    		s->Use();
-    		s->SetMat4("M", *rp.worldMatrix);
-    		s->SetMat4("V", V);
-    		s->SetMat4("P", P);
-    		s->SetBool("isSkin", rp.armatureInstance);
-    		if (rp.armatureInstance)
-    		{
-    			ArmatureInstance* si = rp.armatureInstance;
-    			Armature* sk = si->armature;
-    			vector<Actor*> js = si->joints;
-    			mat4 IW = rp.parentWorldMatrix ? rp.parentWorldMatrix->inverse() : mat4();
-    			vector<mat4> jms;
-    			for (int i = 0; i < js.size(); i++)
-    			{
-    				Actor* j = js[i];
-    				mat4 JM = IW * j->worldMatrix * sk->inverseBindMatrices[i];
-    				s->SetMat4("J[" + to_string(i) + "]", JM);
-    			}
-    		}
-    		rp.material->ResetRenderContext();
-    		rp.meshPrimitive->Draw();
-    	}
+        
     }
 };
 

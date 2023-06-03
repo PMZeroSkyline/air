@@ -4,10 +4,14 @@
 #include <glad/glad.h>
 #include "Core/Log/Log.h"
 #include "SDK/STL/STL.h"
+#include "Core/Operator/Sizeof.h"
 
 enum GLAttachment
 {
 	COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0,
+	COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1,
+	COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2,
+	COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3,
 	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
 	DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT
 };
@@ -38,6 +42,7 @@ enum GLFormat
 	RED = GL_RED,
 	RGB = GL_RGB,
 	RGBA = GL_RGBA,
+	RGBA16F = GL_RGBA16F,
 	DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
 	DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
 };
@@ -72,20 +77,116 @@ enum GLCullMode
     BACK = GL_BACK,
     FRONT_AND_BACK = GL_FRONT_AND_BACK
 };
-class RenderContext
+
+class GLContext
 {
 public:
 
     bool blend = false;
-    bool depthTest = true;
-    bool depthMask = true;
-    bool cullFace = true;
-    GLPolygonMode frontAndBackFaceMode = GLPolygonMode::FILL;
+	GLenum sBlendFactor = GLBlendFactor::ONE;
+	GLenum dBlendFactor = GLBlendFactor::ZERO;
+    bool depthTest = false;
+    bool depthMask = false;
+    bool cullFace = false;
+    GLenum frontAndBackFacePolygonMode = GLPolygonMode::FILL;
 
-	unsigned int shader = -1;
-	unsigned int texture = -1;
+	unsigned int textureID = -1;
+	unsigned int vertexArrayID = -1;
+	unsigned int arrayBufferID = -1;
+	unsigned int elementArrayBufferID = -1;
+	unsigned int uniformBufferID = -1;
+	unsigned int frameBufferID = -1;
+	unsigned int renderBufferID = -1;
+
+	void BindFrameBuffer()
+	{
+		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+	}
+	void ClearColor(vec4 color)
+	{
+		glClearColor(color.x, color.y, color.z, color.w);
+	}
+	void Clear(GLbitfield mask)
+	{
+		glClear(mask);  
+	}
+	void SetCullFace(bool isEnable)
+	{
+		if (cullFace != isEnable)
+		{
+			if (isEnable)
+			{
+				glEnable(GL_CULL_FACE);
+			}
+			else
+			{
+				glDisable(GL_CULL_FACE);
+			}
+			cullFace = isEnable;
+		}
+	}
+	void SetBlend(bool isEnable)
+	{
+		if (blend != isEnable)
+		{
+			if (isEnable)
+			{
+				glEnable(GL_BLEND);
+			}
+			else
+			{
+				glDisable(GL_BLEND);
+			}
+			blend = isEnable;
+		}
+	}
+	void SetPolygon(GLenum mode)
+	{
+		if (frontAndBackFacePolygonMode != mode)
+		{
+			glPolygonMode(GL_FRONT_AND_BACK, mode);
+			frontAndBackFacePolygonMode = mode;
+		}
+	}
+	void SetDepthTest(bool isEnable)
+	{
+		if (depthTest != isEnable)
+		{
+			if (isEnable)
+			{
+				glEnable(GL_DEPTH_TEST);
+			}
+			else
+			{
+				glDisable(GL_DEPTH_TEST);
+			}
+			depthTest = isEnable;
+		}
+	}
+	void SetDepthMask(bool isEnable)
+	{
+		if (depthMask != isEnable)
+		{
+			glDepthMask(isEnable);
+			depthMask = isEnable;
+		}
+	}
+	void SetBlendFunc(GLenum sfactor, GLenum dfactor)
+	{
+		if (sBlendFactor != sfactor || dBlendFactor != dfactor)
+		{
+			glBlendFunc(sfactor, dfactor);
+			sBlendFactor = sfactor;
+			dBlendFactor = dfactor;
+		}
+	}
+	void DrawBuffers(vector<unsigned int>& attachments)
+	{
+		glDrawBuffers(attachments.size(), &(attachments[0]));
+	}
 };
-RenderContext renderContext;
+GLContext glContext;
+
 struct GLShader
 {
 public:
@@ -151,33 +252,33 @@ struct GLTexture2D
 	}
 	void Bind()
 	{
-		if (renderContext.texture != id)
+		if (glContext.textureID != id)
 		{
 			glBindTexture(GL_TEXTURE_2D, id);
-			renderContext.texture = id;
+			glContext.textureID = id;
 		}
 	}
 	void WrapST(GLWrap wrap_s, GLWrap wrap_t)
 	{
-		Bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
 	}
-	void Filters(GLFilter min_filter, GLFilter mag_filter)
+	void Filters(GLint min_filter, GLint mag_filter)
 	{
-		Bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 	}
-	void Image2D(GLFormat internalformat, GLsizei width, GLsizei height, GLFormat format, GLType type, const void *pixels)
+	void Image2D(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
 	{
-		Bind();
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
 	}
 	void GenMipmap()
 	{
-		Bind();
 		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	void Active(GLenum index)
+	{
+		glActiveTexture(GL_TEXTURE0 + index);
 	}
 	~GLTexture2D()
 	{
@@ -197,7 +298,11 @@ struct GLVertexArray
 	}
 	void Bind()
 	{
-		glBindVertexArray(id);
+		if (glContext.vertexArrayID != id)
+		{
+			glBindVertexArray(id);
+			glContext.vertexArrayID = id;
+		}
 	}
 };
 struct GLBuffer
@@ -216,7 +321,11 @@ struct GLArrayBuffer : GLBuffer
 {
 	void Bind()
 	{
-		glBindBuffer(GL_ARRAY_BUFFER, id);
+		if (glContext.arrayBufferID != id)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, id);
+			glContext.arrayBufferID = id;
+		}
 	}
 };
 struct GLUniformBuffer : GLBuffer
@@ -224,7 +333,11 @@ struct GLUniformBuffer : GLBuffer
 	string name;
 	void Bind()
 	{
-		glBindBuffer(GL_UNIFORM_BUFFER, id);
+		if (glContext.uniformBufferID != id)
+		{
+			glBindBuffer(GL_UNIFORM_BUFFER, id);
+			glContext.uniformBufferID = id;
+		}
 	}
 	void BindBufferBase(int index)
 	{
@@ -235,7 +348,11 @@ struct GLElementArrayBuffer : GLBuffer
 {
 	void Bind()
 	{
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+		if (glContext.elementArrayBufferID != id)
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+			glContext.elementArrayBufferID = id;
+		}
 	}
 };
 struct GLFrameBuffer
@@ -251,17 +368,21 @@ struct GLFrameBuffer
 	}
 	void Bind()
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, id);
+		if (glContext.frameBufferID != id)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, id);
+			glContext.frameBufferID = id;
+		}
 	}
 	bool IsComplete()
 	{
 		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
-	void Texture2D(GLAttachment attachment, GLuint textureId)
+	void Texture2D(GLenum attachment, GLuint textureId)
 	{
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
 	}
-	void SetRenderbuffer(GLAttachment attachment, GLenum renderbuffer)
+	void Renderbuffer(GLenum attachment, GLuint renderbuffer)
 	{
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
@@ -279,9 +400,13 @@ struct GLRenderBuffer
 	}
 	void Bind()
 	{
-		glBindRenderbuffer(GL_RENDERBUFFER, id);
+		if (glContext.renderBufferID != id)
+		{
+			glBindRenderbuffer(GL_RENDERBUFFER, id);
+			glContext.renderBufferID = id;
+		}
 	}
-	void SetStorage(GLFormat internalformat, GLsizei width, GLsizei height)
+	void SetStorage(GLenum internalformat, GLsizei width, GLsizei height)
 	{
 		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
 	}
@@ -297,89 +422,62 @@ struct GLPrimitive
 		Vbo.Bind();
 		Ebo.Bind();
 	}
+	void Draw(GLsizei count)
+	{
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+	}
+	template<typename T>
+	void VaoData(int &target, int &offset, T&& t)
+	{
+		if (t.size())
+		{
+			glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
+			glEnableVertexAttribArray(target);
+			GLenum type = GL_FLOAT;
+			if (typeid(t[0][0]) == typeid(float))
+			{
+				type = GL_FLOAT;
+			}
+			else if (typeid(t[0][0]) == typeid(int))
+			{
+				type = GL_INT;
+			}
+			else if (typeid(t[0][0]) == typeid(unsigned int))
+			{
+				type = GL_UNSIGNED_INT;
+			}
+			else if (typeid(t[0][0]) == typeid(unsigned char))
+			{
+				type = GL_UNSIGNED_BYTE;
+			}
+			else
+			{
+				LOG("failed to find vao data type !")
+			}
+			long long offset64bit = offset;
+			glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)offset64bit);
+			offset += sizeof(t[0])*t.size();
+		}
+		target++;
+	}
+	template<typename T, typename... Args>
+	void VaoData(int &target, int &offset, T&& t, Args&&... args)
+	{
+		VaoData(target, offset, t);
+		VaoData(target, offset, std::forward<Args>(args)...);
+	}
+	template<typename... Args>
+	void VaoData(Args&&... args)
+	{
+		int size = 0, offset = 0, target = 0;
+		VectorSizeof(size, std::forward<Args>(args)...);
+		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
+		VaoData(target, offset, std::forward<Args>(args)...);
+	}
+	void EboData(const vector<unsigned int> &ids)
+	{
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
+	}
 };
 
-
-
-// Direct Call
-void GLBindFrameBuffer()
-{
-	glBindFramebuffer(GL_FRAMEBUFFER, 0);
-}
-void GLActiveTexture(int slotIndex)
-{
-	glActiveTexture(GL_TEXTURE0 + slotIndex);
-}
-void GLDrawElements(GLsizei count)
-{
-	glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
-}
-void GLClearColor(vec4 color)
-{
-	glClearColor(color.x, color.y, color.z, color.w);
-}
-void GLClear(GLbitfield mask)
-{
-	glClear(mask);  
-}
-
-// RenderContext
-void GLCullFace(bool isEnable)
-{
-	if (isEnable)
-	{
-		glEnable(GL_CULL_FACE);
-		
-	}
-	else
-	{
-		glDisable(GL_CULL_FACE);
-	}
-}
-void GLBlend(bool isEnable)
-{
-	if (isEnable)
-	{
-		glEnable(GL_BLEND);
-	}
-	else
-	{
-		glDisable(GL_BLEND);
-	}
-}
-void GLPolygon(GLPolygonMode mode)
-{
-	glPolygonMode(GL_FRONT_AND_BACK, mode);
-}
-void GLDepthTest(bool isEnable)
-{
-	if (isEnable)
-	{
-		glEnable(GL_DEPTH_TEST);
-	}
-	else
-	{
-		glDisable(GL_DEPTH_TEST);
-	}
-}
-void GLDepthMask(bool isEnable)
-{
-	glDepthMask(isEnable);
-}
-
-// Utility
-void GLBlendFunc(GLBlendFactor sfactor, GLBlendFactor dfactor)
-{
-	glBlendFunc(sfactor, dfactor);
-}
-
-void GLResetRenderContext(RenderContext& context)
-{
-    GLBlend(context.blend);
-    GLDepthTest(context.depthTest);
-    GLDepthMask(context.depthMask);
-    GLCullFace(context.cullFace);
-    GLPolygon(context.frontAndBackFaceMode);
-    GLBlendFunc(GLBlendFactor::SRC_ALPHA, GLBlendFactor::ONE_MINUS_SRC_ALPHA);
-}
 #endif

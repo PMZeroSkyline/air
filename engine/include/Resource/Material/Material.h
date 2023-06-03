@@ -26,67 +26,45 @@ public:
 
     // Render Context
     MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
+    GLenum sfactor = GLBlendFactor::SRC_ALPHA, dfactor = GLBlendFactor::ONE_MINUS_SRC_ALPHA;
     bool depthTest = true;
     bool depthMask = true;
     bool doubleSided = false;
-    GLPolygonMode faceMode = GLPolygonMode::FILL;
-
+    GLenum faceMode = GLPolygonMode::FILL;
 
     void ResetRenderContext()
     {
-        bool isCullFace = !doubleSided;
-        if (renderContext.cullFace != isCullFace)
-        {
-            GLCullFace(isCullFace);
-            renderContext.cullFace = isCullFace;
-        }
-        bool isBlend = alphaMode == MaterialAlphaMode::BLEND;
-        if (renderContext.blend != isBlend)
-        {
-            GLBlend(isBlend);
-            renderContext.blend = isBlend;
-            
-        }
-        if (renderContext.frontAndBackFaceMode != faceMode)
-        {
-            GLPolygon(faceMode);
-            renderContext.frontAndBackFaceMode = faceMode;
-        }
-        if (renderContext.depthTest != depthTest)
-        {
-            GLDepthTest(depthTest);
-            renderContext.depthTest = depthTest;
-        }
-        if (renderContext.depthMask != depthMask)
-        {
-            GLDepthMask(depthMask);
-            renderContext.depthMask = depthMask;
-        }
-        
-        
+        glContext.SetBlend(alphaMode == MaterialAlphaMode::BLEND);
+        glContext.SetBlendFunc(sfactor, dfactor);
+        glContext.SetCullFace(!doubleSided);
+        glContext.SetDepthMask(depthMask);
+        glContext.SetDepthTest(depthTest);
+        glContext.SetPolygon(faceMode);
     }
-    void Setup()
+    void SetUniform()
     {        
-        for (auto const& pair : matricesMap)
-        {
-            for (int i = 0; i < pair.second.size(); i++)
-            {
-                shader->SetMat4(pair.first + "[" + to_string(i) + "]" , pair.second[i]);
-            }            
-        }
-        for (auto const& pair : matrixMap)
-        {
-            shader->SetMat4(pair.first, pair.second);
-        }
+        // for (auto const& pair : matricesMap)
+        // {
+        //     for (int i = 0; i < pair.second.size(); i++)
+        //     {
+        //         shader->SetMat4(pair.first + "[" + to_string(i) + "]" , pair.second[i]);
+        //     }            
+        // }
+        // for (auto const& pair : matrixMap)
+        // {
+        //     shader->SetMat4(pair.first, pair.second);
+        // }
 
         int textureIndex = 0;
         for (auto const& pair : textureMap)
         {
-            GLActiveTexture(textureIndex);
+            pair.second->Active(textureIndex);
             pair.second->Bind();
             shader->SetInt(pair.first, textureIndex);
             textureIndex++;
         }
+        shader->SetBool("isUseTex", textureMap.size() != 0);
+        
     }
 };
 

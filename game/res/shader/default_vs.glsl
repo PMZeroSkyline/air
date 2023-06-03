@@ -39,7 +39,7 @@ void main()
 
     o.uv = TEXCOORD_0;
     o.worldPos = S * vec4(POSITION, 1.f);
-    o.worldNormal = normalize(S * vec4(NORMAL, 0.f)).xyz;
+    o.worldNormal = (S * vec4(NORMAL, 0.f)).xyz;
 
     gl_Position = P * V * S * vec4(POSITION, 1.f);
 
