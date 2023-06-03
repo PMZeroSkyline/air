@@ -6,89 +6,17 @@
 #include "SDK/STL/STL.h"
 #include "Core/Operator/Sizeof.h"
 
-enum GLAttachment
-{
-	COLOR_ATTACHMENT0 = GL_COLOR_ATTACHMENT0,
-	COLOR_ATTACHMENT1 = GL_COLOR_ATTACHMENT1,
-	COLOR_ATTACHMENT2 = GL_COLOR_ATTACHMENT2,
-	COLOR_ATTACHMENT3 = GL_COLOR_ATTACHMENT3,
-	DEPTH_STENCIL_ATTACHMENT = GL_DEPTH_STENCIL_ATTACHMENT,
-	DEPTH_ATTACHMENT = GL_DEPTH_ATTACHMENT
-};
-enum GLBlendFactor
-{
-    ZERO = GL_ZERO,
-    ONE = GL_ONE,
-    SRC_COLOR = GL_SRC_COLOR,
-    ONE_MINUS_SRC_COLOR = GL_ONE_MINUS_SRC_COLOR,
-    DST_COLOR = GL_DST_COLOR,
-    ONE_MINUS_DST_COLOR = GL_ONE_MINUS_DST_COLOR,
-    SRC_ALPHA = GL_SRC_ALPHA,
-    ONE_MINUS_SRC_ALPHA = GL_ONE_MINUS_SRC_ALPHA,
-    DST_ALPHA = GL_DST_ALPHA,
-    ONE_MINUS_DST_ALPHA = GL_ONE_MINUS_DST_ALPHA,
-    CONSTANT_COLOR = GL_CONSTANT_COLOR,
-    ONE_MINUS_CONSTANT_COLOR = GL_ONE_MINUS_CONSTANT_COLOR,
-    CONSTANT_ALPHA = GL_CONSTANT_ALPHA,
-    ONE_MINUS_CONSTANT_ALPHA = GL_ONE_MINUS_CONSTANT_ALPHA
-};
-enum GLPolygonMode
-{
-	LINE = GL_LINE,
-	FILL = GL_FILL
-};
-enum GLFormat
-{
-	RED = GL_RED,
-	RGB = GL_RGB,
-	RGBA = GL_RGBA,
-	RGBA16F = GL_RGBA16F,
-	DEPTH_COMPONENT = GL_DEPTH_COMPONENT,
-	DEPTH24_STENCIL8 = GL_DEPTH24_STENCIL8
-};
-enum GLType
-{
-	UBYTE = GL_UNSIGNED_BYTE,
-	FLOAT = GL_FLOAT,
-};
-enum GLMask
-{
-	COLOR_BUFFER_BIT = GL_COLOR_BUFFER_BIT,
-	DEPTH_BUFFER_BIT = GL_DEPTH_BUFFER_BIT,
-	STENCIL_BUFFER_BIT = GL_STENCIL_BUFFER_BIT
-};
-enum GLFilter
-{
-	NEAREST = GL_NEAREST,
-	LINEAR = GL_LINEAR,
-	NEAREST_MIPMAP_NEAREST = GL_NEAREST_MIPMAP_NEAREST,
-	LINEAR_MIPMAP_NEAREST = GL_LINEAR_MIPMAP_NEAREST,
-	NEAREST_MIPMAP_LINEAR = GL_NEAREST_MIPMAP_LINEAR,
-	LINEAR_MIPMAP_LINEAR = GL_LINEAR_MIPMAP_LINEAR,
-};
-enum GLWrap
-{
-	REPEAT = GL_REPEAT,
-	CLAMP =	GL_CLAMP
-};
-enum GLCullMode
-{
-    FRONT = GL_FRONT,
-    BACK = GL_BACK,
-    FRONT_AND_BACK = GL_FRONT_AND_BACK
-};
-
 class GLContext
 {
 public:
 
     bool blend = false;
-	GLenum sBlendFactor = GLBlendFactor::ONE;
-	GLenum dBlendFactor = GLBlendFactor::ZERO;
+	GLenum sBlendFactor = GL_ONE;
+	GLenum dBlendFactor = GL_ZERO;
     bool depthTest = false;
     bool depthMask = false;
     bool cullFace = false;
-    GLenum frontAndBackFacePolygonMode = GLPolygonMode::FILL;
+    GLenum frontAndBackFacePolygonMode = GL_FILL;
 
 	unsigned int textureID = -1;
 	unsigned int vertexArrayID = -1;
@@ -101,6 +29,7 @@ public:
 	void BindFrameBuffer()
 	{
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
+		frameBufferID = 0;
 	}
 	void ClearColor(vec4 color)
 	{
@@ -252,13 +181,14 @@ struct GLTexture2D
 	}
 	void Bind()
 	{
-		if (glContext.textureID != id)
-		{
-			glBindTexture(GL_TEXTURE_2D, id);
-			glContext.textureID = id;
-		}
+		glBindTexture(GL_TEXTURE_2D, id);
+		// if (glContext.textureID != id)
+		// {
+		// 	glBindTexture(GL_TEXTURE_2D, id);
+		// 	glContext.textureID = id;
+		// }
 	}
-	void WrapST(GLWrap wrap_s, GLWrap wrap_t)
+	void WrapST(GLint wrap_s, GLint wrap_t)
 	{
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
@@ -298,11 +228,12 @@ struct GLVertexArray
 	}
 	void Bind()
 	{
-		if (glContext.vertexArrayID != id)
-		{
-			glBindVertexArray(id);
-			glContext.vertexArrayID = id;
-		}
+		// if (glContext.vertexArrayID != id)
+		// {
+		// 	glBindVertexArray(id);
+		// 	glContext.vertexArrayID = id;
+		// }
+		glBindVertexArray(id);
 	}
 };
 struct GLBuffer
@@ -321,11 +252,12 @@ struct GLArrayBuffer : GLBuffer
 {
 	void Bind()
 	{
-		if (glContext.arrayBufferID != id)
-		{
-			glBindBuffer(GL_ARRAY_BUFFER, id);
-			glContext.arrayBufferID = id;
-		}
+		// if (glContext.arrayBufferID != id)
+		// {
+		// 	glBindBuffer(GL_ARRAY_BUFFER, id);
+		// 	glContext.arrayBufferID = id;
+		// }
+		glBindBuffer(GL_ARRAY_BUFFER, id);
 	}
 };
 struct GLUniformBuffer : GLBuffer
@@ -333,11 +265,12 @@ struct GLUniformBuffer : GLBuffer
 	string name;
 	void Bind()
 	{
-		if (glContext.uniformBufferID != id)
-		{
-			glBindBuffer(GL_UNIFORM_BUFFER, id);
-			glContext.uniformBufferID = id;
-		}
+		// if (glContext.uniformBufferID != id)
+		// {
+		// 	glBindBuffer(GL_UNIFORM_BUFFER, id);
+		// 	glContext.uniformBufferID = id;
+		// }
+		glBindBuffer(GL_UNIFORM_BUFFER, id);
 	}
 	void BindBufferBase(int index)
 	{
@@ -348,11 +281,12 @@ struct GLElementArrayBuffer : GLBuffer
 {
 	void Bind()
 	{
-		if (glContext.elementArrayBufferID != id)
-		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-			glContext.elementArrayBufferID = id;
-		}
+		// if (glContext.elementArrayBufferID != id)
+		// {
+		// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+		// 	glContext.elementArrayBufferID = id;
+		// }
+		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 	}
 };
 struct GLFrameBuffer
@@ -368,11 +302,12 @@ struct GLFrameBuffer
 	}
 	void Bind()
 	{
-		if (glContext.frameBufferID != id)
-		{
-			glBindFramebuffer(GL_FRAMEBUFFER, id);
-			glContext.frameBufferID = id;
-		}
+		// if (glContext.frameBufferID != id)
+		// {
+		// 	glBindFramebuffer(GL_FRAMEBUFFER, id);
+		// 	glContext.frameBufferID = id;
+		// }
+		glBindFramebuffer(GL_FRAMEBUFFER, id);
 	}
 	bool IsComplete()
 	{
@@ -400,11 +335,12 @@ struct GLRenderBuffer
 	}
 	void Bind()
 	{
-		if (glContext.renderBufferID != id)
-		{
-			glBindRenderbuffer(GL_RENDERBUFFER, id);
-			glContext.renderBufferID = id;
-		}
+		// if (glContext.renderBufferID != id)
+		// {
+		// 	glBindRenderbuffer(GL_RENDERBUFFER, id);
+		// 	glContext.renderBufferID = id;
+		// }
+		glBindRenderbuffer(GL_RENDERBUFFER, id);
 	}
 	void SetStorage(GLenum internalformat, GLsizei width, GLsizei height)
 	{

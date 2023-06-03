@@ -26,11 +26,11 @@ public:
 
     // Render Context
     MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
-    GLenum sfactor = GLBlendFactor::SRC_ALPHA, dfactor = GLBlendFactor::ONE_MINUS_SRC_ALPHA;
+    GLenum sfactor = GL_SRC_ALPHA, dfactor = GL_ONE_MINUS_SRC_ALPHA;
     bool depthTest = true;
     bool depthMask = true;
     bool doubleSided = false;
-    GLenum faceMode = GLPolygonMode::FILL;
+    GLenum faceMode = GL_FILL;
 
     void ResetRenderContext()
     {

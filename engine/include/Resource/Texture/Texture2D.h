@@ -16,19 +16,19 @@ public:
     GLTexture2D glTexture2D;
     void SetupGLTexture2D(bool isGenMipmap = true)
     {
-        GLenum format = GLFormat::RGBA;
+        GLenum format = GL_RGBA;
         if (image->n == 1)
         {
-            format = GLFormat::RED;
+            format = GL_RED;
         }
         if (image->n == 3)
         {
-            format = GLFormat::RGB;
+            format = GL_RGB;
         }
         glTexture2D.Bind();
         glTexture2D.WrapST(sampler.wrapS, sampler.wrapT);
         glTexture2D.Filters(sampler.minFilter, sampler.magFilter);
-        glTexture2D.Image2D(format, image->w, image->h, format, GLType::UBYTE, image->d);
+        glTexture2D.Image2D(format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
         glTexture2D.GenMipmap();
     }
 };

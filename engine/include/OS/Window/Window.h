@@ -95,29 +95,6 @@ public:
 		glfwGetWindowSize(glfwWindow, &w, &h);
 		return ivec2(w, h);
 	}
-	void SetSize(int width, int height, bool nullMonitor = false)
-	{
-		if (nullMonitor)
-		{
-			glfwSetWindowMonitor(glfwWindow, NULL, 0, 0, width, height, GLFW_DONT_CARE);
-		}
-		else
-		{
-			glfwSetWindowSize(glfwWindow, width, height);
-		}
-	}
-	ivec2 GetMonitorSize()
-	{
-		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-		return ivec2(videoMode->width, videoMode->height);
-	}
-	void SetFullScreen()
-	{
-		GLFWmonitor* primaryMonitor = glfwGetPrimaryMonitor();
-		const GLFWvidmode* videoMode = glfwGetVideoMode(primaryMonitor);
-		glfwSetWindowMonitor(glfwWindow, glfwGetPrimaryMonitor(), 0, 0, videoMode->width, videoMode->height, GLFW_DONT_CARE);
-	}
 	bool GetCursor()
 	{
 		return glfwGetInputMode(glfwWindow, GLFW_CURSOR) == GLFW_CURSOR_NORMAL;
@@ -126,11 +103,7 @@ public:
 	{
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, isNormal ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
 	}
-	void SetPos(int x, int y)
-	{
-		glfwSetWindowPos(glfwWindow, x, y);
-	}
-	
+		
 	// Delta data process
 	void Tick()
 	{

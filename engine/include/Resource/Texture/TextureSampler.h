@@ -6,10 +6,10 @@
 class TextureSampler
 {
 public:
-    GLFilter magFilter = GLFilter::LINEAR;
-    GLFilter minFilter = GLFilter::LINEAR;
-    GLWrap wrapS = GLWrap::REPEAT;
-    GLWrap wrapT = GLWrap::REPEAT;
+    GLenum magFilter = GL_LINEAR;
+    GLenum minFilter = GL_LINEAR;
+    GLenum wrapS = GL_REPEAT;
+    GLenum wrapT = GL_REPEAT;
 };
 
 

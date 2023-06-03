@@ -97,7 +97,7 @@ void main()
     {
         col *= texture(baseColorTex, i.uv).xyz;
     }
-    FragColor = vec4(col, .2f);
+    FragColor = vec4(col, 1.f);
     // gPosition = worldPos;
     // gNormal = worldNormal;
     // gBaseColorRoughness.rgb = col;
