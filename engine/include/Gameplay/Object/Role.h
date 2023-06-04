@@ -198,12 +198,14 @@ public:
 
     Role()
     {
+        cCam->tag = "role";
         aCam->localTransform.translation = vec3(-5.f, 0.f, 0.f);
         aCam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
         aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
-        cCam->camera = make_shared<PerspectiveCamera>();
+        shared_ptr<PerspectiveCamera> cam = make_shared<PerspectiveCamera>();
+        cCam->camera = cam;
         
         //GenCapsuleMan(aModel);
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();

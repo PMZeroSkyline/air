@@ -6,6 +6,9 @@
 #include "SDK/STL/STL.h"
 #include "Core/Operator/Sizeof.h"
 
+#define FORCE_BIND
+
+
 class GLContext
 {
 public:
@@ -22,7 +25,6 @@ public:
 	unsigned int vertexArrayID = -1;
 	unsigned int arrayBufferID = -1;
 	unsigned int elementArrayBufferID = -1;
-	unsigned int uniformBufferID = -1;
 	unsigned int frameBufferID = -1;
 	unsigned int renderBufferID = -1;
 
@@ -109,14 +111,10 @@ public:
 			dBlendFactor = dfactor;
 		}
 	}
-	void DrawBuffers(vector<unsigned int>& attachments)
-	{
-		glDrawBuffers(attachments.size(), &(attachments[0]));
-	}
 };
 GLContext glContext;
 
-struct GLShader
+class GLShader
 {
 public:
 	unsigned int id=-1;
@@ -124,7 +122,7 @@ public:
 	{
 		id = glCreateShader(t);
 	}
-	~GLShader()
+	virtual ~GLShader()
 	{
 		glDeleteShader(id);
 	}
@@ -144,14 +142,15 @@ public:
 		return true;
 	}
 };
-struct GLProgram
+class GLProgram
 {
+public:
 	unsigned int id=-1;
 	GLProgram()
 	{
 		id = glCreateProgram();
 	}
-	~GLProgram()
+	virtual ~GLProgram()
 	{
 		glDeleteProgram(id);
 	}
@@ -172,125 +171,154 @@ struct GLProgram
 		return true;
 	}
 };
-struct GLTexture2D
+class GLTexture2D
 {
+public:
 	unsigned int id = -1;
 	GLTexture2D()
 	{
 		glGenTextures(1, &id);		
 	}
+	virtual ~GLTexture2D()
+	{
+		glDeleteTextures(1, &id);
+		if (glContext.textureID == id)
+		{
+			glContext.textureID = -1;
+		}
+	}
 	void Bind()
 	{
-		glBindTexture(GL_TEXTURE_2D, id);
-		// if (glContext.textureID != id)
-		// {
-		// 	glBindTexture(GL_TEXTURE_2D, id);
-		// 	glContext.textureID = id;
-		// }
+		if (glContext.textureID != id)
+		{
+			glBindTexture(GL_TEXTURE_2D, id);
+			glContext.textureID = id;
+		}
 	}
 	void WrapST(GLint wrap_s, GLint wrap_t)
 	{
+		Bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
 	}
 	void Filters(GLint min_filter, GLint mag_filter)
 	{
+		Bind();
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
 	}
 	void Image2D(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
 	{
+		Bind();
 		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
 	}
 	void GenMipmap()
 	{
+		Bind();
 		glGenerateMipmap(GL_TEXTURE_2D);
 	}
 	void Active(GLenum index)
 	{
 		glActiveTexture(GL_TEXTURE0 + index);
+		Bind();
 	}
-	~GLTexture2D()
+	void BorderColor(vec4 borderColor)
 	{
-		glDeleteTextures(1, &id);
+		Bind();
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &(borderColor[0]));
 	}
 };
-struct GLVertexArray
+class GLVertexArray
 {
+public:
 	unsigned int id;
 	GLVertexArray()
 	{
 		glGenVertexArrays(1, &id);
 	}
-	~GLVertexArray()
+	virtual ~GLVertexArray()
 	{
 		glDeleteVertexArrays(1, &id);
+		if (glContext.vertexArrayID == id)
+		{
+			glContext.vertexArrayID = -1;
+		}
 	}
 	void Bind()
 	{
-		// if (glContext.vertexArrayID != id)
-		// {
-		// 	glBindVertexArray(id);
-		// 	glContext.vertexArrayID = id;
-		// }
-		glBindVertexArray(id);
+		if (glContext.vertexArrayID != id)
+		{
+			glBindVertexArray(id);
+			glContext.vertexArrayID = id;
+		}
 	}
 };
-struct GLBuffer
+class GLBuffer
 {
+public:
 	unsigned int id;
 	GLBuffer()
 	{
 		glGenBuffers(1, &id);
 	}
-	~GLBuffer()
+	virtual ~GLBuffer()
 	{
 		glDeleteBuffers(1, &id);
 	}
 };
-struct GLArrayBuffer : GLBuffer
+class GLArrayBuffer : public GLBuffer
 {
+public:
+	 ~GLArrayBuffer()
+	 {
+	 	if (glContext.arrayBufferID == id)
+	 	{
+	 		glContext.arrayBufferID = -1;
+	 	}
+	 }
 	void Bind()
 	{
-		// if (glContext.arrayBufferID != id)
-		// {
-		// 	glBindBuffer(GL_ARRAY_BUFFER, id);
-		// 	glContext.arrayBufferID = id;
-		// }
-		glBindBuffer(GL_ARRAY_BUFFER, id);
+		if (glContext.arrayBufferID != id)
+		{
+			glBindBuffer(GL_ARRAY_BUFFER, id);
+			glContext.arrayBufferID = id;
+		}
 	}
 };
-struct GLUniformBuffer : GLBuffer
+ class GLUniformBuffer : GLBuffer
+ {
+ 	string name;
+ 	void Bind()
+ 	{
+ 		glBindBuffer(GL_UNIFORM_BUFFER, id);
+ 	}
+ 	void BindBufferBase(int index)
+ 	{
+ 		glBindBufferBase(GL_UNIFORM_BUFFER, index, id);
+ 	}
+ };
+class GLElementArrayBuffer : public GLBuffer
 {
-	string name;
+public:
+	 ~GLElementArrayBuffer()
+	 {
+	 	if (glContext.elementArrayBufferID == id)
+	 	{
+	 		glContext.elementArrayBufferID = -1;
+	 	}
+	 }
 	void Bind()
 	{
-		// if (glContext.uniformBufferID != id)
-		// {
-		// 	glBindBuffer(GL_UNIFORM_BUFFER, id);
-		// 	glContext.uniformBufferID = id;
-		// }
-		glBindBuffer(GL_UNIFORM_BUFFER, id);
-	}
-	void BindBufferBase(int index)
-	{
-		glBindBufferBase(GL_UNIFORM_BUFFER, index, id);
+		if (glContext.elementArrayBufferID != id)
+		{
+			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+			glContext.elementArrayBufferID = id;
+		}
 	}
 };
-struct GLElementArrayBuffer : GLBuffer
+class GLFrameBuffer
 {
-	void Bind()
-	{
-		// if (glContext.elementArrayBufferID != id)
-		// {
-		// 	glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-		// 	glContext.elementArrayBufferID = id;
-		// }
-		glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
-	}
-};
-struct GLFrameBuffer
-{
+public:
 	unsigned int id;
 	GLFrameBuffer()
 	{
@@ -299,31 +327,53 @@ struct GLFrameBuffer
 	~GLFrameBuffer()
 	{
 		glDeleteFramebuffers(1, &id);
+		if (glContext.frameBufferID == id)
+		{
+			glContext.frameBufferID = -1;
+		}
 	}
 	void Bind()
 	{
-		// if (glContext.frameBufferID != id)
-		// {
-		// 	glBindFramebuffer(GL_FRAMEBUFFER, id);
-		// 	glContext.frameBufferID = id;
-		// }
-		glBindFramebuffer(GL_FRAMEBUFFER, id);
+		if (glContext.frameBufferID != id)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, id);
+			glContext.frameBufferID = id;
+		}
 	}
 	bool IsComplete()
 	{
+		Bind();
 		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;
 	}
 	void Texture2D(GLenum attachment, GLuint textureId)
 	{
+		Bind();
 		glFramebufferTexture2D(GL_FRAMEBUFFER, attachment, GL_TEXTURE_2D, textureId, 0);
 	}
 	void Renderbuffer(GLenum attachment, GLuint renderbuffer)
 	{
+		Bind();
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
+	void DrawBuffers(vector<unsigned int>& attachments)
+	{
+		Bind();
+		glDrawBuffers(attachments.size(), &(attachments[0]));
+	}
+	void DrawBuffer(GLenum buf)
+	{
+		Bind();
+		glDrawBuffer(buf);
+	}
+	void ReadBuffer(GLenum src)
+    {
+		Bind();
+		glReadBuffer(src);
+	}
 };
-struct GLRenderBuffer
+class GLRenderBuffer
 {
+public:
 	unsigned int id;
 	GLRenderBuffer()
 	{
@@ -332,23 +382,28 @@ struct GLRenderBuffer
 	~GLRenderBuffer()
 	{
 		glDeleteRenderbuffers(1, &id);
+		if (glContext.renderBufferID == id)
+		{
+			glContext.renderBufferID = -1;
+		}
 	}
 	void Bind()
 	{
-		// if (glContext.renderBufferID != id)
-		// {
-		// 	glBindRenderbuffer(GL_RENDERBUFFER, id);
-		// 	glContext.renderBufferID = id;
-		// }
-		glBindRenderbuffer(GL_RENDERBUFFER, id);
+		if (glContext.renderBufferID != id)
+		{
+			glBindRenderbuffer(GL_RENDERBUFFER, id);
+			glContext.renderBufferID = id;
+		}
 	}
 	void SetStorage(GLenum internalformat, GLsizei width, GLsizei height)
 	{
+		Bind();
 		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
 	}
 };
-struct GLPrimitive
+class GLPrimitive
 {
+public:
 	GLArrayBuffer Vbo;
 	GLVertexArray Vao;
 	GLElementArrayBuffer Ebo;
@@ -358,8 +413,9 @@ struct GLPrimitive
 		Vbo.Bind();
 		Ebo.Bind();
 	}
-	void Draw(GLsizei count)
+	void DrawElements(GLsizei count)
 	{
+		Bind();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 	}
 	template<typename T>
@@ -405,6 +461,7 @@ struct GLPrimitive
 	template<typename... Args>
 	void VaoData(Args&&... args)
 	{
+		Bind();
 		int size = 0, offset = 0, target = 0;
 		VectorSizeof(size, std::forward<Args>(args)...);
 		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
@@ -412,6 +469,7 @@ struct GLPrimitive
 	}
 	void EboData(const vector<unsigned int> &ids)
 	{
+		Bind();
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 	}
 };

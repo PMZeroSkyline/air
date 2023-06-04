@@ -12,66 +12,23 @@ int main()
 
 	shared_ptr<Actor> world = make_shared<Actor>();
 	GenSandbox(world.get());
-	world->AddChild<Role>();
+	Role* role = world->AddChild<Role>();
+	GenDirLight(role);
 	world->ResetWorldMatrix();
-
 	
+
 	while (window.IsOpen())
 	{
 		window.Tick();
 		world->ResetWorldMatrix();
 		world->Tick();
 
-		//render.Load(world.get());
-		//render.RenderGBuffer();
-		GLFrameBuffer fbo;
-    	GLTexture2D col;
-    	GLRenderBuffer rbo;
-		fbo.Bind();
-    	col.Bind();
-    	col.Image2D(GL_RGBA, window.GetSize().x, window.GetSize().y, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-    	col.Filters(GL_LINEAR, GL_LINEAR);
-    	fbo.Texture2D(GL_COLOR_ATTACHMENT0, col.id);
+		Render render;
+		render.Load(world.get());
+		render.DrawLightSpaceDepth();
+		render.DrawGBuffer();
+		render.DrawDeferredLighting();
 
-    	rbo.Bind();
-    	fbo.Bind();
-    	rbo.SetStorage(GL_DEPTH24_STENCIL8, window.GetSize().x, window.GetSize().y);
-    	fbo.Renderbuffer(GL_DEPTH_STENCIL_ATTACHMENT, rbo.id);
-
-		vector<RenderPrimitive> opaqueAndMasks, blends;
-    	vector<CameraComponent*> cameraComponents;
-		RenderQuery(world.get(), opaqueAndMasks, blends, cameraComponents);
-		mat4 V, P;
-        if (cameraComponents.size() && cameraComponents[0]->owner)
-        {
-            Actor* cameraActor = (Actor*)cameraComponents[0]->owner;
-            V = RightHandZUpToYUpProjection() * cameraActor->worldMatrix.inverse();
-            P =  cameraComponents[0]->camera->GetProjectioMatrix();
-        }
-        else
-        {
-            V = RightHandZUpToYUpProjection();
-            P = PerspectiveCamera().GetProjectioMatrix();
-        }
-        fbo.Bind();
-        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-    	for (RenderPrimitive& rp : opaqueAndMasks)
-    	{
-    		rp.DrawMVP(V, P);
-    	}
-        for (RenderPrimitive& rp : blends)
-    	{
-    		rp.DrawMVP(V, P);
-    	}
-        glContext.BindFrameBuffer();
-        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT | GL_STENCIL_BUFFER_BIT);
-        glContext.SetDepthTest(false);
-        shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive(MakeMaterialFromShaderRes("screen"));
-        quad->material->shader->Use();
-        col.Bind();
-        col.Active(0);
-        quad->material->shader->SetInt("screenTex", 0);
-        quad->Draw();
 		
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{

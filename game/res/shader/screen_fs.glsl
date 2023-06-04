@@ -6,11 +6,9 @@ in V2F
     vec2 uv;
 } i;
 
-uniform sampler2D screenTex;
+uniform sampler2D colorTex;
 
 void main()
 {   
-    //FragColor = vec4(1.f, 0.f, 0.f, 1.f);
-    FragColor = texture(screenTex, i.uv);
-    
+    FragColor = texture(colorTex, i.uv);
 }

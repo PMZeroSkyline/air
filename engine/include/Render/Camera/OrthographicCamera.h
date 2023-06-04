@@ -9,8 +9,9 @@ public:
 	bool isUseFramebufferAspect = true;
 	float xmag = 5.f;
 	float ymag = 5.f;
-	float zfar = 0.1f;
-	float znear = 10.f;
+	float znear = 0.1f;
+	float zfar = 100.f;
+
 	
 	virtual mat4 GetProjectioMatrix() override
 	{

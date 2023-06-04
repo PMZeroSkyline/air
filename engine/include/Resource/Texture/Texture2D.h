@@ -25,7 +25,7 @@ public:
         {
             format = GL_RGB;
         }
-        glTexture2D.Bind();
+        //glTexture2D.Bind();
         glTexture2D.WrapST(sampler.wrapS, sampler.wrapT);
         glTexture2D.Filters(sampler.minFilter, sampler.magFilter);
         glTexture2D.Image2D(format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);

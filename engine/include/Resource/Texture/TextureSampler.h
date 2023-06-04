@@ -6,8 +6,8 @@
 class TextureSampler
 {
 public:
-    GLenum magFilter = GL_LINEAR;
-    GLenum minFilter = GL_LINEAR;
+    GLenum magFilter = GL_NEAREST;
+    GLenum minFilter = GL_NEAREST;
     GLenum wrapS = GL_REPEAT;
     GLenum wrapT = GL_REPEAT;
 };

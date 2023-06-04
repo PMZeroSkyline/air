@@ -1,8 +1,8 @@
 #version 330 core
-out vec4 FragColor;
-// layout (location = 0) out vec3 gPosition;
-// layout (location = 1) out vec3 gNormal;
-// layout (location = 2) out vec4 gBaseColorRoughness;
+//out vec4 FragColor;
+layout (location = 0) out vec3 gPosition;
+layout (location = 1) out vec3 gNormal;
+layout (location = 2) out vec4 gBaseColorRoughness;
 
 in V2F
 {
@@ -11,7 +11,13 @@ in V2F
     vec3 worldNormal;
 } i;
 
-float WorldGrid(vec3 worldPos)
+uniform bool isUseTex;
+uniform sampler2D baseColorTex;
+uniform bool isBlend;
+uniform vec3 viewPos;
+uniform vec3 lightDir;
+
+float WorldGrid(vec3 worldPos, vec3 worldNormal)
 {
     float a = sin(radians(45.f));
 
@@ -36,9 +42,9 @@ float WorldGrid(vec3 worldPos)
     float lz_10m = (f.z > s && f.z < (1.f-s)) ? 1.f : 0.f;
 
 
-    bool mask_z = abs(dot(vec3(0.f, 0.f, 1.f), i.worldNormal)) > a;
-    bool mask_x = abs(dot(vec3(1.f, 0.f, 0.f), i.worldNormal)) > a;
-    bool mask_y = abs(dot(vec3(0.f, 1.f, 0.f), i.worldNormal)) > a;
+    bool mask_z = abs(dot(vec3(0.f, 0.f, 1.f), worldNormal)) > a;
+    bool mask_x = abs(dot(vec3(1.f, 0.f, 0.f), worldNormal)) > a;
+    bool mask_y = abs(dot(vec3(0.f, 1.f, 0.f), worldNormal)) > a;
     
     float grid_m;
     float grid_10m;
@@ -67,7 +73,9 @@ float WorldGrid(vec3 worldPos)
         grid_50cm = lx_50cm * ly_50cm * lz_50cm;
         grid_10m = lx_10m * ly_10m * lz_10m;
     }
-    return grid_10m * grid_m * grid_50cm;
+    float disMask = max(1.f - distance(viewPos, worldPos) * 0.05f, 0.f);
+    float grid = min(grid_m, min(grid_50cm, grid_10m));
+    return (1.f - (1.f - grid) * disMask);
 }
 
 float UVGrid(vec2 uv)
@@ -80,8 +88,6 @@ float UVGrid(vec2 uv)
 
     return lx_20cm * ly_20cm;
 }
-uniform bool isUseTex;
-uniform sampler2D baseColorTex;
 
 void main()
 {   
@@ -89,17 +95,18 @@ void main()
     vec3 worldNormal = normalize(i.worldNormal);
     float nl = dot(worldNormal, normalize(vec3(1.f))) * .5f + .5f;
 
-    float grid = WorldGrid(worldPos);
+    float grid = WorldGrid(worldPos, worldNormal);
 
-    vec3 col = (worldNormal * .5f + .5f) * grid * nl;
+    vec3 col = vec3(1.f) * grid * nl;
 
     if(isUseTex)
     {
         col *= texture(baseColorTex, i.uv).xyz;
     }
-    FragColor = vec4(col, 1.f);
-    // gPosition = worldPos;
-    // gNormal = worldNormal;
-    // gBaseColorRoughness.rgb = col;
-    // gBaseColorRoughness.a = 0.5f;
+    float a = isBlend ? .5f : 1.f;
+    //FragColor = vec4(col, a);
+    gPosition = worldPos;
+    gNormal = worldNormal;
+    gBaseColorRoughness.rgb = col;
+    gBaseColorRoughness.a = a;
 }

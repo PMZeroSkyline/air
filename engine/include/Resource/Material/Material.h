@@ -59,7 +59,7 @@ public:
         for (auto const& pair : textureMap)
         {
             pair.second->Active(textureIndex);
-            pair.second->Bind();
+            //pair.second->Bind();
             shader->SetInt(pair.first, textureIndex);
             textureIndex++;
         }

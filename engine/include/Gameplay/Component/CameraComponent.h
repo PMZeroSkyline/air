@@ -9,9 +9,8 @@
 class CameraComponent : public Component
 {
 public:
-
+	string tag;
 	shared_ptr<Camera> camera;
-
 };
 
 #endif

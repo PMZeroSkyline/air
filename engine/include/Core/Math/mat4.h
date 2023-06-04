@@ -48,6 +48,7 @@ struct mat4
 	vec4& operator[](int i);
 	vec4 const& operator[](int i) const;
 	vec4 column(int i) const;
+	mat4& setColumn(int i, const vec4& v);
 	mat4 transpose() const;
 	mat4 inverse() const;
 	float determinant() const;
@@ -97,6 +98,14 @@ quat mat4::ToQuat() const
 inline vec4 mat4::column(int i) const
 {
 	return vec4(row[0][i], row[1][i], row[2][i], row[3][i]);
+}
+inline mat4& mat4::setColumn(int i, const vec4& v)
+{
+	for (int r = 0; r < 4; r++)
+	{
+		(*this)[i][r] = v[r];
+	}
+	return *this;
 }
 inline mat4 mat4::operator+(const mat4& m) const
 {
@@ -490,20 +499,21 @@ inline bool mat4::decompose(vec3& Scale, quat& Orientation, vec3& Translation, v
 	memcpy(&Perspective, &glm_per, sizeof(vec4));
 	return result;
 }
-// mat4 OrthographicProjection(float left, float right, float top, float bottom, float near, float far)
-// {
-// 	// https://en.wikipedia.org/wiki/Orthographic_projection
-// 	mat4 result = {
-// 		{2.f/(right-left), 0, 0, -(right+left)/(right-left)},
-// 		{0, 2.f/(top-bottom), 0, -(top+bottom)/(top-bottom)},
-// 		{0, 0, -2.f/(far-near), -(far+near)/(far-near)},
-// 		{0, 0, 0, 1}
-// 	};
-// 	return result;
-// }
+mat4 OrthographicProjection(float left, float right, float top, float bottom, float near, float far)
+{
+	// https://en.wikipedia.org/wiki/Orthographic_projection
+	float l = left, r = right, t = top, b = bottom, n = near, f = far;
+	mat4 result = {
+		{2.f/(r-l), 0.f, 0.f, -(r+l)/(r-l)},
+		{0.f, 2.f/(t-b), 0.f, -(t+b)/(t-b)},
+		{0.f, 0.f, -2.f/(f-n), -(f+n)/(f-n)},
+		{0.f, 0.f, 0.f, 1.f}
+	};
+	return result;
+}
 mat4 OrthographicProjection(float xmag, float ymag, float znear, float zfar)
 {
-	// GLTF
+	// gltf2.0 https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#introduction-general
 	float r = xmag, t = ymag, n = znear, f = zfar;
 	mat4 result = {
 		{1/r, 0, 0, 0},
@@ -516,11 +526,11 @@ mat4 OrthographicProjection(float xmag, float ymag, float znear, float zfar)
 mat4 PerspectiveProjection(float yfov, float aspect, float znear, float zfar)
 {
 	float a = aspect, y = yfov, n = znear, f = zfar;
-
+	// gltf2.0 https://registry.khronos.org/glTF/specs/2.0/glTF-2.0.html#introduction-general
 	mat4 result = {
-		{1/(a*tan(.5f*y)), 0, 0, 0},
-		{0,1/tan(.5f*y), 0, 0},
-		{0, 0, -(f+n)/(n-f), -(2.f*f*n)/(n-f)},
+		{1.f/(a*tan(0.5f*y)), 0, 0, 0},
+		{0, 1.f/(tan(0.5f*y)), 0, 0},
+		{0, 0, (f+n)/(n-f), (2*f*n)/(n-f)},
 		{0, 0, -1, 0}
 	};
 	return result;

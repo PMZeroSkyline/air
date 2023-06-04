@@ -89,7 +89,13 @@ public:
 	{
 		glfwSetWindowShouldClose(glfwWindow, true);
 	}
-	ivec2 GetSize()
+	ivec2 GetFrameBufferSize()
+	{
+		int w, h;
+		glfwGetFramebufferSize(glfwWindow, &w, &h);
+		return ivec2(w, h);
+	}
+	ivec2 GetWindowSize()
 	{
 		int w, h;
 		glfwGetWindowSize(glfwWindow, &w, &h);
@@ -119,6 +125,7 @@ public:
 		}
 		else
 		{
+			LOG(frameRate)
 			frameRate = 0;
 			lastSecond = currentSecond;
 		}
@@ -147,6 +154,7 @@ public:
 	// Callback
 	void FramebufferSizeCallback(GLFWwindow* w, int width, int height)
 	{
+		LOG(width << " " << height);
     	glViewport(0, 0, width, height);
 	}
 	void KeyCallback(GLFWwindow* w, int id, int scancode, int action, int mods)
