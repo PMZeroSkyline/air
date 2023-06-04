@@ -27,7 +27,7 @@ int main()
 		render.Load(world.get());
 		render.DrawLightSpaceDepth();
 		render.DrawGBuffer();
-		render.DrawDeferredLighting();
+		render.DrawDeferredShading();
 
 		
 		if (window.keys[KEY::ESCAPE].pressDown)

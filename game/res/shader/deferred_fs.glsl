@@ -50,12 +50,14 @@ void main()
     float lightDepth = texture(lDepth, camLightClipUV).r;
     float bias = max(.005f * (1 - dot(worldNormal, lightDir)), .005f);
     float shadow = (camLightDpeth - bias) < lightDepth ? 1.f : 0.f;
+    float disMask = max(1.f - distance(viewPos, worldPos) * 0.05f, 0.f);
+    shadow = (1.f - (1.f - shadow) * disMask);
 
     float nl = dot(lightDir, worldNormal);
     nl = max(nl, 0.f);
 
     col = baseColorRoughness.rgb * shadow * nl;
-    col += baseColorRoughness.rgb * vec3(.5f);
+    col += baseColorRoughness.rgb * vec3(.333f);
 
     FragColor = vec4(col, 1.f);
     //FragColor = vec4(1.f - dot(worldNormal, lightDir));

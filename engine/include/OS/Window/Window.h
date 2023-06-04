@@ -125,7 +125,6 @@ public:
 		}
 		else
 		{
-			LOG(frameRate)
 			frameRate = 0;
 			lastSecond = currentSecond;
 		}

@@ -94,8 +94,6 @@ public:
 
     shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
     shared_ptr<Shader> gBufferShader = MakeShaderFromRes("deferred");
-    shared_ptr<Shader> lightDepthShader = MakeShaderFromRes("depth");
-
 
     GLFrameBuffer gBuffer;
     GLTexture2D gBaseColorRoughness;
@@ -114,8 +112,7 @@ public:
     mat4 lightP;
     vec3 viewPos;
     vec3 lightDir;
-    int lightDepthSize = 4096;
-
+    int lightDepthSize = 2048;
 
     Render()
     {
@@ -211,7 +208,7 @@ public:
     		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir);
     	}
     }
-    void DrawDeferredLighting()
+    void DrawDeferredShading()
     {        
         glContext.BindFrameBuffer();
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
