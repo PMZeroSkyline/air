@@ -28,7 +28,6 @@ int main()
 		render.DrawLightSpaceDepth();
 		render.DrawGBuffer();
 		render.DrawDeferredShading();
-
 		
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{
