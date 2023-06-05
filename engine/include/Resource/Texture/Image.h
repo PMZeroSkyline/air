@@ -77,7 +77,7 @@ public:
 		{
 			return;
 		}
-		unsigned char* newData = (unsigned char*)malloc(width * hight * channel);
+		unsigned char* newData = (unsigned char*)malloc(newWidth * newHight * channel);
 		for (int v = 0; v < newHight; v++)
 		{
 			for (int u = 0; u < newWidth; u++)
@@ -119,23 +119,12 @@ public:
 WeakMap<Image> imageWeakMap;
 
 
-// #define CMD_POWER_OF_TWO CDResourcesDir(); CmdPowerOfTwo(argc, argv); return 0;
-// void CmdPowerOfTwo(int argc, char** argv)
-// {
-// 	//CDResourcesDir();
-// 	if (argc == 2)
-// 	{
-// 		string path = argv[1];
-// 		Image img;
-// 		img.Load(path);
-//  		img.UpSizeToPowerOfTwo();
-// 		img.Save(path);
-// 		LOG("up size texture power of two finish")
-// 	}
-// 	else
-// 	{
-// 		LOG("argv : [path]")
-// 	}
-// }
+void ExecImagePowerOfTwo(const string& path)
+{
+	Image img;
+	img.Load(path);
+ 	img.UpSizeToPowerOfTwo();
+	img.Save(path);
+}
 
 #endif

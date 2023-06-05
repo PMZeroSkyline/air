@@ -5,15 +5,17 @@
 #include "Render/Render/Render.h"
 #include "Resource/Texture/Image.h"
 
-int main()
+int main(int argc, char** argv)
 {
-	CDResourcesDir();
-
-	Image img;
-	img.Load("Texture/HDRSphere/TexturesCom_JapanKabuchiko_1K_hdri_sphere_tone.jpg");
-	LOG(img.channel);
-
-	return 0;
+	CDRootDir();
+	// if (argc != 2)
+	// {
+	// 	LOG("argv : [path]")
+	// 	return 0;
+	// }
+	// ExecImagePowerOfTwo(argv[1]);
+	// LOG("Done")
+	// return 0;
 
 	Window window;
 

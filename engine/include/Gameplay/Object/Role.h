@@ -220,9 +220,9 @@ public:
         cTemp->mesh->primitives[0]->material->alphaMode = MaterialAlphaMode::BLEND;
 
 
-        sModel->Load("model/blender/mixamo/ybot/ybot.gltf");
-        sModel->FieldExpand();
-        cPlayer->animInsts = &sModel->animationInstances;
+        // sModel->Load("model/blender/mixamo/ybot/ybot.gltf");
+        // sModel->FieldExpand();
+        // cPlayer->animInsts = &sModel->animationInstances;
         
     }
     virtual void Start() override
