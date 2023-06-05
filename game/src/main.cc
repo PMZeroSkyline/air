@@ -7,15 +7,9 @@
 
 int main(int argc, char** argv)
 {
+	// EXEC_PO2
+
 	CDRootDir();
-	// if (argc != 2)
-	// {
-	// 	LOG("argv : [path]")
-	// 	return 0;
-	// }
-	// ExecImagePowerOfTwo(argv[1]);
-	// LOG("Done")
-	// return 0;
 
 	Window window;
 

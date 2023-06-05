@@ -4,7 +4,7 @@
 #include "Core/Log/Log.h"
 #include "SDK/STL/STL.h"
 
-// 以下IO函数使用了快速读取方法 https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
+// Fast IO https://insanecoding.blogspot.com/2011/11/how-to-read-in-file-in-c.html
 void StringFromFile(const string &path, string &contents)
 {
 	FILE *fp = fopen(path.c_str(), "rb");

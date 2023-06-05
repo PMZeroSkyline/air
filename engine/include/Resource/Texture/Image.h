@@ -126,5 +126,13 @@ void ExecImagePowerOfTwo(const string& path)
  	img.UpSizeToPowerOfTwo();
 	img.Save(path);
 }
-
+#define EXEC_PO2	if (argc != 2)					\
+					{								\
+						LOG("argv : [path]")		\
+						return 0;					\
+					}								\
+					ExecImagePowerOfTwo(argv[1]);	\
+					LOG("Done")						\
+					return 0;
+					
 #endif
