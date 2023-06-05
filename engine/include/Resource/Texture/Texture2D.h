@@ -17,18 +17,18 @@ public:
     void SetupGLTexture2D(bool isGenMipmap = true)
     {
         GLenum format = GL_RGBA;
-        if (image->n == 1)
+        if (image->channel == 1)
         {
             format = GL_RED;
         }
-        if (image->n == 3)
+        if (image->channel == 3)
         {
             format = GL_RGB;
         }
         //glTexture2D.Bind();
         glTexture2D.WrapST(sampler.wrapS, sampler.wrapT);
         glTexture2D.Filters(sampler.minFilter, sampler.magFilter);
-        glTexture2D.Image2D(format, image->w, image->h, format, GL_UNSIGNED_BYTE, image->d);
+        glTexture2D.Image2D(format, image->width, image->hight, format, GL_UNSIGNED_BYTE, image->data);
         glTexture2D.GenMipmap();
     }
 };

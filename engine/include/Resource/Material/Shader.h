@@ -76,7 +76,7 @@ shared_ptr<Shader> MakeShaderFromRes(const string& name)
     if (!shader)
     {
         shader = make_shared<Shader>();
-        shader->Load("shader/" + name + "_vs.glsl", "shader/" + name + "_fs.glsl");
+        shader->Load("Shader/" + name + "_vs.glsl", "Shader/" + name + "_fs.glsl");
         shaderWeakMap.Set(name, shader);
     }
     return shader;
