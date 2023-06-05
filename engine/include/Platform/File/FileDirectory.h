@@ -22,7 +22,7 @@ void CDAppleResourcesDir()
 	chdir(path);
 	#endif
 }
-void CDRootDir()
+void CDResDir()
 {
 	fs::path currentPath = fs::current_path();
 	string currentPathStr = currentPath.string();
@@ -31,7 +31,7 @@ void CDRootDir()
 	{
 		string rootDir = currentPathStr.substr(0, pos);
 		//fs::current_path(rootDir + "air/game/res");
-		fs::current_path(rootDir + "air");
+		fs::current_path(rootDir + "air/game/res");
 	}
 	else
 	{

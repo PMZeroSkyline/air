@@ -1,8 +1,5 @@
 #version 330 core
-//out vec4 FragColor;
-layout (location = 0) out vec3 gPosition;
-layout (location = 1) out vec3 gNormal;
-layout (location = 2) out vec4 gBaseColorRoughness;
+out vec4 FragColor;
 
 in V2F
 {
@@ -104,9 +101,5 @@ void main()
         col *= texture(baseColorTex, i.uv).xyz;
     }
     float a = isBlend ? .5f : 1.f;
-    //FragColor = vec4(col, a);
-    gPosition = worldPos;
-    gNormal = worldNormal;
-    gBaseColorRoughness.rgb = col;
-    gBaseColorRoughness.a = a;
+    FragColor = vec4(col, a);
 }

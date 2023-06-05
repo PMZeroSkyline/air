@@ -12,28 +12,28 @@ public:
     mat4* parentWorldMatrix = nullptr;
     mat4* worldMatrix = nullptr;
     MeshPrimitive* meshPrimitive = nullptr;
-    ArmatureInstance* armatureInstance = nullptr;
+    SkinInstance* skinInstance = nullptr;
     Material* material = nullptr;
-    void DrawMVP(const mat4& V, const mat4& P, const vec3& viewPos, const vec3& lightDir)
+    void DrawMVP(const mat4& V, const mat4& P, const vec3& viewPos, const vec3& lightDir, shared_ptr<Shader> shader = shared_ptr<Shader>())
     {
-        shared_ptr<Shader> s = material->shader;
+        shared_ptr<Shader> s = shader ? shader : material->shader;
     	s->Use();
     	s->SetMat4("M", *worldMatrix);
     	s->SetMat4("V", V);
     	s->SetMat4("P", P);
         s->SetVec3("viewPos", viewPos);
         s->SetVec3("lightDir", lightDir);
-    	s->SetBool("isSkin", armatureInstance);
-    	if (armatureInstance)
+    	s->SetBool("isSkin", skinInstance);
+    	if (skinInstance)
     	{
-    		Armature* armature = armatureInstance->armature;
-    		vector<Actor*> bones = armatureInstance->joints;
+    		Skin* skin = skinInstance->skin;
+    		vector<Actor*> bones = skinInstance->joints;
     		mat4 IW = parentWorldMatrix ? parentWorldMatrix->inverse() : mat4();
     		vector<mat4> jms;
     		for (int i = 0; i < bones.size(); i++)
     		{
     			Actor* bone = bones[i];
-    			mat4 B = IW * bone->worldMatrix * armature->inverseBindMatrices[i];
+    			mat4 B = IW * bone->worldMatrix * skin->inverseBindMatrices[i];
     			s->SetMat4("J[" + to_string(i) + "]", B);
     		}
     	}
@@ -50,38 +50,40 @@ void RenderQuery(Actor* root, vector<RenderPrimitive>& opaqueAndMasks, vector<Re
     root->RForEachNode<Actor>([&opaqueAndMasks, &blends, &cameraComponents](Actor* actor){
         vector<MeshComponent*> mcs;
         actor->GetComponents<MeshComponent>(mcs);
-        for (MeshComponent* mc : mcs)
+        MeshComponent* mc = actor->GetComponent<MeshComponent>();
+        if (mc)
         {
-            if (mc->mesh)
+            SkinComponent* sc = actor->GetComponent<SkinComponent>();
+            Actor* owner = (Actor*)mc->owner;
+            Actor* parent = owner ? ((Actor*)owner->parent) : nullptr;
+            for (shared_ptr<MeshPrimitive> meshPrimitive : mc->mesh->primitives)
             {
-                for (shared_ptr<MeshPrimitive> meshPrimitive : mc->mesh->primitives)
+                RenderPrimitive rp;
+                rp.meshPrimitive = meshPrimitive.get();
+                rp.material = meshPrimitive->material.get();
+                rp.skinInstance = sc ? sc->skinInstance : nullptr;
+                if (owner)
                 {
-                    RenderPrimitive rp;
-                    rp.meshPrimitive = meshPrimitive.get();
-                    rp.material = meshPrimitive->material.get();
-                    rp.armatureInstance = mc->armatureInstance;
-                    if (mc->owner)
-                    {
-                        rp.worldMatrix = &((Actor*)mc->owner)->worldMatrix;
-                    }
-                    if (mc->owner->parent)
-                    {
-                        rp.parentWorldMatrix = &((Actor*)mc->owner->parent)->worldMatrix;
-                    }
-                    if (rp.material->alphaMode == MaterialAlphaMode::BLEND)
-                    {
-                        blends.push_back(rp);
-                    }
-                    else
-                    {
-                        opaqueAndMasks.push_back(rp);
-                    }
+                    rp.worldMatrix = &owner->worldMatrix;
+                }
+                if (mc->owner->parent)
+                {
+                    rp.parentWorldMatrix = &parent->worldMatrix;
+                }
+                if (rp.material->alphaMode == MaterialAlphaMode::BLEND)
+                {
+                    blends.push_back(rp);
+                }
+                else
+                {
+                    opaqueAndMasks.push_back(rp);
                 }
             }
         }
         actor->GetComponents<CameraComponent>(cameraComponents);
     });
 }
+
 class Render
 {
 public:
@@ -89,11 +91,12 @@ public:
     vector<RenderPrimitive> opaqueAndMasks, blends;
     vector<CameraComponent*> cameraComponents;
 
-    CameraComponent* playerCamComponent;
-    CameraComponent* dirLightCamComponent;
+    CameraComponent* cameraComponent;
+    CameraComponent* lightCameraComponent;
 
     shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
-    shared_ptr<Shader> gBufferShader = MakeShaderFromRes("deferred");
+    shared_ptr<Shader> deferredShader = MakeShaderFromRes("deferred");
+    shared_ptr<Shader> gbufferShader = MakeShaderFromRes("gbuffer");
 
     GLFrameBuffer gBuffer;
     GLTexture2D gBaseColorRoughness;
@@ -112,7 +115,7 @@ public:
     mat4 lightP;
     vec3 viewPos;
     vec3 lightDir;
-    int lightDepthSize = 2048;
+    int lightDepthSize = 4096;
 
     Render()
     {
@@ -136,24 +139,25 @@ public:
 	    gDepth.Image2D(GL_DEPTH_COMPONENT, s.x, s.y, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	    gDepth.Filters(GL_NEAREST, GL_NEAREST);
 	    gBuffer.Texture2D(GL_DEPTH_ATTACHMENT, gDepth.id);
+
         if (!gBuffer.IsComplete())
         {
             LOG("GBuffer not complete !")
         }
-        
+
         lDepth.Image2D(GL_DEPTH_COMPONENT, lightDepthSize, lightDepthSize, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
         lDepth.Filters(GL_NEAREST, GL_NEAREST);
         lDepth.WrapST(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
         lDepth.BorderColor(vec4(1.f));
         lBuffer.Texture2D(GL_DEPTH_ATTACHMENT, lDepth.id);
+
         lBuffer.DrawBuffer(GL_NONE);
         lBuffer.ReadBuffer(GL_NONE);
+
         if (!lBuffer.IsComplete())
         {
-            LOG("shadowBuffer not complete !")
+            LOG("ShadowBuffer not complete !")
         }
-
-        glContext.BindFrameBuffer();
     }
     void Load(Actor* world)
     {
@@ -161,35 +165,34 @@ public:
         blends.clear();
         cameraComponents.clear();
         RenderQuery(world, opaqueAndMasks, blends, cameraComponents);
-
         for (CameraComponent* cc : cameraComponents)
         {
-            if (cc->tag == "role")
+            if (cc->tag == "camera")
             {
-                playerCamComponent = cc;
+                cameraComponent = cc;
             }
-            else if (cc->tag == "dirLight")
+            else if (cc->tag == "light")
             {
-                dirLightCamComponent = cc;
+                lightCameraComponent = cc;
             }
         }
-        cameraActor = (Actor*)playerCamComponent->owner;
-        cameraV = RightHandZUpToYUpProjection() * cameraActor->worldMatrix.inverse();
-        cameraP = playerCamComponent->camera->GetProjectioMatrix();
 
-        lightActor = (Actor*)dirLightCamComponent->owner;
+        cameraActor = (Actor*)cameraComponent->owner;
+        cameraV = RightHandZUpToYUpProjection() * cameraActor->worldMatrix.inverse();
+        cameraP = cameraComponent->camera->GetProjectioMatrix();
+
+        lightActor = (Actor*)lightCameraComponent->owner;
         lightV = RightHandZUpToYUpProjection() * lightActor->worldMatrix.inverse();
-        lightP = dirLightCamComponent->camera->GetProjectioMatrix();
+        lightP = lightCameraComponent->camera->GetProjectioMatrix();
 
         viewPos = ToVec3(cameraActor->worldMatrix.column(3));
         lightDir = -lightActor->GetRightVector();
     }
     void DrawLightSpaceDepth()
     {
+        glViewport(0, 0, lightDepthSize, lightDepthSize);
         lBuffer.Bind();
         glContext.Clear(GL_DEPTH_BUFFER_BIT);
-        glViewport(0, 0, lightDepthSize, lightDepthSize);
-
         for (RenderPrimitive& rp : opaqueAndMasks)
     	{
     		rp.DrawMVP(lightV, lightP, viewPos, lightDir);
@@ -197,47 +200,64 @@ public:
         ivec2 s = window->GetFrameBufferSize();
         glViewport(0, 0, s.x, s.y);
     }
-    
     void DrawGBuffer()
     {
         gBuffer.Bind();
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     	for (RenderPrimitive& rp : opaqueAndMasks)
     	{
-    		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir);
+    		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir, gbufferShader);
     	}
     }
-    void DrawDeferredShading()
+    void DrawDeferred()
     {        
         glContext.BindFrameBuffer();
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         glContext.SetDepthTest(false);
 
-        gBufferShader->Use();
+        deferredShader->Use();
         gPosition.Active(0);
-        gBufferShader->SetInt("gPosition", 0);
+        deferredShader->SetInt("gPosition", 0);
         gNormal.Active(1);
-        gBufferShader->SetInt("gNormal", 1);
+        deferredShader->SetInt("gNormal", 1);
         gBaseColorRoughness.Active(2);
-        gBufferShader->SetInt("gBaseColorRoughness", 2);
+        deferredShader->SetInt("gBaseColorRoughness", 2);
         gDepth.Active(3);
-        gBufferShader->SetInt("gDepth", 3);
+        deferredShader->SetInt("gDepth", 3);
         lDepth.Active(4);
-
-        gBufferShader->SetInt("lDepth", 4);
-        gBufferShader->SetVec3("viewPos", viewPos);
-        gBufferShader->SetVec3("lightDir", lightDir);
+        deferredShader->SetInt("lDepth", 4);
+        
+        deferredShader->SetVec3("viewPos", viewPos);
+        deferredShader->SetVec3("lightDir", lightDir);
         
         mat4 cameraIVP = (cameraP * cameraV).inverse();
-        gBufferShader->SetMat4("cameraIVP", cameraIVP);
+        deferredShader->SetMat4("cameraIVP", cameraIVP);
 
         mat4 lightVP = lightP * lightV;
-        gBufferShader->SetMat4("lightVP", lightVP);
+        deferredShader->SetMat4("lightVP", lightVP);
         
         quad->Draw();
     }
-    
+    void DrawForward()
+    {
+        glContext.BindFrameBuffer();
+        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    	for (RenderPrimitive& rp : opaqueAndMasks)
+    	{
+    		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir);
+    	}
+        for (RenderPrimitive& rp : blends)
+    	{
+    		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir);
+    	}
+    }
+    void Draw()
+    {
+        DrawForward();
+        // DrawLightSpaceDepth();
+		// DrawGBuffer();
+		// DrawDeferred();
+    }
 };
 
 #endif

@@ -31,20 +31,21 @@ public:
 	vector<string> dropPaths;
 	int frameRate = 0;
 	int lastSecond = 0;
+	bool isDoubleBuffer = false;
 
 	Window(int w = 800, int h = 600, const char *title = "window")
 	{
-		if (glfwGetCurrentContext() == nullptr)
-		{
-			glfwInit();
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-			glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-			glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwSwapInterval(0);
+
+		glfwInit();
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+		glfwWindowHint(GLFW_DOUBLEBUFFER, isDoubleBuffer);
 
 		#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		#endif
-		}
 		glfwWindow = glfwCreateWindow(w, h, title, NULL, NULL);
 		if (glfwWindow == NULL)
 		{
@@ -55,6 +56,7 @@ public:
 		glfwMakeContextCurrent(glfwWindow);
 		glfwSetInputMode(glfwWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetWindowUserPointer(glfwWindow, this);
+		
 		SetupOpenGL();
         
 		// MacOS vscode debug has bug : use vector reserve or use const size array mad by out of memory !
@@ -116,7 +118,6 @@ public:
 		// delta time
 		deltaTime = glfwGetTime() - time;
 		time = glfwGetTime();
-
 		// frame rate
 		int currentSecond = floor(time);
 		if (currentSecond == lastSecond)
@@ -125,14 +126,13 @@ public:
 		}
 		else
 		{
+			LOG("frameRate\t" << frameRate)
 			frameRate = 0;
 			lastSecond = currentSecond;
 		}
-		
 		// mouse delta
 		mouseCursor.deltaPos = mouseCursor.pos - mouseCursor.lastPos;
 		mouseCursor.lastPos = mouseCursor.pos;
-
 		// key state
 		for (int i = 0; i < GLFW_KEY_LAST; i++)
 		{
@@ -144,9 +144,14 @@ public:
 			else
 				k.pressDur = 0;
 		}
-
-		// opengl
-		glfwSwapBuffers(glfwWindow);
+		if (isDoubleBuffer)
+		{
+			glfwSwapBuffers(glfwWindow);
+		}
+		else
+		{
+			glFlush();
+		}
         glfwPollEvents();
 	}
 	

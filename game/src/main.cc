@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
 	// EXEC_PO2
 
-	CDRootDir();
+	CDResDir();
 
 	Window window;
 
@@ -27,9 +27,8 @@ int main(int argc, char** argv)
 
 		Render render;
 		render.Load(world.get());
-		render.DrawLightSpaceDepth();
-		render.DrawGBuffer();
-		render.DrawDeferredShading();
+		render.Draw();
+		
 		
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{

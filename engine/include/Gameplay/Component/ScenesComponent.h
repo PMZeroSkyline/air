@@ -1,21 +1,25 @@
 #ifndef SCENES_COMPONENT_H
 #define SCENES_COMPONENT_H
 
-#include "Component.h"
-#include "Resource/Model/Scenes.h"
 #include "Gameplay/Object/Actor.h"
+#include "Component.h"
+
+#include "Resource/Model/Scenes.h"
+
+#include "MeshComponent.h"
+
+#include "SkinComponent.h"
+#include "Animation/SkinInstance.h"
+
 #include "Animation/AnimationView.h"
 #include "AnimationNodeComponent.h"
-#include "MeshComponent.h"
-#include "Animation/ArmatureInstance.h"
-#include "Core/Parse/TreeFileParse.h"
 
 class ScenesComponent : public Component
 {
 public:
     shared_ptr<Scenes> scenes;
     vector<Actor*> nodes;
-    vector<ArmatureInstance> armatureInstances;
+    vector<SkinInstance> skinInstances;
     vector<AnimationInstance> animationInstances;
 
     void Load(const string& path)
@@ -33,19 +37,15 @@ public:
         node->name = sceneNode->name;
         node->localTransform = sceneNode->localTransform;
 
-        MeshComponent* meshComponent = nullptr;
         if (sceneNode->meshID != -1)
         {
-            meshComponent = node->AddComponent<MeshComponent>();
+            MeshComponent* meshComponent = node->AddComponent<MeshComponent>();
             meshComponent->mesh = scenes->meshs[sceneNode->meshID];
         }
         if (sceneNode->skinID != -1)
         {
-            if (!meshComponent)
-            {
-                meshComponent = node->AddComponent<MeshComponent>();
-            }
-            meshComponent->armatureInstance = &armatureInstances[sceneNode->skinID];
+            SkinComponent* skinComponent = node->AddComponent<SkinComponent>();
+            skinComponent->skinInstance = &skinInstances[sceneNode->skinID];
         }
 
         for (int i = 0; i < sceneNode->childrenID.size(); i++)
@@ -59,7 +59,7 @@ public:
     void FieldExpand()
     {
         nodes.resize(scenes->nodes.size());
-        armatureInstances.resize(scenes->armatures.size());
+        skinInstances.resize(scenes->skins.size());
         animationInstances.resize(scenes->animations.size());
 
         Scene* scene = &scenes->scenes[scenes->sceneID];
@@ -101,15 +101,15 @@ public:
                 animationView->channels.push_back(channel);
             }
         }
-        for (int i = 0; i < armatureInstances.size(); i++)
+        for (int i = 0; i < skinInstances.size(); i++)
         {
-            ArmatureInstance* skinInstance = &armatureInstances[i];
-            Armature* armature = scenes->armatures[i].get();
-            skinInstance->armature = armature;
-            skinInstance->joints.resize(armature->jointIDs.size());
-            for (int j = 0; j < armature->jointIDs.size(); j++)
+            SkinInstance* skinInstance = &skinInstances[i];
+            Skin* skin = scenes->skins[i].get();
+            skinInstance->skin = skin;
+            skinInstance->joints.resize(skin->jointIDs.size());
+            for (int j = 0; j < skin->jointIDs.size(); j++)
             {
-                skinInstance->joints[j] = nodes[armature->jointIDs[j]];
+                skinInstance->joints[j] = nodes[skin->jointIDs[j]];
             }
         }
     }

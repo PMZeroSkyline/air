@@ -198,7 +198,7 @@ public:
 
     Role()
     {
-        cCam->tag = "role";
+        cCam->tag = "camera";
         aCam->localTransform.translation = vec3(-5.f, 0.f, 0.f);
         aCam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
@@ -220,9 +220,9 @@ public:
         cTemp->mesh->primitives[0]->material->alphaMode = MaterialAlphaMode::BLEND;
 
 
-        // sModel->Load("model/blender/mixamo/ybot/ybot.gltf");
-        // sModel->FieldExpand();
-        // cPlayer->animInsts = &sModel->animationInstances;
+        sModel->Load("Model/People/YBot/YBot.gltf");
+        sModel->FieldExpand();
+        cPlayer->animInsts = &sModel->animationInstances;
         
     }
     virtual void Start() override

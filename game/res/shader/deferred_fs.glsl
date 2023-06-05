@@ -57,7 +57,6 @@ void main()
     nl = max(nl, 0.f);
 
     col = baseColorRoughness.rgb * shadow * nl;
-    col += baseColorRoughness.rgb * vec3(.333f);
 
     FragColor = vec4(col, 1.f);
     //FragColor = vec4(1.f - dot(worldNormal, lightDir));
