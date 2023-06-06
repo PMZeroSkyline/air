@@ -29,6 +29,7 @@ public:
 	vector<Key> keys;
 	CursorPos mouseCursor;
 	vector<string> dropPaths;
+	bool isLogFrameRate = false;
 	int frameRate = 0;
 	int lastSecond = 0;
 	bool isDoubleBuffer = true;
@@ -126,7 +127,10 @@ public:
 		}
 		else
 		{
-			LOG("frameRate\t" << frameRate)
+			if (isLogFrameRate)
+			{
+				LOG("frameRate\t" << frameRate)
+			}
 			frameRate = 0;
 			lastSecond = currentSecond;
 		}

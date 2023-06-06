@@ -17,13 +17,11 @@ public:
 
     void SetupGLPrimitive()
     {
-        //glPrimitive.Bind();
-        glPrimitive.VaoData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
-        glPrimitive.EboData(indices);
+        glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
+        glPrimitive.ebo.Data(indices);
     }
     void Draw()
     {
-        //glPrimitive.Bind();
         glPrimitive.DrawElements(indices.size());
     }
 };

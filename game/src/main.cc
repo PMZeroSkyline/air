@@ -9,7 +9,7 @@ int main(int argc, char** argv)
 {
 	// EXEC_PO2
 
-	CDResDir();
+	CDPath("air", "game/res");
 
 	Window window;
 

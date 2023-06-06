@@ -33,9 +33,9 @@ public:
 		glBindFramebuffer(GL_FRAMEBUFFER, 0);
 		frameBufferID = 0;
 	}
-	void ClearColor(vec4 color)
+	void ClearColor(float x, float y, float z, float w)
 	{
-		glClearColor(color.x, color.y, color.z, color.w);
+		glClearColor(x, y, z, w);
 	}
 	void Clear(GLbitfield mask)
 	{
@@ -228,36 +228,10 @@ public:
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &(borderColor[0]));
 	}
 };
-class GLVertexAttribPointer
-{
-public:
-	GLuint index = -1;
-	GLint size = 0; 
-	GLenum type = GL_FLOAT;
-	GLsizei stride = 0;
-	GLintptr pointer = 0;
-	GLVertexAttribPointer(GLuint _index, GLint _size, GLenum _type, GLsizei _stride, GLintptr _pointer) : index(_index), size(_size), type(_type), stride(_stride), pointer(_pointer){}
-	void SetEnable(bool isEnable)
-	{
-		if (isEnable)
-		{
-			glEnableVertexAttribArray(index);
-		}
-		else
-		{
-			glDisableVertexAttribArray(index);
-		}
-	}
-	void Pointer()
-	{
-		glVertexAttribPointer(index, size, type, GL_FALSE, stride, (void*)pointer);
-	}
-};
 class GLVertexArray
 {
 public:
 	unsigned int id;
-	vector<GLVertexAttribPointer> vas;
 	GLVertexArray()
 	{
 		glGenVertexArrays(1, &id);
@@ -317,7 +291,7 @@ public:
 		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
 	}
 };
- class GLUniformBuffer : GLBuffer
+class GLUniformBuffer : GLBuffer
  {
  	string name;
  	void Bind()
@@ -353,6 +327,51 @@ public:
 		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 	}
 };
+class GLPrimitive
+{
+public:
+	GLVertexArray vao;
+	GLArrayBuffer vbo;
+	GLElementArrayBuffer ebo;
+	void DrawElements(GLsizei count)
+	{
+		vao.Bind();
+		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
+	}
+	template<typename T>
+	void VertexAttributeData(GLuint &index, GLintptr &pointer, T&& t)
+	{
+		if (t.size())
+		{
+			glBufferSubData(GL_ARRAY_BUFFER, pointer, sizeof(t[0])*t.size(), &t[0]);
+			glEnableVertexAttribArray(index);
+			glVertexAttribPointer(index, sizeof(t[0])/sizeof(t[0][0]), GL_FLOAT, GL_FALSE, sizeof(t[0]), (void*)pointer);
+			pointer += sizeof(t[0])*t.size();
+		}
+		index++;
+	}
+	template<typename T, typename... Args>
+	void VertexAttributeData(GLuint& index, GLintptr& pointer, T&& t, Args&&... args)
+	{
+		VertexAttributeData(index, pointer, t);
+		VertexAttributeData(index, pointer, std::forward<Args>(args)...);
+	}
+	template<typename... Args>
+	void VertexAttributeData(Args&&... args)
+	{
+		vao.Bind();
+		vbo.Bind();
+
+		int size = 0; // GLsizeiptr
+		VectorSizeof(size, std::forward<Args>(args)...);
+		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
+
+		GLuint index = 0;
+		GLintptr pointer = 0;
+		VertexAttributeData(index, pointer, std::forward<Args>(args)...);
+	}
+};
+
 class GLFrameBuffer
 {
 public:
@@ -436,79 +455,6 @@ public:
 	{
 		Bind();
 		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);
-	}
-};
-class GLPrimitive
-{
-public:
-	GLArrayBuffer vbo;
-	GLVertexArray vao;
-	GLElementArrayBuffer ebo;
-	void Bind()
-	{
-		vao.Bind();
-		vbo.Bind();
-		ebo.Bind();
-	}
-	void DrawElements(GLsizei count)
-	{
-		Bind();
-		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
-	}
-	template<typename T>
-	void VaoData(int &target, int &offset, T&& t)
-	{
-		if (t.size())
-		{
-			glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
-			glEnableVertexAttribArray(target);
-			GLenum type = GL_FLOAT;
-			if (typeid(t[0][0]) == typeid(float))
-			{
-				type = GL_FLOAT;
-			}
-			else if (typeid(t[0][0]) == typeid(int))
-			{
-				type = GL_INT;
-			}
-			else if (typeid(t[0][0]) == typeid(unsigned int))
-			{
-				type = GL_UNSIGNED_INT;
-			}
-			else if (typeid(t[0][0]) == typeid(unsigned char))
-			{
-				type = GL_UNSIGNED_BYTE;
-			}
-			else
-			{
-				LOG("failed to find vao data type !")
-			}
-			long long offset64bit = offset;
-			glVertexAttribPointer(target, sizeof(t[0])/sizeof(t[0][0]), type, GL_FALSE, sizeof(t[0]), (void*)offset64bit);
-			offset += sizeof(t[0])*t.size();
-		}
-		target++;
-	}
-	template<typename T, typename... Args>
-	void VaoData(int &target, int &offset, T&& t, Args&&... args)
-	{
-		VaoData(target, offset, t);
-		VaoData(target, offset, std::forward<Args>(args)...);
-	}
-	template<typename... Args>
-	void VaoData(Args&&... args)
-	{
-		Bind();
-		int size = 0, offset = 0, target = 0;
-		VectorSizeof(size, std::forward<Args>(args)...);
-		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
-		VaoData(target, offset, std::forward<Args>(args)...);
-	}
-	void EboData(const vector<unsigned int> &ids)
-	{
-		// Bind();
-		// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
-		ebo.Data(ids);
 	}
 };
 

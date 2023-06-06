@@ -37,17 +37,20 @@ public:
 			LOG("failed to save Image " << path)
 		}
 	}
-	void UpSizeToPowerOfTwo()
+	void UpSizeToPowerOfTwo(bool isCheckDiff = true)
 	{
 		int log2w = log2(width);
 		int log2h = log2(hight);
-		int pow2w = pow(2, log2w + 1);
-		int pow2h = pow(2, log2h + 1);
-		int w = width == pow(2, log2w) ? width : pow2w;
-		int h = hight == pow(2, log2h) ? hight : pow2h;
+		int w = pow(2, log2w + 1);
+		int h = pow(2, log2h + 1);
+		if (isCheckDiff)
+		{
+			w = width == pow(2, log2w) ? width : w;
+			h = hight == pow(2, log2h) ? hight : h;
+		}
 		Resize(w, h);
 	}
-	void DownSizeToPowerOfTwo()
+	void FloorSizeToPowerOfTwo()
 	{
 		int log2w = log2(width);
 		int log2h = log2(hight);
@@ -55,20 +58,24 @@ public:
 		int pow2h = pow(2, log2h);
 		Resize(pow2w, pow2h);
 	}
-	void FitSizeToPowerOfTwo()
+	void DownSizeToPowerOfTwo()
 	{
 		int log2w = log2(width);
 		int log2h = log2(hight);
-		int dw = pow(2, log2w);
-		int dh = pow(2, log2h);
-		int uw = pow(2, log2w + 1);
-		int uh = pow(2, log2h + 1);
-		int dwDelta = width - dw;
-		int uwDelta = uw - width;
-		int dhDelta = hight - dh;
-		int uhDelta = uh - hight;
-		int w = (dwDelta < uwDelta) ? dw : uw;
-		int h = (dhDelta < uhDelta) ? dh : uh;
+		int pow2w = pow(2, log2w - 1);
+		int pow2h = pow(2, log2h - 1);
+		Resize(pow2w, pow2h);
+	}
+	void RoundSizeToPowerOfTwo()
+	{
+		int log2w = log2(width);
+		int log2h = log2(hight);
+		int wFloor = pow(2, log2w);
+		int hFloor = pow(2, log2h);
+		int wUp = pow(2, log2w + 1);
+		int hUp = pow(2, log2h + 1);
+		int w = ((width - wFloor) < (wUp - width)) ? wFloor : wUp;
+		int h = ((hight - hFloor) < (hUp - hight)) ? hFloor : hUp;
 		Resize(w, h);
 	}
 	void Resize(int newWidth, int newHight)
@@ -96,8 +103,6 @@ public:
 				}
 			}
 		}
-		
-		
 		stbi_image_free(data);
 		data = newData;
 		width = newWidth;
@@ -119,20 +124,7 @@ public:
 WeakMap<Image> imageWeakMap;
 
 
-void ExecImagePowerOfTwo(const string& path)
-{
-	Image img;
-	img.Load(path);
- 	img.UpSizeToPowerOfTwo();
-	img.Save(path);
-}
-#define EXEC_PO2	if (argc != 2)					\
-					{								\
-						LOG("argv : [path]")		\
-						return 0;					\
-					}								\
-					ExecImagePowerOfTwo(argv[1]);	\
-					LOG("Done")						\
-					return 0;
+
+
 					
 #endif
