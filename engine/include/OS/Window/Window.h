@@ -31,7 +31,7 @@ public:
 	vector<string> dropPaths;
 	int frameRate = 0;
 	int lastSecond = 0;
-	bool isDoubleBuffer = false;
+	bool isDoubleBuffer = true;
 
 	Window(int w = 800, int h = 600, const char *title = "window")
 	{

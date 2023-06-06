@@ -93,11 +93,9 @@ void main()
 {   
     vec3 worldPos = i.worldPos.xyz / i.worldPos.w;
     vec3 worldNormal = normalize(i.worldNormal);
-    float nl = dot(worldNormal, normalize(vec3(1.f))) * .5f + .5f;
-
     float grid = WorldGrid(worldPos, worldNormal);
 
-    vec3 col = vec3(1.f) * grid * nl;
+    vec3 col = vec3(1.f) * grid;
 
     if(isUseTex)
     {

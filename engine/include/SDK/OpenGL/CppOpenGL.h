@@ -228,10 +228,36 @@ public:
 		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &(borderColor[0]));
 	}
 };
+class GLVertexAttribPointer
+{
+public:
+	GLuint index = -1;
+	GLint size = 0; 
+	GLenum type = GL_FLOAT;
+	GLsizei stride = 0;
+	GLintptr pointer = 0;
+	GLVertexAttribPointer(GLuint _index, GLint _size, GLenum _type, GLsizei _stride, GLintptr _pointer) : index(_index), size(_size), type(_type), stride(_stride), pointer(_pointer){}
+	void SetEnable(bool isEnable)
+	{
+		if (isEnable)
+		{
+			glEnableVertexAttribArray(index);
+		}
+		else
+		{
+			glDisableVertexAttribArray(index);
+		}
+	}
+	void Pointer()
+	{
+		glVertexAttribPointer(index, size, type, GL_FALSE, stride, (void*)pointer);
+	}
+};
 class GLVertexArray
 {
 public:
 	unsigned int id;
+	vector<GLVertexAttribPointer> vas;
 	GLVertexArray()
 	{
 		glGenVertexArrays(1, &id);
@@ -284,6 +310,12 @@ public:
 			glContext.arrayBufferID = id;
 		}
 	}
+	template<typename T>
+	void SubData(GLintptr offset, const vector<T>& t)
+	{
+		Bind();
+		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
+	}
 };
  class GLUniformBuffer : GLBuffer
  {
@@ -314,6 +346,11 @@ public:
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
 			glContext.elementArrayBufferID = id;
 		}
+	}
+	void Data(const vector<unsigned int>& ids)
+	{
+		Bind();
+		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 	}
 };
 class GLFrameBuffer
@@ -404,14 +441,14 @@ public:
 class GLPrimitive
 {
 public:
-	GLArrayBuffer Vbo;
-	GLVertexArray Vao;
-	GLElementArrayBuffer Ebo;
+	GLArrayBuffer vbo;
+	GLVertexArray vao;
+	GLElementArrayBuffer ebo;
 	void Bind()
 	{
-		Vao.Bind();
-		Vbo.Bind();
-		Ebo.Bind();
+		vao.Bind();
+		vbo.Bind();
+		ebo.Bind();
 	}
 	void DrawElements(GLsizei count)
 	{
@@ -469,8 +506,9 @@ public:
 	}
 	void EboData(const vector<unsigned int> &ids)
 	{
-		Bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
+		// Bind();
+		// glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
+		ebo.Data(ids);
 	}
 };
 
