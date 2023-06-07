@@ -3,16 +3,29 @@
 
 #include "SDK/STL/STL.h"
 
-void SplitToVector(const string &target, const string &splitTag, vector<string> &out)
+// void SplitToVector(const string &target, const string &splitTag, vector<string> &out)
+// {
+//     size_t offset = 0;
+//     size_t found;
+//     while ((found = target.find(splitTag, offset)) != string::npos)
+//     {
+//         out.push_back(target.substr(offset, found-offset));
+//         offset = found+1;
+//     }
+//     out.push_back(target.substr(offset, target.size()-offset));
+// }
+vector<string> Split(const string &src, char tag)
 {
-    size_t offset = 0;
-    size_t found;
-    while ((found = target.find(splitTag, offset)) != string::npos)
+    vector<string> result;
+    size_t it = 0;
+    size_t pos;
+    while ((pos = src.find(tag, it)) != string::npos)
     {
-        out.push_back(target.substr(offset, found-offset));
-        offset = found+1;
+        result.push_back(src.substr(it, pos-it));
+        it = pos+1;
     }
-    out.push_back(target.substr(offset, target.size()-offset));
+    result.push_back(src.substr(it, src.size()-it));
+    return result;
 }
 void RemoveSpace(string &str)
 {

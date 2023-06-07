@@ -47,57 +47,36 @@ public:
 			}
 		}
 	}
-	bool UpSizeToPowerOfTwo(bool isCheckDiff = true)
+	bool IsPowerOfTwo()
 	{
-		int log2w = log2(width);
-		int log2h = log2(hight);
-		int w, h;
-		if (isCheckDiff)
-		{
-			w = width == pow(2, log2w) ? width : pow(2, log2w + 1);
-			h = hight == pow(2, log2h) ? hight : pow(2, log2h + 1);
-			if (w == width && h == hight)
-			{
-				return false;
-			}
-		}
-		else
-		{
-			w = pow(2, log2w + 1);
-			h = pow(2, log2h + 1);
-		}
-		Resize(w, h);
-		return true;
+		return (pow(2, log2(width)) == width && pow(2, log2(hight)) == hight);
 	}
-	void FloorSizeToPowerOfTwo()
+	bool GetPowerOfTwoBoundSize(int& w, int& h)
 	{
-		int log2w = log2(width);
-		int log2h = log2(hight);
-		int pow2w = pow(2, log2w);
-		int pow2h = pow(2, log2h);
-		Resize(pow2w, pow2h);
+		int lw = log2(width);
+		int lh = log2(hight);
+		w = width == pow(2, lw) ? width : pow(2, lw + 1);
+		h = hight == pow(2, lh) ? hight : pow(2, lh + 1);
 	}
-	void DownSizeToPowerOfTwo()
+	void GetPowerOfTwoFloorSize(int& w, int& h)
 	{
-		int log2w = log2(width);
-		int log2h = log2(hight);
-		int pow2w = pow(2, log2w - 1);
-		int pow2h = pow(2, log2h - 1);
-		Resize(pow2w, pow2h);
-	}
-	void RoundSizeToPowerOfTwo()
-	{
-		int log2w = log2(width);
-		int log2h = log2(hight);
-		int wFloor = pow(2, log2w);
-		int hFloor = pow(2, log2h);
-		int wUp = pow(2, log2w + 1);
-		int hUp = pow(2, log2h + 1);
-		int w = ((width - wFloor) < (wUp - width)) ? wFloor : wUp;
-		int h = ((hight - hFloor) < (hUp - hight)) ? hFloor : hUp;
-		Resize(w, h);
+		w = pow(2, log2(width));
+		h = pow(2, log2(hight));
 	}
 	void Resize(int newWidth, int newHight)
+	{
+		if (!IsLoaded())
+		{
+			return;
+		}
+		unsigned char* newData = (unsigned char*)malloc(newWidth * newHight * channel);
+		stbir_resize_uint8(data, width, hight, 0, newData, newWidth, newHight, 0, channel);
+		stbi_image_free(data);
+		data = newData;
+		width = newWidth;
+		hight = newHight;
+	}
+	void Reserv(int newWidth, int newHight)
 	{
 		if (!IsLoaded())
 		{

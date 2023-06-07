@@ -4,18 +4,31 @@
 #include "StringParse.h"
 #include "SDK/STL/STL.h"
 
-void CSVFileParse(const string &path, vector<vector<string>> &csv, bool removeSpace = false)
+vector<vector<string>> ParseCSV(const string &path)
 {
-    ifstream csvFile(path);
+    vector<vector<string>> csv;
+    ifstream f(path);
     string line;
-    while (getline(csvFile, line))
+    while (getline(f, line))
     {
-        if (removeSpace)
-            RemoveSpace(line);
-        vector<string> v;
-        csv.push_back(v);
-        SplitToVector(line, ",", csv.back());
+        csv.push_back(move(Split(line, ',')));
     }
+    return csv;
 }
+
+// void CSVFileParse(const string &path, vector<vector<string>> &csv, bool removeSpace = false)
+// {
+//     ifstream csvFile(path);
+//     string line;
+//     while (getline(csvFile, line))
+//     {
+//         if (removeSpace)
+//             RemoveSpace(line);
+//         vector<string> v;
+//         csv.push_back(v);
+//         // SplitToVector(line, ",", csv.back());
+//         csv.back() = move(Split(line, ','));
+//     }
+// }
 
 #endif
