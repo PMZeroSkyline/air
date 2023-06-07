@@ -57,10 +57,10 @@ public:
 		}
 	}
 	template<typename T>
-	vector<T*> GetComponents(bool isTraversingTree = false)
+	vector<T*> GetComponents(bool isRecursive = false)
 	{
 		vector<T*> result;
-		if (isTraversingTree)
+		if (isRecursive)
 		{
 			RForEachNode<Entity>([&result](Entity* curr){
 				curr->GetComponents<T>(result);

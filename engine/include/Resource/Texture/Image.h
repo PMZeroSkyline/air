@@ -32,23 +32,42 @@ public:
 	}
 	void Save(const string& path)
 	{
-		if (stbi_write_jpg(path.c_str(), width, hight, channel, data, 0) == 0)
+		if (channel <= 3)
 		{
-			LOG("failed to save Image " << path)
+			if (stbi_write_jpg(path.c_str(), width, hight, channel, data, 0) == 0)
+			{
+				LOG("failed to save Image " << path)
+			}
+		}
+		if (channel == 4)
+		{
+			if (stbi_write_png(path.c_str(), width, hight, channel, data, 0) == 0)
+			{
+				LOG("failed to save Image " << path)
+			}
 		}
 	}
-	void UpSizeToPowerOfTwo(bool isCheckDiff = true)
+	bool UpSizeToPowerOfTwo(bool isCheckDiff = true)
 	{
 		int log2w = log2(width);
 		int log2h = log2(hight);
-		int w = pow(2, log2w + 1);
-		int h = pow(2, log2h + 1);
+		int w, h;
 		if (isCheckDiff)
 		{
-			w = width == pow(2, log2w) ? width : w;
-			h = hight == pow(2, log2h) ? hight : h;
+			w = width == pow(2, log2w) ? width : pow(2, log2w + 1);
+			h = hight == pow(2, log2h) ? hight : pow(2, log2h + 1);
+			if (w == width && h == hight)
+			{
+				return false;
+			}
+		}
+		else
+		{
+			w = pow(2, log2w + 1);
+			h = pow(2, log2h + 1);
 		}
 		Resize(w, h);
+		return true;
 	}
 	void FloorSizeToPowerOfTwo()
 	{

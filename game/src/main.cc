@@ -5,11 +5,32 @@
 #include "Render/Render/Render.h"
 #include "Resource/Texture/Image.h"
 
+
+
 int main(int argc, char** argv)
 {
 	// EXEC_PO2
 
-	CDPath("air", "game/res");
+	WorkspaceCurrentPath("air", "game/res");
+	
+	vector<string> paths;
+	GetFolderFiles("Texture", paths, true);
+	for (auto path : paths)
+	{
+		if (path.find(".DS_Store") != string::npos)
+		{
+			continue;
+		}
+		Image img;
+		img.Load(path);
+		if (img.UpSizeToPowerOfTwo())
+		{
+			img.Save(path);
+		}
+	}
+	
+
+	return 0;
 
 	Window window;
 
