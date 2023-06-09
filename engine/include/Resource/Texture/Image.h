@@ -29,6 +29,12 @@ public:
 			LOG("failed to load Image " << path << " !")
 			return;
 		}
+		if (!IsPowerOfTwo())
+		{
+			int x, y;
+			GetFloorPowerOfTwoSize(x, y);
+			Resize(x, y);
+		}
 	}
 	void Save(const string& path)
 	{
@@ -51,17 +57,19 @@ public:
 	{
 		return (pow(2, log2(width)) == width && pow(2, log2(hight)) == hight);
 	}
-	bool GetPowerOfTwoBoundSize(int& w, int& h)
+	void GetCeilingPowerOfTwoSize(int& w, int& h)
 	{
 		int lw = log2(width);
 		int lh = log2(hight);
 		w = width == pow(2, lw) ? width : pow(2, lw + 1);
 		h = hight == pow(2, lh) ? hight : pow(2, lh + 1);
 	}
-	void GetPowerOfTwoFloorSize(int& w, int& h)
+	void GetFloorPowerOfTwoSize(int& w, int& h)
 	{
-		w = pow(2, log2(width));
-		h = pow(2, log2(hight));
+		int lw = log2(width);
+		int lh = log2(hight);
+		w = pow(2, lw);
+		h = pow(2, lh);
 	}
 	void Resize(int newWidth, int newHight)
 	{
@@ -112,7 +120,7 @@ public:
 	}
 	~Image()
 	{
-		if (!IsLoaded())
+		if (IsLoaded())
 		{
 			stbi_image_free(data);
 		}

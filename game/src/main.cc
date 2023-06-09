@@ -14,24 +14,11 @@ int main(int argc, char** argv)
 	WorkspaceCurrentPath("air", "game/res");
 
 	Image img;
-	img.Load("Texture/HDRSpheres/TexturesCom_AgbarPlatform_1K_hdri_sphere_tone.jpg");
-	
-	// vector<string> paths;
-	// GetFolderFiles("Texture", paths, true);
-	// for (auto path : paths)
-	// {
-	// 	if (path.find(".DS_Store") != string::npos)
-	// 	{
-	// 		continue;
-	// 	}
-	// 	Image img;
-	// 	img.Load(path);
-	// 	if (img.UpSizeToPowerOfTwo())
-	// 	{
-	// 		img.Save(path);
-	// 	}
-	// }
-
+	img.Load("Texture/Anim.png");
+	int w, h;
+	img.GetCeilingPowerOfTwoSize(w, h);
+	img.Resize(w, h);
+	img.Save("Texture/Anim1.png");
 	return 0;
 
 	Window window;
