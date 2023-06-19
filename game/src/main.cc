@@ -13,13 +13,13 @@ int main(int argc, char** argv)
 
 	WorkspaceCurrentPath("air", "game/res");
 
-	Image img;
-	img.Load("Texture/Anim.png");
-	int w, h;
-	img.GetCeilingPowerOfTwoSize(w, h);
-	img.Resize(w, h);
-	img.Save("Texture/Anim1.png");
-	return 0;
+	// Image img;
+	// img.Load("Texture/Anim.png");
+	// int w, h;
+	// img.GetCeilingPowerOfTwoSize(w, h);
+	// img.Resize(w, h);
+	// img.Save("Texture/Anim1.png");
+	// return 0;
 
 	Window window;
 
