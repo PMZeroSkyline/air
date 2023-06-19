@@ -26,7 +26,6 @@ int main(int argc, char** argv)
 	shared_ptr<Actor> world = make_shared<Actor>();
 	GenSandbox(world.get());
 	Role* role = world->AddChild<Role>();
-	GenDirLight(role);
 	world->ResetWorldMatrix();
 
 	while (window.IsOpen())
@@ -49,6 +48,7 @@ int main(int argc, char** argv)
 		{
 			window.SetCursor(!window.GetCursor());
 		}
+		
 	}
 	return 0;
 }

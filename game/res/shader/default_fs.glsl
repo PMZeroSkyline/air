@@ -9,8 +9,7 @@ in V2F
 } i;
 
 uniform bool isUseTex;
-uniform sampler2D baseColorTex;
-uniform bool isBlend;
+uniform sampler2D colorTex;
 uniform vec3 viewPos;
 uniform vec3 lightDir;
 
@@ -74,7 +73,6 @@ float WorldGrid(vec3 worldPos, vec3 worldNormal)
     float grid = min(grid_m, min(grid_50cm, grid_10m));
     return (1.f - (1.f - grid) * disMask);
 }
-
 float UVGrid(vec2 uv)
 {
     float s = 0.01f;
@@ -90,16 +88,21 @@ void main()
 {   
     vec3 worldPos = i.worldPos.xyz / i.worldPos.w;
     vec3 worldNormal = normalize(i.worldNormal);
-    float nl = dot(worldNormal, normalize(vec3(1.f))) * .5f + .5f;
+    float nl = dot(worldNormal, normalize(lightDir));
 
-    float grid = WorldGrid(worldPos, worldNormal);
+    //float grid = WorldGrid(worldPos, worldNormal);
 
-    vec3 col = vec3(1.f) * grid * nl;
+    vec3 col = vec3(1.f) * nl * .5f + .5f;
+    float alpha = 1.f;
 
     if(isUseTex)
     {
-        col *= texture(baseColorTex, i.uv).xyz;
+        vec4 colTex = texture(colorTex, i.uv);
+        col = colTex.xyz;
+        col = dot(worldNormal, normalize(lightDir)) > 0.f ? col : col * col;
+        alpha = colTex.a;
+        if (alpha < 0.5f)
+            discard;
     }
-    float a = isBlend ? .5f : 1.f;
-    FragColor = vec4(col, a);
+    FragColor = vec4(col, alpha);
 }

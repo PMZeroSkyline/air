@@ -33,6 +33,7 @@ public:
 	int frameRate = 0;
 	int lastSecond = 0;
 	bool isDoubleBuffer = true;
+	bool isMSAA = true;
 
 	Window(int w = 800, int h = 600, const char *title = "window")
 	{
@@ -43,7 +44,11 @@ public:
 		glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
 		glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 		glfwWindowHint(GLFW_DOUBLEBUFFER, isDoubleBuffer);
-
+		if (isMSAA)
+		{
+			glfwWindowHint(GLFW_SAMPLES, 4);
+		}
+		
 		#ifdef __APPLE__
 			glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 		#endif
@@ -59,6 +64,11 @@ public:
 		glfwSetWindowUserPointer(glfwWindow, this);
 		
 		SetupOpenGL();
+		if (isMSAA)
+		{
+			glEnable(GL_MULTISAMPLE);  
+		}
+		
         
 		// MacOS vscode debug has bug : use vector reserve or use const size array mad by out of memory !
 		keys.resize(GLFW_KEY_LAST);

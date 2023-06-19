@@ -60,7 +60,7 @@ public:
         {
             pair.second->Active(textureIndex);
             //pair.second->Bind();
-            shader->SetInt(pair.first, textureIndex);
+            shader->SetInt("colorTex", textureIndex);
             textureIndex++;
         }
         shader->SetBool("isUseTex", textureMap.size() != 0);

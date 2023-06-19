@@ -7,7 +7,7 @@
 class AnimationPlayerComponent : public Component
 {
 public:
-    AnimationInstance* current = nullptr;
+    AnimationInstance* playInst = nullptr;
     vector<AnimationInstance>* animInsts = nullptr;
     
     void Play(const string& animationName, bool isLoop = false)
@@ -16,7 +16,7 @@ public:
         {
             return;
         }
-        if (current && current->animation->name == animationName)
+        if (playInst && playInst->animation->name == animationName)
         {
             return;
         }
@@ -25,14 +25,14 @@ public:
         });
         if (found != animInsts->end())
         {
-            current = &(*found);
+            playInst = &(*found);
 
             for_each(animInsts->begin(), animInsts->end(), [](AnimationInstance& animInst){
                 animInst.weight = 0.f;
             });
-            current->weight = 1.f;
-            current->time = 0.f;
-            current->isLoop = isLoop;
+            playInst->weight = 1.f;
+            playInst->time = 0.f;
+            playInst->isLoop = isLoop;
         }
         else
         {
@@ -42,12 +42,12 @@ public:
 
     void Tick() override
     {
-        if (current)
+        if (playInst)
         {
-            current->time += window->deltaTime * current->speed;
-            if (current->time > current->animation->max)
+            playInst->time += window->deltaTime * playInst->speed;
+            if (playInst->time > playInst->animation->max)
             {
-                current->time = current->animation->min;
+                playInst->time = playInst->animation->min;
             }
         }
     }

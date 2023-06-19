@@ -37,17 +37,16 @@ public:
     			s->SetMat4("J[" + to_string(i) + "]", B);
     		}
     	}
-        s->SetFloat("isBlend", material->alphaMode == MaterialAlphaMode::BLEND);
-        
         material->SetUniform();
     	material->ResetRenderContext();
     	meshPrimitive->Draw();
     }
 };
 
-void RenderQuery(Actor* root, vector<RenderPrimitive>& opaqueAndMasks, vector<RenderPrimitive>& blends, vector<CameraComponent*>& cameraComponents)
+CameraComponent* RenderQuery(Actor* root, vector<RenderPrimitive>& masks, vector<RenderPrimitive>& blends)
 {
-    root->RForEachNode<Actor>([&opaqueAndMasks, &blends, &cameraComponents](Actor* actor){
+    CameraComponent* cCamera = nullptr;
+    root->RForEachNode<Actor>([&masks, &blends, &cCamera](Actor* actor){
         vector<MeshComponent*> mcs;
         actor->GetComponents<MeshComponent>(mcs);
         MeshComponent* mc = actor->GetComponent<MeshComponent>();
@@ -76,187 +75,59 @@ void RenderQuery(Actor* root, vector<RenderPrimitive>& opaqueAndMasks, vector<Re
                 }
                 else
                 {
-                    opaqueAndMasks.push_back(rp);
+                    masks.push_back(rp);
                 }
             }
         }
-        actor->GetComponents<CameraComponent>(cameraComponents);
+        if (!cCamera)
+        {
+            CameraComponent* cam = actor->GetComponent<CameraComponent>();
+            if (cam)
+            {
+                cCamera = cam;
+            }
+        }
     });
+    return cCamera;
 }
 
 class Render
 {
 public:
     Window* window = GetCurrentWindowContext();
-    vector<RenderPrimitive> opaqueAndMasks, blends;
-    vector<CameraComponent*> cameraComponents;
-
-    CameraComponent* cameraComponent;
-    CameraComponent* lightCameraComponent;
-
-    shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
-    shared_ptr<Shader> deferredShader = MakeShaderFromRes("deferred");
-    shared_ptr<Shader> gbufferShader = MakeShaderFromRes("gbuffer");
-
-    GLFrameBuffer gBuffer;
-    GLTexture2D gBaseColorRoughness;
-    GLTexture2D gPosition;
-    GLTexture2D gNormal;
-    GLTexture2D gDepth;
-
-    GLFrameBuffer lBuffer;
-    GLTexture2D lDepth;
-
-    Actor* cameraActor = nullptr;
-    Actor* lightActor = nullptr;
-    mat4 cameraV;
-    mat4 cameraP;
-    mat4 lightV;
-    mat4 lightP;
+    vector<RenderPrimitive> masks, blends;
+    CameraComponent* cCamera = nullptr;
+    mat4 V;
+    mat4 P;
     vec3 viewPos;
-    vec3 lightDir;
-    int lightDepthSize = 4096;
-
+    vec3 lightDir = vec3(1.f).normalize();
     Render()
     {
-        ivec2 s = window->GetFrameBufferSize();
-
-        gPosition.Image2D(GL_RGBA16F, s.x, s.y, GL_RGBA, GL_FLOAT, NULL);
-	    gPosition.Filters(GL_NEAREST, GL_NEAREST);
-        gBuffer.Texture2D(GL_COLOR_ATTACHMENT0, gPosition.id);
-
-	    gNormal.Image2D(GL_RGBA16F, s.x, s.y, GL_RGBA, GL_FLOAT, NULL);
-	    gNormal.Filters(GL_NEAREST, GL_NEAREST);
-	    gBuffer.Texture2D(GL_COLOR_ATTACHMENT1, gNormal.id);
-
-	    gBaseColorRoughness.Image2D(GL_RGBA, s.x, s.y, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
-        gBaseColorRoughness.Filters(GL_NEAREST, GL_NEAREST);
-        gBuffer.Texture2D(GL_COLOR_ATTACHMENT2, gBaseColorRoughness.id);
-
-	    vector<unsigned int> attachments = {GL_COLOR_ATTACHMENT0, GL_COLOR_ATTACHMENT1, GL_COLOR_ATTACHMENT2};
-	    gBuffer.DrawBuffers(attachments);
-
-	    gDepth.Image2D(GL_DEPTH_COMPONENT, s.x, s.y, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-	    gDepth.Filters(GL_NEAREST, GL_NEAREST);
-	    gBuffer.Texture2D(GL_DEPTH_ATTACHMENT, gDepth.id);
-
-        if (!gBuffer.IsComplete())
-        {
-            LOG("GBuffer not complete !")
-        }
-
-        lDepth.Image2D(GL_DEPTH_COMPONENT, lightDepthSize, lightDepthSize, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-        lDepth.Filters(GL_NEAREST, GL_NEAREST);
-        lDepth.WrapST(GL_CLAMP_TO_BORDER, GL_CLAMP_TO_BORDER);
-        lDepth.BorderColor(vec4(1.f));
-        lBuffer.Texture2D(GL_DEPTH_ATTACHMENT, lDepth.id);
-
-        lBuffer.DrawBuffer(GL_NONE);
-        lBuffer.ReadBuffer(GL_NONE);
-
-        if (!lBuffer.IsComplete())
-        {
-            LOG("ShadowBuffer not complete !")
-        }
     }
     void Load(Actor* world)
     {
-        opaqueAndMasks.clear();
+        masks.clear();
         blends.clear();
-        cameraComponents.clear();
-        RenderQuery(world, opaqueAndMasks, blends, cameraComponents);
-        for (CameraComponent* cc : cameraComponents)
-        {
-            if (cc->tag == "camera")
-            {
-                cameraComponent = cc;
-            }
-            else if (cc->tag == "light")
-            {
-                lightCameraComponent = cc;
-            }
-        }
-
-        cameraActor = (Actor*)cameraComponent->owner;
-        cameraV = RightHandZUpToYUpProjection() * cameraActor->worldMatrix.inverse();
-        cameraP = cameraComponent->camera->GetProjectioMatrix();
-
-        lightActor = (Actor*)lightCameraComponent->owner;
-        lightV = RightHandZUpToYUpProjection() * lightActor->worldMatrix.inverse();
-        lightP = lightCameraComponent->camera->GetProjectioMatrix();
-
-        viewPos = ToVec3(cameraActor->worldMatrix.column(3));
-        lightDir = -lightActor->GetRightVector();
-    }
-    void DrawLightSpaceDepth()
-    {
-        glViewport(0, 0, lightDepthSize, lightDepthSize);
-        lBuffer.Bind();
-        glContext.Clear(GL_DEPTH_BUFFER_BIT);
-        for (RenderPrimitive& rp : opaqueAndMasks)
-    	{
-    		rp.DrawMVP(lightV, lightP, viewPos, lightDir);
-    	}
-        ivec2 s = window->GetFrameBufferSize();
-        glViewport(0, 0, s.x, s.y);
-    }
-    void DrawGBuffer()
-    {
-        gBuffer.Bind();
-        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	for (RenderPrimitive& rp : opaqueAndMasks)
-    	{
-    		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir, gbufferShader);
-    	}
-    }
-    void DrawDeferred()
-    {        
-        glContext.BindFrameBuffer();
-        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        glContext.SetDepthTest(false);
-
-        deferredShader->Use();
-        gPosition.Active(0);
-        deferredShader->SetInt("gPosition", 0);
-        gNormal.Active(1);
-        deferredShader->SetInt("gNormal", 1);
-        gBaseColorRoughness.Active(2);
-        deferredShader->SetInt("gBaseColorRoughness", 2);
-        gDepth.Active(3);
-        deferredShader->SetInt("gDepth", 3);
-        lDepth.Active(4);
-        deferredShader->SetInt("lDepth", 4);
-        
-        deferredShader->SetVec3("viewPos", viewPos);
-        deferredShader->SetVec3("lightDir", lightDir);
-        
-        mat4 cameraIVP = (cameraP * cameraV).inverse();
-        deferredShader->SetMat4("cameraIVP", cameraIVP);
-
-        mat4 lightVP = lightP * lightV;
-        deferredShader->SetMat4("lightVP", lightVP);
-        
-        quad->Draw();
+        cCamera = RenderQuery(world, masks, blends);
+        Actor* aCamera = (Actor*)cCamera->owner;
+        V = RightHandZUpToYUpProjection() * aCamera->worldMatrix.inverse();
+        P = cCamera->camera->GetProjectioMatrix();
+        viewPos = ToVec3(aCamera->worldMatrix.column(3));
     }
     void DrawForward()
     {
-        glContext.BindFrameBuffer();
-        //glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	// for (RenderPrimitive& rp : opaqueAndMasks)
-    	// {
-    	// 	rp.DrawMVP(cameraV, cameraP, viewPos, lightDir);
-    	// }
+        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    	for (RenderPrimitive& rp : masks)
+    	{
+    		rp.DrawMVP(V, P, viewPos, lightDir);
+    	}
         for (RenderPrimitive& rp : blends)
     	{
-    		rp.DrawMVP(cameraV, cameraP, viewPos, lightDir);
+    		rp.DrawMVP(V, P, viewPos, lightDir);
     	}
     }
     void Draw()
     {
-        
-        DrawLightSpaceDepth();
-		DrawGBuffer();
-		DrawDeferred();
         DrawForward();
     }
 };

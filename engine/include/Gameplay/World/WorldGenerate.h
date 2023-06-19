@@ -101,17 +101,4 @@ void GenSandbox(Actor* target)
     capsule->r = 1.f;
     cCollis7->shape = capsule;
 }
-void GenDirLight(Actor* target)
-{
-    Actor* aLight = target->AddChild<Actor>();
-    aLight->localTransform.translation = vec3(0.f, 0.f, 5.f);
-    aLight->localTransform.rotation = EulerToQuat(vec3(-90.f, 0.f, 0.f));
-	CameraComponent* cLight = aLight->AddComponent<CameraComponent>();
-    cLight->tag = "light";
-    shared_ptr<OrthographicCamera> cam = make_shared<OrthographicCamera>();
-    cam->zfar = 10.f;
-    cam->xmag = 10.f;
-    cam->ymag = 10.f;
-    cLight->camera = cam;
-}
 #endif

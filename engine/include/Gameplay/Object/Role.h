@@ -198,12 +198,11 @@ public:
 
     Role()
     {
-        cCam->tag = "camera";
-        aCam->localTransform.translation = vec3(-5.f, 0.f, 0.f);
+        aCam->localTransform.translation = vec3(-3.14f, 0.f, 0.f);
         aCam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
-        aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.5f);
+        aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.25f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
-        aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, 90.f);
+        aModel->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
         shared_ptr<PerspectiveCamera> cam = make_shared<PerspectiveCamera>();
         cCam->camera = cam;
         
@@ -211,18 +210,9 @@ public:
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->shape = sCapsule;
 
-        Actor* aTemp = aModel->AddChild<Actor>();
-        MeshComponent* cTemp = aTemp->AddComponent<MeshComponent>();
-        aTemp->localTransform.scaling = vec3(.5f);
-        aTemp->localTransform.translation = vec3(0.f, 0.f, 1.f);
-        cTemp->mesh = make_shared<Mesh>();
-        cTemp->mesh->primitives.push_back(MakeCapsulePrimitive());
-        cTemp->mesh->primitives[0]->material->alphaMode = MaterialAlphaMode::BLEND;
-
-
-        sModel->Load("Model/People/YBot/YBot.gltf");
+        sModel->Load("Model/People/S09/S09.gltf");
         sModel->FieldExpand();
-        cPlayer->animInsts = &sModel->animationInstances;
+        //cPlayer->instances = &sModel->animationInstances;
         
     }
     virtual void Start() override
@@ -310,7 +300,7 @@ public:
             // Setup mesh rotation
             Transform wMeshTrans = Transform(aModel->worldMatrix);
             float wAngleZ = atan2(dir.y, dir.x);
-            wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
+            wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)-90.f);
             aModel->SetWorldMatrix(wMeshTrans.ToMatrix());
         }
         else
