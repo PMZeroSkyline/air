@@ -210,7 +210,7 @@ public:
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->shape = sCapsule;
 
-        sModel->Load("Model/People/S09/S09.gltf");
+        sModel->Load("Model/People/YBot/YBot.gltf");
         sModel->FieldExpand();
         //cPlayer->instances = &sModel->animationInstances;
         
