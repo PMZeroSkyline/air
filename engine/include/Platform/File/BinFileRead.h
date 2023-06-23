@@ -19,6 +19,12 @@ void StringFromFile(const string &path, string &contents)
 	}
 	throw(errno);
 }
+string StringFromFile(const string &path)
+{
+	string contents;
+	StringFromFile(path, contents);
+	return contents;
+}
 template<typename T>
 void VectorFromFile(const string &path, int beg, int count, vector<T> &contents)
 {
@@ -33,6 +39,12 @@ void VectorFromFile(const string &path, int beg, int count, vector<T> &contents)
 	}
 	throw(errno);
 }
-
+template<typename T>
+vector<T> VectorFromFile(const string &path, int beg, int count)
+{
+	vector<T> contents;
+	VectorFromFile<T>(path, beg, count, contents);
+	return contents;
+}
 
 #endif

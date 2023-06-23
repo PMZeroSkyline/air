@@ -17,11 +17,11 @@ shared_ptr<T> TreeFileParse(const string& path)
     string line;
     while (getline(f, line))
     {
-        if (!IsValidString(line) || IsCommentString(line))
+        if (!IsLineValid(line) || IsLineComment(line))
         {
             continue;
         }
-        int depth = GetStringIndent(line);
+        int depth = GetLineIndent(line);
         if (lastNode == nullptr)
         {
             if (depth == 0)

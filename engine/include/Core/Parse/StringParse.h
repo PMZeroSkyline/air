@@ -3,64 +3,96 @@
 
 #include "SDK/STL/STL.h"
 
-// void SplitToVector(const string &target, const string &splitTag, vector<string> &out)
-// {
-//     size_t offset = 0;
-//     size_t found;
-//     while ((found = target.find(splitTag, offset)) != string::npos)
-//     {
-//         out.push_back(target.substr(offset, found-offset));
-//         offset = found+1;
-//     }
-//     out.push_back(target.substr(offset, target.size()-offset));
-// }
-vector<string> Split(const string &src, char tag)
+
+void Split(const string &src, char tag, vector<string>& dst)
 {
-    vector<string> result;
     size_t it = 0;
     size_t pos;
     while ((pos = src.find(tag, it)) != string::npos)
     {
-        result.push_back(src.substr(it, pos-it));
+        dst.push_back(src.substr(it, pos-it));
         it = pos+1;
     }
-    result.push_back(src.substr(it, src.size()-it));
-    return result;
+    dst.push_back(src.substr(it, src.size()-it));
 }
-void RemoveSpace(string &str)
+vector<string> Split(const string &src, char tag)
 {
-    str.erase(remove_if(str.begin(), str.end(), isspace), str.end());
+    vector<string> dst;
+    Split(src, tag, dst);
+    return dst;
 }
-bool IsCommentString(const string& inStr) {
-    string str = inStr;
-    RemoveSpace(str);
-    if (str.size() < 2) 
+void StringToVectorString(const string& src, vector<string>& dst)
+{
+    return Split(src, '\n', dst);
+}
+vector<string> StringToVectorString(const string& src)
+{
+    vector<string> dst;
+    StringToVectorString(src, dst);
+    return dst;
+}
+void VectorStringToString(const vector<string>& src, string& dst)
+{
+    for (const auto& line : src)
+    {
+        dst += line + '\n';
+    }
+}
+string VectorStringToString(const vector<string>& src)
+{
+    string dst;
+    VectorStringToString(src, dst);
+    return dst;
+}
+void StreamLineToVector(const string& src, vector<string>& dst)
+{
+    istringstream iss(src);
+    string s;
+    while (iss >> s)
+    {
+        dst.push_back(s);
+    }
+}
+vector<string> StreamLineToVector(const string& src)
+{
+    vector<string> dst;
+    StreamLineToVector(src, dst);
+    return dst;
+}
+string RemoveLineSpace(const string& src)
+{
+    string dst = src;
+    dst.erase(remove_if(dst.begin(), dst.end(), isspace), dst.end());
+    return dst;
+}
+bool IsLineComment(const string& line) {
+    string src = RemoveLineSpace(line);
+    if (src.size() < 2) 
     {
         return false;
     }
-    if (str.substr(0, 2) == "//") 
+    if (src.substr(0, 2) == "//") 
     {
         return true;
     }
     return false;
 }
-bool IsValidString(const string& inStr)
+bool IsLineValid(const string& line)
 {
-    string str = inStr;
-    RemoveSpace(str);
-    if (str.size() == 0)
+    string src = RemoveLineSpace(line);
+    if (src.size() == 0)
     {
         return false;
     }
     return true;
 }
-int GetStringIndent(const string& str)
+int GetLineIndent(const string& src)
 {
-    if (str == "")
+    if (src == "")
     {
         return 0;
     }
-    size_t index = str.find_first_not_of(' ');
+    size_t index = src.find_first_not_of(' ');
     if (index == string::npos)
     {
         return 0;
@@ -68,20 +100,24 @@ int GetStringIndent(const string& str)
     int depth = index / 4;
     return depth;
 }
-string GetBracketContent(const string& src, const string& bracket)
+string GetLineInRange(const string& src, const string& token)
 {
     size_t beg, end;
-    beg = src.find_first_of(bracket);
-    end = src.find_last_of(bracket);
-    if (beg != string::npos && end != string::npos)
+    beg = src.find_first_of(token);
+    if (beg == string::npos)
     {
-        return src.substr(beg+1, end-beg-1);
+        return "";
     }
-    return "";
+    end = src.find_last_of(token);
+    if (end == string::npos)
+    {
+        return "";
+    }
+    return src.substr(beg+1, end-(beg+1));
 }
-string ToLower(std::string str) 
+string ToLower(std::string src) 
 {
-    transform(str.begin(), str.end(), str.begin(), ::tolower);
-    return str;
+    transform(src.begin(), src.end(), src.begin(), ::tolower);
+    return src;
 }
 #endif

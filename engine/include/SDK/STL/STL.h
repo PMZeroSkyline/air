@@ -21,6 +21,7 @@ using std::begin;
 using std::end;
 using std::string;
 using std::ifstream;
+using std::ofstream;
 using std::vector;
 using std::tuple;
 using std::map;

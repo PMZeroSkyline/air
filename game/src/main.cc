@@ -10,8 +10,7 @@
 int main(int argc, char** argv)
 {
 	// EXEC_PO2
-
-	WorkspaceCurrentPath("air", "game/res");
+	CDWorkspacePath("air");
 
 	// Image img;
 	// img.Load("Texture/Anim.png");

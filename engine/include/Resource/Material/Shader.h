@@ -6,7 +6,7 @@
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "Core/Math/Math.h"
 #include "Core/Container/WeakMap.h"
-
+#include "Core/RTTI/Preprocessor.h"
 class Shader
 {
 public:
@@ -17,8 +17,8 @@ public:
         name = "vs:" + vsPath + ",fs:" + fsPath;
         GLShader vsShader(GL_VERTEX_SHADER), fsShader(GL_FRAGMENT_SHADER);
         string vsStr, fsStr;
-        StringFromFile(vsPath, vsStr);
-        StringFromFile(fsPath, fsStr);
+        vsStr = PreprocessorFile(vsPath);
+        fsStr = PreprocessorFile(fsPath);
         vsShader.Compile(vsStr.c_str(), "vs compile failed : " + vsPath + " : \n");
         fsShader.Compile(fsStr.c_str(), "fs compile failed : " + fsPath + " : \n");
         glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + "," + fsPath + " : \n");
@@ -67,16 +67,22 @@ public:
     {
         glUniformMatrix4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_TRUE, &mat[0][0]);
     }
+    void BindUniformBlock(const string& shaderUniformBlockName, GLuint uniformBlockIndex)
+    {
+        unsigned int shaderBlockIndex = glGetUniformBlockIndex(glProgram.id, shaderUniformBlockName.c_str());
+        glUniformBlockBinding(glProgram.id, uniformBlockIndex, shaderBlockIndex);
+    }
 };
 WeakMap<Shader> shaderWeakMap;
 
-shared_ptr<Shader> MakeShaderFromRes(const string& name)
+shared_ptr<Shader> MakeShaderFromPresetDir(const string& name)
 {
     shared_ptr<Shader> shader = shaderWeakMap.Get(name);
     if (!shader)
     {
+        string dir = "game/res/Shader/";
         shader = make_shared<Shader>();
-        shader->Load("Shader/" + name + "_vs.glsl", "Shader/" + name + "_fs.glsl");
+        shader->Load(dir + name + "_vs.glsl", dir + name + "_fs.glsl");
         shaderWeakMap.Set(name, shader);
     }
     return shader;

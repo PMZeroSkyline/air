@@ -4,8 +4,26 @@
 #include "Gameplay/Object/Actor.h"
 #include "Gameplay/Component/MeshComponent.h"
 #include "Gameplay/Component/CameraComponent.h"
+#include "Gameplay/Component/SkinComponent.h"
 #include "OS/Window/Window.h"
 
+class RenderInput
+{
+public:
+    CameraComponent* cameraComponent = nullptr;
+    mat4 V;
+    mat4 P;
+    vec3 viewPos;
+    vec3 lightDir;
+    void Reset()
+    {
+        Actor* aCamera = ((Actor*)cameraComponent->owner);
+        V = RightHandZUpToYUpProjection() * aCamera->worldMatrix.inverse();
+        P = cameraComponent->camera->GetProjectioMatrix();
+        viewPos = ToVec3(aCamera->worldMatrix.column(3));
+        lightDir = vec3(1.f).normalize();
+    }
+};
 class RenderPrimitive
 {
 public:
@@ -14,15 +32,17 @@ public:
     MeshPrimitive* meshPrimitive = nullptr;
     SkinInstance* skinInstance = nullptr;
     Material* material = nullptr;
-    void DrawMVP(const mat4& V, const mat4& P, const vec3& viewPos, const vec3& lightDir, shared_ptr<Shader> shader = shared_ptr<Shader>())
+
+    RenderInput* input = nullptr;
+    void Draw()
     {
-        shared_ptr<Shader> s = shader ? shader : material->shader;
+        shared_ptr<Shader> s = material->shader;
     	s->Use();
     	s->SetMat4("M", *worldMatrix);
-    	s->SetMat4("V", V);
-    	s->SetMat4("P", P);
-        s->SetVec3("viewPos", viewPos);
-        s->SetVec3("lightDir", lightDir);
+    	s->SetMat4("V", input->V);
+    	s->SetMat4("P", input->P);
+        s->SetVec3("viewPos", input->viewPos);
+        s->SetVec3("lightDir", input->lightDir);
     	s->SetBool("isSkin", skinInstance);
     	if (skinInstance)
     	{
@@ -43,12 +63,10 @@ public:
     }
 };
 
-CameraComponent* RenderQuery(Actor* root, vector<RenderPrimitive>& masks, vector<RenderPrimitive>& blends)
+void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& renderPrimitiveMap, RenderInput& input)
 {
-    CameraComponent* cCamera = nullptr;
-    root->RForEachNode<Actor>([&masks, &blends, &cCamera](Actor* actor){
-        vector<MeshComponent*> mcs;
-        actor->GetComponents<MeshComponent>(mcs);
+    renderPrimitiveMap.clear();
+    root->RForEachNode<Actor>([&renderPrimitiveMap, &input](Actor* actor){
         MeshComponent* mc = actor->GetComponent<MeshComponent>();
         if (mc)
         {
@@ -61,6 +79,7 @@ CameraComponent* RenderQuery(Actor* root, vector<RenderPrimitive>& masks, vector
                 rp.meshPrimitive = meshPrimitive.get();
                 rp.material = meshPrimitive->material.get();
                 rp.skinInstance = sc ? sc->skinInstance : nullptr;
+                rp.input = &input;
                 if (owner)
                 {
                     rp.worldMatrix = &owner->worldMatrix;
@@ -69,67 +88,45 @@ CameraComponent* RenderQuery(Actor* root, vector<RenderPrimitive>& masks, vector
                 {
                     rp.parentWorldMatrix = &parent->worldMatrix;
                 }
-                if (rp.material->alphaMode == MaterialAlphaMode::BLEND)
-                {
-                    blends.push_back(rp);
-                }
-                else
-                {
-                    masks.push_back(rp);
-                }
+                renderPrimitiveMap[rp.material->alphaMode].push_back(rp);
             }
         }
-        if (!cCamera)
+        if (!input.cameraComponent)
         {
-            CameraComponent* cam = actor->GetComponent<CameraComponent>();
-            if (cam)
+            CameraComponent* cameraComponent = actor->GetComponent<CameraComponent>();
+            if (cameraComponent)
             {
-                cCamera = cam;
+                input.cameraComponent = cameraComponent;
+                input.Reset();
             }
         }
     });
-    return cCamera;
 }
 
 class Render
 {
 public:
     Window* window = GetCurrentWindowContext();
-    vector<RenderPrimitive> masks, blends;
-    CameraComponent* cCamera = nullptr;
-    mat4 V;
-    mat4 P;
-    vec3 viewPos;
-    vec3 lightDir = vec3(1.f).normalize();
+    map<MaterialAlphaMode, vector<RenderPrimitive>> renderPrimitiveMap;
+    RenderInput input;
+
     Render()
     {
     }
-    void Load(Actor* world)
+    void Load(Actor* root)
     {
-        masks.clear();
-        blends.clear();
-        cCamera = RenderQuery(world, masks, blends);
-        Actor* aCamera = (Actor*)cCamera->owner;
-        V = RightHandZUpToYUpProjection() * aCamera->worldMatrix.inverse();
-        P = cCamera->camera->GetProjectioMatrix();
-        viewPos = ToVec3(aCamera->worldMatrix.column(3));
-    }
-    void DrawForward()
-    {
-        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	for (RenderPrimitive& rp : masks)
-    	{
-    		rp.DrawMVP(V, P, viewPos, lightDir);
-    	}
-        for (RenderPrimitive& rp : blends)
-    	{
-    		rp.DrawMVP(V, P, viewPos, lightDir);
-    	}
+        RenderQuery(root, renderPrimitiveMap, input);
     }
     void Draw()
     {
-        DrawForward();
+        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    	for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::OPAQUE])
+        {
+            rp.Draw();
+        }
+        
     }
+    
 };
 
 #endif

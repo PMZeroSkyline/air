@@ -22,7 +22,7 @@
 // 	chdir(path);
 // 	#endif
 // }
-void WorkspaceCurrentPath(const string& workspaceFolderName, const string& relativePath = "")
+void CDWorkspacePath(const string& workspaceFolderName, const string& relativePath = "")
 {
 	fs::path currentPath = fs::current_path();
 	string currentPathStr = currentPath.string();
@@ -34,7 +34,7 @@ void WorkspaceCurrentPath(const string& workspaceFolderName, const string& relat
 	}
 	else
 	{
-		LOG("failed to cd resources dir")
+		LOG("failed to cd dir " << workspaceFolderName << " , " << relativePath )
 	}
 }
 void GetFolderFiles(const string& path, vector<string> &result, bool isRecursive = true)
@@ -53,5 +53,11 @@ void GetFolderFiles(const string& path, vector<string> &result, bool isRecursive
         	}
 		}
     }
+}
+vector<string> GetFolderFiles(const string& path, bool isRecursive = true)
+{
+	vector<string> output;
+	GetFolderFiles(path, output, isRecursive);
+	return output;
 }
 #endif

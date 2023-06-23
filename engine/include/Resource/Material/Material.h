@@ -3,7 +3,7 @@
 
 #include "Shader.h"
 #include "Resource/Texture/Texture2D.h"
-#include "Render/Render/RenderContext.h"
+#include "SDK/OpenGL/CppOpenGL.h"
 
 enum MaterialAlphaMode
 {
@@ -43,18 +43,6 @@ public:
     }
     void SetUniform()
     {        
-        // for (auto const& pair : matricesMap)
-        // {
-        //     for (int i = 0; i < pair.second.size(); i++)
-        //     {
-        //         shader->SetMat4(pair.first + "[" + to_string(i) + "]" , pair.second[i]);
-        //     }            
-        // }
-        // for (auto const& pair : matrixMap)
-        // {
-        //     shader->SetMat4(pair.first, pair.second);
-        // }
-
         int textureIndex = 0;
         for (auto const& pair : textureMap)
         {
@@ -64,14 +52,6 @@ public:
             textureIndex++;
         }
         shader->SetBool("isUseTex", textureMap.size() != 0);
-        
     }
 };
-
-shared_ptr<Material> MakeMaterialFromShaderRes(const string& name)
-{
-    shared_ptr<Material> material = make_shared<Material>();
-    material->shader = MakeShaderFromRes(name);
-    return material;
-}
 #endif

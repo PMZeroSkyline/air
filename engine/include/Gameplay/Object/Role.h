@@ -210,7 +210,7 @@ public:
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->shape = sCapsule;
 
-        sModel->Load("Model/People/YBot/YBot.gltf");
+        sModel->Load("game/res/Model/People/Aurelia/gltf/aurelia.gltf");
         sModel->FieldExpand();
         //cPlayer->instances = &sModel->animationInstances;
         
@@ -300,7 +300,7 @@ public:
             // Setup mesh rotation
             Transform wMeshTrans = Transform(aModel->worldMatrix);
             float wAngleZ = atan2(dir.y, dir.x);
-            wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)-90.f);
+            wMeshTrans.rotation = EulerToQuat(0.f, 0.f, degrees(wAngleZ)+90.f);
             aModel->SetWorldMatrix(wMeshTrans.ToMatrix());
         }
         else
