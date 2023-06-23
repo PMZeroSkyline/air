@@ -10,6 +10,7 @@ class AnimationChannel
 {
 public:
 	int samplerId;
+	// AnimationSampler* sampler = nullptr;
 	AnimationChannelTarget target;
 };
 

@@ -32,6 +32,7 @@ public:
             scenesWeakMap.Set(path, scenes);
         }
     }
+    
     void NodeExpand(SceneNode* sceneNode, Actor* node)
     {           
         node->name = sceneNode->name;
@@ -83,6 +84,16 @@ public:
             {
                 AnimationChannel* channel = &animation->channels[j];
                 Actor* targetNode = nodes[channel->target.nodeID];
+                
+                // vector<Actor*>::iterator found = find_if(nodes.begin(), nodes.end(), [&channel](Actor* node){
+                //     return channel->target.name == node->name;
+                // });
+                // if (found == nodes.end())
+                // {
+                //     LOG("cann't found animation target " << channel->target.name << " !")
+                //     continue;
+                // }
+                // Actor* targetNode = *found;
 
                 AnimationNodeComponent* animationNodeComponent = targetNode->GetComponent<AnimationNodeComponent>();
                 if (!animationNodeComponent)
@@ -111,6 +122,20 @@ public:
             {
                 skinInstance->joints[j] = nodes[skin->jointIDs[j]];
             }
+            // skinInstance->joints.resize(skin->jointNames.size());
+            // for (int j = 0; j < skin->jointNames.size(); j++)
+            // {
+            //     string jointName = skin->jointNames[j];
+            //     auto found = find_if(nodes.begin(), nodes.end(), [&jointName](Actor* node){
+            //         return jointName == node->name;
+            //     });
+            //     if (found == nodes.end())
+            //     {
+            //         LOG("not found skin joint")
+            //         continue;
+            //     }
+            //     skinInstance->joints[j] = *found;
+            // }
         }
     }
 };

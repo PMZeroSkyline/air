@@ -39,6 +39,7 @@ public:
             {
                 AnimationChannel* channel = view->channels[j];
                 AnimationSampler* sampler = &animationInstance->animation->samplers[channel->samplerId];
+                // AnimationSampler* sampler = channel->sampler;
                 if (channel->target.path == AnimationChannelTargetPath::TRANSLATION)
                 {
                     result.translation += sampler->SampleVec3(animationInstance->time + offset);

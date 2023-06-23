@@ -23,8 +23,13 @@ int main(int argc, char** argv)
 	Window window;
 
 	shared_ptr<Actor> world = make_shared<Actor>();
-	GenSandbox(world.get());
-	Role* role = world->AddChild<Role>();
+	// GenSandbox(world.get());
+	Actor* aScene = world->AddChild<Actor>();
+	ScenesComponent* cScenes = aScene->AddComponent<ScenesComponent>();
+	cScenes->Load("game/res/Model/Architecture/LightRoom/LightRoom.gltf");
+	cScenes->FieldExpand();
+
+	world->AddChild<Role>();
 	world->ResetWorldMatrix();
 
 	while (window.IsOpen())

@@ -15,6 +15,7 @@ class AnimationChannelTarget
 {
 public:
 	int nodeID = -1;
+	// string name;
 	AnimationChannelTargetPath path;
 
 	void SetupPath(const string& pathStr)

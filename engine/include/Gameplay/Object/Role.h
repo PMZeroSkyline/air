@@ -210,9 +210,9 @@ public:
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->shape = sCapsule;
 
-        sModel->Load("game/res/Model/People/Aurelia/gltf/aurelia.gltf");
+        sModel->Load("game/res/Model/People/YBot/YBot.gltf");
         sModel->FieldExpand();
-        //cPlayer->instances = &sModel->animationInstances;
+        cPlayer->animInsts = &sModel->animationInstances;
         
     }
     virtual void Start() override

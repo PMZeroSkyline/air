@@ -15,6 +15,8 @@ uniform vec3 viewPos;
 uniform vec3 lightDir;
 
 
+
+
 void main()
 {   
     vec3 worldPos = i.worldPos.xyz / i.worldPos.w;
@@ -35,5 +37,10 @@ void main()
         if (alpha < 0.5f)
             discard;
     }
+
+    #ifdef TEST
+    col *= vec3(1.f, 0.f, 0.f);
+    #endif
+    
     FragColor = vec4(col, alpha);
 }
