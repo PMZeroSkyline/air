@@ -161,12 +161,13 @@ shared_ptr<Texture2D> LoadTexture2D(const gltf::glTF& GLTF, const string& dir, i
             imageWeakMap.Set(dir + gImage->uri, image);
         }
         texture2D->image = image;
-        texture2D->SetupImage();
+        texture2D->SetupImage2D();
     }
     else
     {
         LOG("filed to find gltf texture " << gTexture->name << " source !")
     }
+    
     return texture2D;
 }
 shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Texture2D>>& texture2Ds, int index)

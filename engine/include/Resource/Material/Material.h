@@ -20,7 +20,7 @@ public:
 
     // Params
     float alphaCutoff = 0.5f;
-    map<string, GLTexture2D*> textureMap;
+    map<string, GLTexture*> textureMap;
     map<string, mat4> matrixMap;
     map<string, vector<mat4>> matricesMap;
 
@@ -43,12 +43,12 @@ public:
     }
     void SetUniform()
     {        
-        int textureIndex = 0;
+        int textureUnit = 0;
         for (auto const& pair : textureMap)
         {
-            pair.second->Active(textureIndex);
-            shader->SetInt(pair.first, textureIndex);
-            textureIndex++;
+            pair.second->ActiveTextureUnit(textureUnit);
+            shader->SetInt(pair.first, textureUnit);
+            textureUnit++;
         }
         shader->SetInt("alphaMode", alphaMode);
     }

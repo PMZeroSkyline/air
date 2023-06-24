@@ -7,6 +7,8 @@
 #include "Gameplay/Component/SkinComponent.h"
 #include "OS/Window/Window.h"
 
+#include "Resource/Texture/TextureCube.h"
+
 class RenderInput
 {
 public:
@@ -34,6 +36,9 @@ public:
     Material* material = nullptr;
 
     RenderInput* input = nullptr;
+
+    
+	
     void Draw()
     {
         shared_ptr<Shader> s = material->shader;
@@ -44,6 +49,7 @@ public:
         s->SetVec3("viewPos", input->viewPos);
         s->SetVec3("lightDir", input->lightDir);
     	s->SetBool("isSkin", skinInstance);
+
     	if (skinInstance)
     	{
     		Skin* skin = skinInstance->skin;
@@ -65,6 +71,7 @@ public:
 
 void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& renderPrimitiveMap, RenderInput& input)
 {
+    input.cameraComponent = nullptr;
     renderPrimitiveMap.clear();
     root->RForEachNode<Actor>([&renderPrimitiveMap, &input](Actor* actor){
         MeshComponent* mc = actor->GetComponent<MeshComponent>();

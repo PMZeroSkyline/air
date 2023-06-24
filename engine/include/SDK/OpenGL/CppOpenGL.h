@@ -171,15 +171,16 @@ public:
 		return true;
 	}
 };
-class GLTexture2D
+class GLTexture
 {
 public:
 	unsigned int id = -1;
-	GLTexture2D()
+	virtual GLenum GetTarget() = 0;
+	GLTexture()
 	{
 		glGenTextures(1, &id);		
 	}
-	virtual ~GLTexture2D()
+	virtual ~GLTexture()
 	{
 		glDeleteTextures(1, &id);
 		if (glContext.textureID == id)
@@ -191,41 +192,91 @@ public:
 	{
 		if (glContext.textureID != id)
 		{
-			glBindTexture(GL_TEXTURE_2D, id);
+			glBindTexture(GetTarget(), id);
 			glContext.textureID = id;
 		}
 	}
 	void WrapST(GLint wrap_s, GLint wrap_t)
 	{
 		Bind();
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, wrap_s);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, wrap_t);
+		glTexParameteri(GetTarget(), GL_TEXTURE_WRAP_S, wrap_s);
+		glTexParameteri(GetTarget(), GL_TEXTURE_WRAP_T, wrap_t);
+	}
+	void WrapSTR(GLint wrap_s, GLint wrap_t, GLint wrap_r)
+	{
+		Bind();
+		glTexParameteri(GetTarget(), GL_TEXTURE_WRAP_S, wrap_s);
+		glTexParameteri(GetTarget(), GL_TEXTURE_WRAP_T, wrap_t);
+		glTexParameteri(GetTarget(), GL_TEXTURE_WRAP_R, wrap_t);
 	}
 	void Filters(GLint min_filter, GLint mag_filter)
 	{
 		Bind();
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, min_filter);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, mag_filter);
+		glTexParameteri(GetTarget(), GL_TEXTURE_MIN_FILTER, min_filter);
+		glTexParameteri(GetTarget(), GL_TEXTURE_MAG_FILTER, mag_filter);
 	}
-	void Image2D(GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
+	void Image2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
 	{
 		Bind();
-		glTexImage2D(GL_TEXTURE_2D,0,internalformat,width,height,0,format,type,pixels);
+		glTexImage2D(target,0,internalformat,width,height,0,format,type,pixels);
+	}
+	void Image2D(GLenum target, int width, int height, int channel, unsigned char* data = nullptr, float* hdrData = nullptr, bool isGenMipmap = true)
+    {
+        GLenum format = GL_RGBA;
+        if (channel == 1)
+        {
+            format = GL_RED;
+        }
+        if (channel == 3)
+        {
+            format = GL_RGB;
+        }
+        if (data)
+        {
+            Image2D(target, format, width, height, format, GL_UNSIGNED_BYTE, data);
+        }
+        else if (hdrData)
+        {
+            Image2D(target, format, width, height, format, GL_FLOAT, hdrData);
+        }
+        else
+        {
+            LOG("image datas is null !")
+        }
+        if (isGenMipmap)
+        {
+            GenMipmap();
+        }
+    }
+	void Image2D(int width, int height, int channel, unsigned char* data = nullptr, float* hdrData = nullptr, bool isGenMipmap = true)
+	{
+		Image2D(GetTarget(), width, height, channel, data, hdrData, isGenMipmap);
 	}
 	void GenMipmap()
 	{
 		Bind();
-		glGenerateMipmap(GL_TEXTURE_2D);
+		glGenerateMipmap(GetTarget());
 	}
-	void Active(GLenum index)
+	void ActiveTextureUnit(GLenum index)
 	{
 		glActiveTexture(GL_TEXTURE0 + index);
 		Bind();
 	}
-	void BorderColor(const GLfloat *params)
+};
+class GLTexture2D : public GLTexture
+{
+public:
+	virtual GLenum GetTarget() override
 	{
-		Bind();
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, params);
+		return GL_TEXTURE_2D;
+	}
+};
+class GLTextureCube : public GLTexture
+{
+public:
+	virtual GLenum GetTarget() override
+	{
+		return GL_TEXTURE_CUBE_MAP;
 	}
 };
 class GLVertexArray
@@ -265,77 +316,102 @@ public:
 	{
 		glDeleteBuffers(1, &id);
 	}
+	virtual GLenum GetTarget() = 0;
+	virtual void Bind() = 0;
+	void Data(GLsizeiptr size, const void *data)
+	{
+		Bind();
+		glBufferData(GetTarget(), size, data, GL_STATIC_DRAW);
+	}
+	void SubData(GLintptr offset, GLsizeiptr size, const void *data)
+	{
+		Bind();
+		glBufferSubData(GetTarget(), offset, size, data);
+	}
 };
 class GLArrayBuffer : public GLBuffer
 {
 public:
-	 ~GLArrayBuffer()
-	 {
-	 	if (glContext.arrayBufferID == id)
-	 	{
-	 		glContext.arrayBufferID = -1;
-	 	}
-	 }
-	void Bind()
+	~GLArrayBuffer()
+	{
+		if (glContext.arrayBufferID == id)
+		{
+			glContext.arrayBufferID = -1;
+		}
+	}
+	virtual GLenum GetTarget() override
+	{
+		return GL_ARRAY_BUFFER;
+	}
+	virtual void Bind() override
 	{
 		if (glContext.arrayBufferID != id)
 		{
-			glBindBuffer(GL_ARRAY_BUFFER, id);
+			glBindBuffer(GetTarget(), id);
 			glContext.arrayBufferID = id;
 		}
 	}
-	template<typename T>
-	void SubData(GLintptr offset, const vector<T>& t)
-	{
-		Bind();
-		glBufferSubData(GL_ARRAY_BUFFER, offset, sizeof(t[0])*t.size(), &t[0]);
-	}
 };
-class GLUniformBuffer : GLBuffer
- {
- 	string name;
- 	void Bind()
- 	{
- 		glBindBuffer(GL_UNIFORM_BUFFER, id);
- 	}
- 	void BindBufferBase(int index)
- 	{
- 		glBindBufferBase(GL_UNIFORM_BUFFER, index, id);
- 	}
- };
 class GLElementArrayBuffer : public GLBuffer
 {
 public:
-	 ~GLElementArrayBuffer()
-	 {
-	 	if (glContext.elementArrayBufferID == id)
-	 	{
-	 		glContext.elementArrayBufferID = -1;
-	 	}
-	 }
-	void Bind()
+	~GLElementArrayBuffer()
+	{
+		if (glContext.elementArrayBufferID == id)
+		{
+			glContext.elementArrayBufferID = -1;
+		}
+	}
+	virtual GLenum GetTarget() override
+	{
+		return GL_ELEMENT_ARRAY_BUFFER;
+	}
+	virtual void Bind() override
 	{
 		if (glContext.elementArrayBufferID != id)
 		{
-			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, id);
+			glBindBuffer(GetTarget(), id);
 			glContext.elementArrayBufferID = id;
 		}
-	}
-	void Data(const vector<unsigned int>& ids)
-	{
-		Bind();
-		glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(ids[0])*ids.size(), &ids[0], GL_STATIC_DRAW);
 	}
 };
 class GLPrimitive
 {
 public:
-	GLVertexArray vao;
-	GLArrayBuffer vbo;
-	GLElementArrayBuffer ebo;
+	GLVertexArray* vao = nullptr;
+	GLArrayBuffer* vbo = nullptr;
+	GLElementArrayBuffer* ebo = nullptr;
+	GLPrimitive()
+	{
+		vao = new GLVertexArray;
+		vbo = new GLArrayBuffer;
+		ebo = new GLElementArrayBuffer;
+	}
+	~GLPrimitive()
+	{
+		Free();
+	}
+	void Free()
+	{
+		if (!vao)
+		{
+			delete vao;
+			vao = nullptr;
+		}
+		if (!vbo)
+		{
+			delete vbo;
+			vbo = nullptr;
+		}
+		if (!ebo)
+		{
+			delete ebo;
+			ebo = nullptr;
+		}
+	}
 	void DrawElements(GLsizei count)
 	{
-		vao.Bind();
+		vao->Bind();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 	}
 	template<typename T>
@@ -343,7 +419,7 @@ public:
 	{
 		if (t.size())
 		{
-			glBufferSubData(GL_ARRAY_BUFFER, pointer, sizeof(t[0])*t.size(), &t[0]);
+			vbo->SubData(pointer, sizeof(t[0])*t.size(), &t[0]);
 			glEnableVertexAttribArray(index);
 			glVertexAttribPointer(index, sizeof(t[0])/sizeof(t[0][0]), GL_FLOAT, GL_FALSE, sizeof(t[0]), (void*)pointer);
 			pointer += sizeof(t[0])*t.size();
@@ -359,12 +435,11 @@ public:
 	template<typename... Args>
 	void VertexAttributeData(Args&&... args)
 	{
-		vao.Bind();
-		vbo.Bind();
+		vao->Bind();
 
 		int size = 0; // GLsizeiptr
 		VectorSizeof(size, std::forward<Args>(args)...);
-		glBufferData(GL_ARRAY_BUFFER, size, NULL, GL_STATIC_DRAW);
+		vbo->Data(size, NULL);
 
 		GLuint index = 0;
 		GLintptr pointer = 0;
