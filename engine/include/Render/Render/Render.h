@@ -124,7 +124,14 @@ public:
         {
             rp.Draw();
         }
-        
+        for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::MASK])
+        {
+            rp.Draw();
+        }
+        for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::BLEND])
+        {
+            rp.Draw();
+        }
     }
     
 };

@@ -9,7 +9,6 @@ layout (location = 6) in vec2 TEXCOORD_3;
 layout (location = 7) in vec4 JOINTS_0;
 layout (location = 8) in vec4 WEIGHTS_0;
 
-
 uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;

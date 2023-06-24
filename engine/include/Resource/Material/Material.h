@@ -47,11 +47,10 @@ public:
         for (auto const& pair : textureMap)
         {
             pair.second->Active(textureIndex);
-            //pair.second->Bind();
-            shader->SetInt("colorTex", textureIndex);
+            shader->SetInt(pair.first, textureIndex);
             textureIndex++;
         }
-        shader->SetBool("isUseTex", textureMap.size() != 0);
+        shader->SetInt("alphaMode", alphaMode);
     }
 };
 #endif

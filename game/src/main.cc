@@ -12,13 +12,10 @@ int main(int argc, char** argv)
 	// EXEC_PO2
 	CDWorkspacePath("air");
 
-	// Image img;
-	// img.Load("Texture/Anim.png");
-	// int w, h;
-	// img.GetCeilingPowerOfTwoSize(w, h);
-	// img.Resize(w, h);
-	// img.Save("Texture/Anim1.png");
-	// return 0;
+	Image img;
+	img.Load("game/res/Texture/HDRSpheres/TexturesCom_AgbarPlatform_1K_hdri_sphere.hdr");
+	LOG("")
+	return 0;
 
 	Window window;
 

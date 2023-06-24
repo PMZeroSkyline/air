@@ -14,7 +14,12 @@ public:
     TextureSampler sampler;
     shared_ptr<Image> image;
     GLTexture2D glTexture2D;
-    void SetupGLTexture2D(bool isGenMipmap = true)
+    void SetupSampler()
+    {
+        glTexture2D.WrapST(sampler.wrapS, sampler.wrapT);
+        glTexture2D.Filters(sampler.minFilter, sampler.magFilter);
+    }
+    void SetupImage(bool isGenMipmap = true)
     {
         GLenum format = GL_RGBA;
         if (image->channel == 1)
@@ -25,11 +30,25 @@ public:
         {
             format = GL_RGB;
         }
-        //glTexture2D.Bind();
-        glTexture2D.WrapST(sampler.wrapS, sampler.wrapT);
-        glTexture2D.Filters(sampler.minFilter, sampler.magFilter);
-        glTexture2D.Image2D(format, image->width, image->hight, format, GL_UNSIGNED_BYTE, image->data);
+        if (image->data)
+        {
+            glTexture2D.Image2D(format, image->width, image->height, format, GL_UNSIGNED_BYTE, image->data);
+        }
+        else if (image->hdrData)
+        {
+            glTexture2D.Image2D(format, image->width, image->height, format, GL_FLOAT, image->hdrData);
+        }
+        else
+        {
+            LOG("image datas is null !")
+        }
         glTexture2D.GenMipmap();
+    }
+    void SetupHDR()
+    {
+        sampler = TextureSampler(GL_CLAMP_TO_EDGE, GL_CLAMP_TO_EDGE, GL_LINEAR, GL_LINEAR);
+        SetupSampler();
+        SetupImage(false);
     }
 };
 

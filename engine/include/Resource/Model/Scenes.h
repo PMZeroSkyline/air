@@ -147,6 +147,7 @@ shared_ptr<Texture2D> LoadTexture2D(const gltf::glTF& GLTF, const string& dir, i
         }
         texture2D->sampler.wrapS = gSampler->wrapS;
         texture2D->sampler.wrapT = gSampler->wrapT;
+        texture2D->SetupSampler();
     }
     if (gTexture->source != -1)
     {
@@ -160,12 +161,12 @@ shared_ptr<Texture2D> LoadTexture2D(const gltf::glTF& GLTF, const string& dir, i
             imageWeakMap.Set(dir + gImage->uri, image);
         }
         texture2D->image = image;
+        texture2D->SetupImage();
     }
     else
     {
         LOG("filed to find gltf texture " << gTexture->name << " source !")
     }
-    texture2D->SetupGLTexture2D();
     return texture2D;
 }
 shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Texture2D>>& texture2Ds, int index)
@@ -182,7 +183,7 @@ shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Text
     
     if (gMaterial->pbrMetallicRoughness.baseColorTexture.index != -1)
     {
-        material->textureMap["baseColorTex"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
+        material->textureMap["texB"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
     }
     return material;
 }

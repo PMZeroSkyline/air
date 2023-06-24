@@ -222,10 +222,10 @@ public:
 		glActiveTexture(GL_TEXTURE0 + index);
 		Bind();
 	}
-	void BorderColor(vec4 borderColor)
+	void BorderColor(const GLfloat *params)
 	{
 		Bind();
-		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, &(borderColor[0]));
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, params);
 	}
 };
 class GLVertexArray
