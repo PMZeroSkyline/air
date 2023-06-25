@@ -25,17 +25,6 @@ int main(int argc, char** argv)
 	world->AddChild<Role>();
 	world->ResetWorldMatrix();
 
-	TextureCube texCube;
-	vector<string> paths = {
-		
-		"game/res/Texture/Render/skybox/right.jpg",
-		"game/res/Texture/Render/skybox/left.jpg",
-		"game/res/Texture/Render/skybox/top.jpg",
-		"game/res/Texture/Render/skybox/bottom.jpg",
-		"game/res/Texture/Render/skybox/front.jpg",
-		"game/res/Texture/Render/skybox/back.jpg",
-	};
-    texCube.Load(paths);
 	Render render;
 	while (window.IsOpen())
 	{
@@ -45,19 +34,6 @@ int main(int argc, char** argv)
 		
 		
 		render.Load(world.get());
-		for (auto rp : render.renderPrimitiveMap[MaterialAlphaMode::OPAQUE])
-		{
-			rp.material->textureMap["texCube"] = &(texCube.glTextureCube);
-		}
-		for (auto rp : render.renderPrimitiveMap[MaterialAlphaMode::MASK])
-		{
-			rp.material->textureMap["texCube"] = &(texCube.glTextureCube);
-		}
-		for (auto rp : render.renderPrimitiveMap[MaterialAlphaMode::BLEND])
-		{
-			rp.material->textureMap["texCube"] = &(texCube.glTextureCube);
-		}
-		
 		render.Draw();
 		
 		

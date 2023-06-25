@@ -10,7 +10,7 @@ string PreprocessorFile(string path)
 {
     vector<string> lines = StringToVectorString(move(StringFromFile(path)));
     fs::path filePath = path;
-    CDWorkspacePath("air", filePath.parent_path());
+    CDWorkspacePath("air", filePath.parent_path().string());
 
     vector<string> output;
     for (const string& line : lines)
