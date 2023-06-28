@@ -19,9 +19,7 @@ void main()
     vec3 viewDir = normalize(worldPos - viewPos);
     float nl = dot(worldNormal, normalize(lightDir));
 
-    float diff = nl < 0. ? .5f : 1.f;
     vec4 baseColor = texture(texB, i.uv);
-    baseColor.xyz *= vec3(diff);
 
     if (alphaMode == 1)
     {
