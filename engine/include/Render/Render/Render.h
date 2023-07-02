@@ -46,25 +46,7 @@ public:
     	s->SetMat4("M", *worldMatrix);
     	s->SetMat4("V", input->V);
     	s->SetMat4("P", input->P);
-        s->SetVec3("viewPos", input->viewPos);
-        s->SetVec3("lightDir", input->lightDir);
-    	s->SetBool("isSkin", skinInstance);
 
-    	if (skinInstance)
-    	{
-    		Skin* skin = skinInstance->skin;
-    		vector<Actor*> bones = skinInstance->joints;
-    		mat4 IW = parentWorldMatrix ? parentWorldMatrix->inverse() : mat4();
-    		vector<mat4> jms;
-    		for (int i = 0; i < bones.size(); i++)
-    		{
-    			Actor* bone = bones[i];
-    			mat4 B = IW * bone->worldMatrix * skin->inverseBindMatrices[i];
-    			s->SetMat4("J[" + to_string(i) + "]", B);
-    		}
-    	}
-        material->SetUniform();
-    	material->ResetRenderContext();
     	meshPrimitive->Draw();
     }
 };
@@ -119,6 +101,9 @@ public:
 
     Render()
     {
+        glDisable(GL_BLEND);
+        glEnable(GL_DEPTH_TEST);
+        glDepthMask(GL_TRUE);
     }
     void Load(Actor* root)
     {
@@ -127,9 +112,9 @@ public:
     void Draw()
     {
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::OPAQUE])
+    	for (int i = 0; i != renderPrimitiveMap[MaterialAlphaMode::OPAQUE].size(); i++)
         {
-            rp.Draw();
+            renderPrimitiveMap[MaterialAlphaMode::OPAQUE][i].Draw();
         }
         for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::MASK])
         {

@@ -6,6 +6,13 @@
 #include "Resource/Material/Material.h"
 #include "Physic/Shape/AABB.h"
 
+struct Vertex
+{
+    vec3 P;
+    vec3 N;
+    vec2 T;
+};
+
 class MeshPrimitive
 {
 public:
@@ -17,12 +24,35 @@ public:
 
     void SetupGLPrimitive()
     {
-        glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
-        glPrimitive.ebo->Data(sizeof(unsigned int) * indices.size(), &indices[0]);
+        // glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
+        //glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TEXCOORD_0);
+
+        vector<Vertex> vs;
+        vs.resize(indices.size());
+        for (int i = 0; i < indices.size(); i++)
+        {
+            int id = indices[i];
+            vs[i].P = attribute.POSITION[id];
+            vs[i].N = attribute.NORMAL[id];
+            vs[i].T = attribute.TEXCOORD_0[id];
+        }
+        
+        glPrimitive.vao->Bind();
+        glPrimitive.vbo->Data(vs.size()*sizeof(Vertex), &vs[0]);
+        
+		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)0);
+        glEnableVertexAttribArray(0);
+        glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)sizeof(vec3));
+        glEnableVertexAttribArray(1);
+        glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, sizeof(Vertex), (void*)(sizeof(vec3)*2));
+        glEnableVertexAttribArray(2);
+
+        // glPrimitive.ebo->Data(sizeof(unsigned int) * indices.size(), &indices[0]);
     }
     void Draw()
     {
-        glPrimitive.DrawElements(indices.size());
+        // glPrimitive.DrawElements(indices.size());
+        glPrimitive.DrawArrays(indices.size());
     }
 };
 

@@ -179,7 +179,7 @@ shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Text
     material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
                             gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
                             gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
-    material->doubleSided = gMaterial->doubleSided;
+    // material->doubleSided = gMaterial->doubleSided;
     material->alphaCutoff = gMaterial->alphaCutoff;
     
     if (gMaterial->pbrMetallicRoughness.baseColorTexture.index != -1)
@@ -326,7 +326,7 @@ public:
     void Load(const string& _path)
     {
         path = _path;
-        size_t found = path.find_last_of('/');
+        size_t found = path.find_last_of("/\\");
         dir = path.substr(0, found != string::npos ? found + 1 : 0);
         gltf::glTF GLTF = gltf::Load(path);
 

@@ -29,11 +29,11 @@ public:
 	vector<Key> keys;
 	CursorPos mouseCursor;
 	vector<string> dropPaths;
-	bool isLogFrameRate = false;
+	bool isLogFrameRate = true;
 	int frameRate = 0;
 	int lastSecond = 0;
-	bool isDoubleBuffer = true;
-	bool isMSAA = true;
+	bool isDoubleBuffer = false;
+	bool isMSAA = false;
 
 	Window(int w = 800, int h = 600, const char *title = "window")
 	{

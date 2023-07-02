@@ -7,11 +7,28 @@
 #include "Resource/Texture/TextureCube.h"
 
 
+#ifdef __APPLE__
+#include "CoreFoundation/CoreFoundation.h"
+extern "C"
+{
+   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+   __declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
+}
+#else
+#include <windows.h>
+extern "C"
+{
+   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
+   __declspec(dllexport) DWORD NvOptimusEnablement = 0x00000001;
+}
+#endif
+
+
 int main(int argc, char** argv)
 {
 	// EXEC_PO2
 	CDWorkspacePath("air");
-
+	LOG(fs::current_path().string())
 	
 	Window window;
 
@@ -19,7 +36,7 @@ int main(int argc, char** argv)
 	// GenSandbox(world.get());
 	Actor* aScene = world->AddChild<Actor>();
 	ScenesComponent* cScenes = aScene->AddComponent<ScenesComponent>();
-	cScenes->Load("game/res/Model/Architecture/Road/Roads0172.gltf");
+	cScenes->Load("game/res/Model/Architecture/Warzone/kb3d_warzone-native.gltf");
 	cScenes->FieldExpand();
 
 	world->AddChild<Role>();

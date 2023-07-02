@@ -414,6 +414,11 @@ public:
 		vao->Bind();
 		glDrawElements(GL_TRIANGLES, count, GL_UNSIGNED_INT, 0);
 	}
+	void DrawArrays(GLsizei count)
+	{
+		vao->Bind();
+		glDrawArrays(GL_TRIANGLES, 0, count);
+	}
 	template<typename T>
 	void VertexAttributeData(GLuint &index, GLintptr &pointer, T&& t)
 	{

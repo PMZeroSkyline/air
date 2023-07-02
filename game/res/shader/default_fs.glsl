@@ -7,24 +7,12 @@ in V2F
     vec4 worldPos;
     vec3 worldNormal;
 } i;
-uniform int alphaMode;
-uniform sampler2D texB;
-uniform vec3 viewPos;
-uniform vec3 lightDir;
 
 void main()
 {   
     vec3 worldPos = i.worldPos.xyz / i.worldPos.w;
     vec3 worldNormal = normalize(i.worldNormal);
-    vec3 viewDir = normalize(worldPos - viewPos);
-    float nl = dot(worldNormal, normalize(lightDir));
+    float nl = dot(worldNormal, normalize(vec3(1.f)));
 
-    vec4 baseColor = texture(texB, i.uv);
-
-    if (alphaMode == 1)
-    {
-        if (baseColor.a < .5f)
-            discard;
-    }
-    FragColor = baseColor;
+    FragColor = vec4(nl);
 }

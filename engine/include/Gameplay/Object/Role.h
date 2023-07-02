@@ -256,7 +256,7 @@ public:
         {
             dir += aCamArm->GetRightVector();
         }
-        dir.z = 0.f;        
+        // dir.z = 0.f;        
         if (dir.length() > 0.1f)
         {
             cPlayer->Play("run", true);
