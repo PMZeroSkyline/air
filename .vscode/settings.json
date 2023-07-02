@@ -83,6 +83,11 @@
         "xmemory": "cpp",
         "xstddef": "cpp",
         "xtr1common": "cpp",
-        "xtree": "cpp"
+        "xtree": "cpp",
+        "__locale": "cpp",
+        "__string": "cpp",
+        "memory_resource": "cpp",
+        "version": "cpp",
+        "*.def": "cpp"
     }
 }

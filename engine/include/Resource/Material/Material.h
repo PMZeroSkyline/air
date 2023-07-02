@@ -50,7 +50,9 @@ public:
             shader->SetInt(pair.first, textureUnit);
             textureUnit++;
         }
-        shader->SetInt("alphaMode", alphaMode);
+        shader->SetInt("bMask", alphaMode == MaterialAlphaMode::MASK);
+        
+        
     }
 };
 #endif

@@ -8,12 +8,7 @@
 
 
 #ifdef __APPLE__
-#include "CoreFoundation/CoreFoundation.h"
-extern "C"
-{
-   __declspec(dllexport) int AmdPowerXpressRequestHighPerformance = 1;
-   __declspec(dllexport) unsigned int NvOptimusEnablement = 0x00000001;
-}
+
 #else
 #include <windows.h>
 extern "C"
@@ -38,21 +33,20 @@ int main(int argc, char** argv)
 	ScenesComponent* cScenes = aScene->AddComponent<ScenesComponent>();
 	cScenes->Load("game/res/Model/Architecture/Warzone/kb3d_warzone-native.gltf");
 	cScenes->FieldExpand();
+	aScene->isTick = false;
 
-	world->AddChild<Role>();
+	Role* role = world->AddChild<Role>();
 	world->ResetWorldMatrix();
 
 	Render render;
+	
 	while (window.IsOpen())
 	{
 		window.Tick();
-		world->ResetWorldMatrix();
-		world->Tick();
-		
-		
 		render.Load(world.get());
 		render.Draw();
-		
+		world->ResetWorldMatrix();
+		world->Tick();
 		
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{

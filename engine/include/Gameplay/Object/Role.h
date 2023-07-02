@@ -210,7 +210,8 @@ public:
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->shape = sCapsule;
 
-        sModel->Load("game/res/Model/People/Aurelia/Aurelia.gltf");
+        // sModel->Load("game/res/Model/People/Aurelia/Aurelia.gltf");
+        sModel->Load("game/res/Model/People/S09/S09.gltf");
         sModel->FieldExpand();
         //cPlayer->animInsts = &sModel->animationInstances;
         
@@ -273,29 +274,30 @@ public:
             // * window->deltaTime * 10.f
             Transform tMove = wTrans;
             tMove.translation += dir * window->deltaTime * 10.f;
-            if (cCollision->IsIntersectQuery(tMove.ToMatrix()))
-            {
-                tMove = wTrans;
-                tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, -60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
-                if (!cCollision->IsIntersectQuery(tMove.ToMatrix()))
-                {
-                    SetWorldMatrix(tMove.ToMatrix());
-                }
-                else
-                {
-                    tMove = wTrans;
-                    tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, 60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
-                    if (!cCollision->IsIntersectQuery(tMove.ToMatrix()))
-                    {
-                        SetWorldMatrix(tMove.ToMatrix());
-                    }
-                }
-            }
-            else
-            {
-                SetWorldMatrix(tMove.ToMatrix());
+            // if (cCollision->IsIntersectQuery(tMove.ToMatrix()))
+            // {
+            //     tMove = wTrans;
+            //     tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, -60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
+            //     if (!cCollision->IsIntersectQuery(tMove.ToMatrix()))
+            //     {
+            //         SetWorldMatrix(tMove.ToMatrix());
+            //     }
+            //     else
+            //     {
+            //         tMove = wTrans;
+            //         tMove.translation += ToVec3(mat4(EulerToQuat(vec3(0.f, 0.f, 60.f))) * vec4(dir, 1.f)) * window->deltaTime * 10.f;
+            //         if (!cCollision->IsIntersectQuery(tMove.ToMatrix()))
+            //         {
+            //             SetWorldMatrix(tMove.ToMatrix());
+            //         }
+            //     }
+            // }
+            // else
+            // {
+            //     SetWorldMatrix(tMove.ToMatrix());
 
-            }
+            // }
+            SetWorldMatrix(tMove.ToMatrix());
 
             // Setup mesh rotation
             Transform wMeshTrans = Transform(aModel->worldMatrix);

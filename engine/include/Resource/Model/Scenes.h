@@ -179,12 +179,12 @@ shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Text
     material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
                             gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
                             gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
-    // material->doubleSided = gMaterial->doubleSided;
+    material->doubleSided = gMaterial->doubleSided;
     material->alphaCutoff = gMaterial->alphaCutoff;
     
     if (gMaterial->pbrMetallicRoughness.baseColorTexture.index != -1)
     {
-        material->textureMap["texB"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
+        material->textureMap["tB"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
     }
     return material;
 }

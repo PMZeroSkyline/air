@@ -8,11 +8,17 @@ in V2F
     vec3 worldNormal;
 } i;
 
+uniform sampler2D tB;
+uniform bool bMask;
+
 void main()
 {   
-    vec3 worldPos = i.worldPos.xyz / i.worldPos.w;
-    vec3 worldNormal = normalize(i.worldNormal);
-    float nl = dot(worldNormal, normalize(vec3(1.f)));
-
-    FragColor = vec4(nl);
+    // vec3 worldPos = i.worldPos.xyz / i.worldPos.w;
+    // vec3 worldNormal = normalize(i.worldNormal);
+    // float nl = dot(worldNormal, normalize(vec3(1.f)));
+    vec4 B = texture(tB, i.uv);
+    if (bMask)
+        if (B.a < .5f)
+            discard;
+    FragColor = B;
 }

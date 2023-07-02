@@ -8,6 +8,7 @@ class Entity : public Node
 {
 public:
 	vector<Component*> components;
+	bool isTick = true;
 	~Entity()
 	{
 		for (int i = 0; i < components.size(); i++)
@@ -85,6 +86,10 @@ public:
 	}
 	virtual void Tick() override
 	{
+		if (!isTick)
+		{
+			return;
+		}
 		Node::Tick();
 		for (int i = 0; i < components.size(); i++)
 		{
@@ -94,6 +99,7 @@ public:
 			}
 		}
 	}
+	
 };
 
 #endif

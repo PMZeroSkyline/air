@@ -47,6 +47,25 @@ public:
     	s->SetMat4("V", input->V);
     	s->SetMat4("P", input->P);
 
+        s->SetVec3("viewPos", input->viewPos);
+        s->SetVec3("lightDir", input->lightDir);
+    	s->SetBool("isSkin", false);
+
+    	if (skinInstance)
+    	{
+    		Skin* skin = skinInstance->skin;
+    		vector<Actor*> bones = skinInstance->joints;
+    		mat4 IW = parentWorldMatrix ? parentWorldMatrix->inverse() : mat4();
+    		vector<mat4> jms;
+    		for (int i = 0; i < bones.size(); i++)
+    		{
+    			Actor* bone = bones[i];
+    			mat4 B = IW * bone->worldMatrix * skin->inverseBindMatrices[i];
+    			s->SetMat4("J[" + to_string(i) + "]", B);
+    		}
+    	}
+        material->SetUniform();
+    	material->ResetRenderContext();
     	meshPrimitive->Draw();
     }
 };
@@ -86,7 +105,6 @@ void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& r
             if (cameraComponent)
             {
                 input.cameraComponent = cameraComponent;
-                input.Reset();
             }
         }
     });
@@ -101,16 +119,20 @@ public:
 
     Render()
     {
-        glDisable(GL_BLEND);
-        glEnable(GL_DEPTH_TEST);
-        glDepthMask(GL_TRUE);
+        // glDisable(GL_BLEND);
+        // glEnable(GL_DEPTH_TEST);
+        // glDepthMask(GL_TRUE);
+        // glEnable(GL_CULL_FACE);
     }
     void Load(Actor* root)
     {
         RenderQuery(root, renderPrimitiveMap, input);
+        
     }
     void Draw()
     {
+        input.Reset();
+        
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     	for (int i = 0; i != renderPrimitiveMap[MaterialAlphaMode::OPAQUE].size(); i++)
         {
