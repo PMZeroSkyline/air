@@ -24,8 +24,8 @@ public:
 
     void SetupGLPrimitive()
     {
-        glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
-        // glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TEXCOORD_0);
+        // glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TANGENT, attribute.TEXCOORD_0, attribute.TEXCOORD_1, attribute.TEXCOORD_2, attribute.TEXCOORD_3, attribute.JOINTS_0, attribute.WEIGHTS_0);
+        glPrimitive.VertexAttributeData(attribute.POSITION, attribute.NORMAL, attribute.TEXCOORD_0, attribute.JOINTS_0, attribute.WEIGHTS_0);
 
         // vector<Vertex> vs;
         // vs.resize(indices.size());
@@ -66,7 +66,7 @@ shared_ptr<MeshPrimitive> MakeQuadMeshPrimitive(shared_ptr<Material> material = 
     else
     {
         primitive->material = make_shared<Material>();
-        primitive->material->shader = MakeShaderFromPresetDir("default");
+        primitive->material->shader = MakeShader();
     }
     primitive->attribute.POSITION = {
         {-1.00000, -1.00000, 0.00000},
@@ -110,7 +110,7 @@ shared_ptr<MeshPrimitive> MakeCubeMeshPrimitive(shared_ptr<Material> material = 
     else
     {
         primitive->material = make_shared<Material>();
-        primitive->material->shader = MakeShaderFromPresetDir("default");
+        primitive->material->shader = MakeShader();
     }
     primitive->indices = {
         2, 4, 9,
@@ -244,7 +244,7 @@ shared_ptr<MeshPrimitive> MakeCapsulePrimitive(shared_ptr<Material> material = s
     else
     {
         primitive->material = make_shared<Material>();
-        primitive->material->shader = MakeShaderFromPresetDir("default");
+        primitive->material->shader = MakeShader();
     }
     primitive->indices = {
         78, 77, 5,

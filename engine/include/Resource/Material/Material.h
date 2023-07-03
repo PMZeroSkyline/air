@@ -50,9 +50,13 @@ public:
             shader->SetInt(pair.first, textureUnit);
             textureUnit++;
         }
-        shader->SetInt("bMask", alphaMode == MaterialAlphaMode::MASK);
-        
-        
     }
 };
+
+shared_ptr<Material> MakeMaterial(const string& shaderName)
+{
+    shared_ptr<Material> material = make_shared<Material>();
+    material->shader = MakeShader(shaderName);
+    return material;
+}
 #endif

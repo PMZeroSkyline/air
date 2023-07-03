@@ -25,21 +25,26 @@ public:
 	unsigned int vertexArrayID = -1;
 	unsigned int arrayBufferID = -1;
 	unsigned int elementArrayBufferID = -1;
-	unsigned int frameBufferID = -1;
+	unsigned int frameBufferID = 0;
 	unsigned int renderBufferID = -1;
 
 	void BindFrameBuffer()
 	{
-		glBindFramebuffer(GL_FRAMEBUFFER, 0);
-		frameBufferID = 0;
+		if (frameBufferID != 0)
+		{
+			glBindFramebuffer(GL_FRAMEBUFFER, 0);
+			frameBufferID = 0;
+		}
 	}
 	void ClearColor(float x, float y, float z, float w)
 	{
+		BindFrameBuffer();
 		glClearColor(x, y, z, w);
 	}
 	void Clear(GLbitfield mask)
 	{
-		glClear(mask);  
+		BindFrameBuffer();
+		glClear(mask);
 	}
 	void SetCullFace(bool isEnable)
 	{
@@ -215,12 +220,12 @@ public:
 		glTexParameteri(GetTarget(), GL_TEXTURE_MIN_FILTER, min_filter);
 		glTexParameteri(GetTarget(), GL_TEXTURE_MAG_FILTER, mag_filter);
 	}
-	void Image2D(GLenum target, GLint internalformat, GLsizei width, GLsizei height, GLenum format, GLenum type, const void *pixels)
+	void TexImage2D(GLenum target, GLint level, GLint internalformat, GLsizei width, GLsizei height, GLint border, GLenum format, GLenum type, const void *pixels)
 	{
 		Bind();
 		glTexImage2D(target,0,internalformat,width,height,0,format,type,pixels);
 	}
-	void Image2D(GLenum target, int width, int height, int channel, unsigned char* data = nullptr, float* hdrData = nullptr, bool isGenMipmap = true)
+	void Image2D(GLenum target, GLint level, GLsizei width, GLsizei height, GLint border, int channel, unsigned char* data = nullptr, float* hdrData = nullptr, bool isGenMipmap = true)
     {
         GLenum format = GL_RGBA;
         if (channel == 1)
@@ -233,11 +238,11 @@ public:
         }
         if (data)
         {
-            Image2D(target, format, width, height, format, GL_UNSIGNED_BYTE, data);
+            TexImage2D(target, level, format, width, height, border, format, GL_UNSIGNED_BYTE, data);
         }
         else if (hdrData)
         {
-            Image2D(target, format, width, height, format, GL_FLOAT, hdrData);
+            TexImage2D(target, level, format, width, height, border, format, GL_FLOAT, hdrData);
         }
         else
         {
@@ -248,10 +253,6 @@ public:
             GenMipmap();
         }
     }
-	void Image2D(int width, int height, int channel, unsigned char* data = nullptr, float* hdrData = nullptr, bool isGenMipmap = true)
-	{
-		Image2D(GetTarget(), width, height, channel, data, hdrData, isGenMipmap);
-	}
 	void GenMipmap()
 	{
 		Bind();
@@ -496,6 +497,17 @@ public:
 		Bind();
 		glDrawBuffers(attachments.size(), &(attachments[0]));
 	}
+	void DrawColorBuffers(unsigned int size)
+	{
+		Bind();
+		vector<unsigned int> attachments;
+		attachments.resize(size);
+		for (int i = 0; i < size; i++)
+		{
+			attachments[i] = GL_COLOR_ATTACHMENT0 + i;
+		}
+		DrawBuffers(attachments);
+	}
 	void DrawBuffer(GLenum buf)
 	{
 		Bind();
@@ -505,6 +517,16 @@ public:
     {
 		Bind();
 		glReadBuffer(src);
+	}
+	void ClearColor(float x, float y, float z, float w)
+	{
+		Bind();
+		glClearColor(x, y, z, w);
+	}
+	void Clear(GLbitfield mask)
+	{
+		Bind();
+		glClear(mask);
 	}
 };
 class GLRenderBuffer
@@ -531,7 +553,7 @@ public:
 			glContext.renderBufferID = id;
 		}
 	}
-	void SetStorage(GLenum internalformat, GLsizei width, GLsizei height)
+	void Storage(GLenum internalformat, GLsizei width, GLsizei height)
 	{
 		Bind();
 		glRenderbufferStorage(GL_RENDERBUFFER, internalformat, width, height);

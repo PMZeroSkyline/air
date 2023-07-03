@@ -49,8 +49,7 @@ public:
 
         s->SetVec3("viewPos", input->viewPos);
         s->SetVec3("lightDir", input->lightDir);
-    	s->SetBool("isSkin", false);
-
+    	s->SetBool("bSkin", skinInstance ? true : false);
     	if (skinInstance)
     	{
     		Skin* skin = skinInstance->skin;
@@ -64,6 +63,7 @@ public:
     			s->SetMat4("J[" + to_string(i) + "]", B);
     		}
     	}
+        s->SetInt("bMask", material->alphaMode == MaterialAlphaMode::MASK);
         material->SetUniform();
     	material->ResetRenderContext();
     	meshPrimitive->Draw();
@@ -109,7 +109,20 @@ void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& r
         }
     });
 }
-
+shared_ptr<GLTexture2D> MakeUByteNearestTex(ivec2 size)
+{
+    shared_ptr<GLTexture2D> t = make_shared<GLTexture2D>();
+    t->TexImage2D(t->GetTarget(), 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    t->Filters(GL_NEAREST, GL_NEAREST);
+    return t;
+}
+shared_ptr<GLTexture2D> MakeFloatNearestTex(ivec2 size)
+{
+    shared_ptr<GLTexture2D> t = make_shared<GLTexture2D>();
+    t->TexImage2D(t->GetTarget(), 0, GL_RGBA16F, size.x, size.y, 0, GL_RGBA, GL_FLOAT, NULL);
+    t->Filters(GL_NEAREST, GL_NEAREST);
+    return t;
+}
 class Render
 {
 public:
@@ -117,35 +130,55 @@ public:
     map<MaterialAlphaMode, vector<RenderPrimitive>> renderPrimitiveMap;
     RenderInput input;
 
+    shared_ptr<GLTexture2D> gColor;
+    shared_ptr<GLTexture2D> gPosition;
+    shared_ptr<GLTexture2D> gNormal;
+    GLRenderBuffer gDepth;
+    GLFrameBuffer gBuffer;
+
+    shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive(MakeMaterial("screen"));
+
     Render()
     {
-        // glDisable(GL_BLEND);
-        // glEnable(GL_DEPTH_TEST);
-        // glDepthMask(GL_TRUE);
-        // glEnable(GL_CULL_FACE);
+        ivec2 size = window->GetFrameBufferSize();
+        gPosition = MakeFloatNearestTex(size);
+        gNormal = MakeFloatNearestTex(size);
+        gColor = MakeUByteNearestTex(size);
+        gBuffer.DrawColorBuffers(3);
+        gDepth.Storage(GL_DEPTH_COMPONENT, size.x, size.y);
+        gBuffer.Texture2D(GL_COLOR_ATTACHMENT0, gPosition->id);
+        gBuffer.Texture2D(GL_COLOR_ATTACHMENT1, gNormal->id);
+        gBuffer.Texture2D(GL_COLOR_ATTACHMENT2, gColor->id);
+        gBuffer.Renderbuffer(GL_DEPTH_ATTACHMENT, gDepth.id);
+        LOG(gBuffer.IsComplete())
     }
     void Load(Actor* root)
     {
         RenderQuery(root, renderPrimitiveMap, input);
-        
     }
     void Draw()
     {
         input.Reset();
         
-        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    	for (int i = 0; i != renderPrimitiveMap[MaterialAlphaMode::OPAQUE].size(); i++)
+        gBuffer.ClearColor(0.f, 0.f, 0.f, 0.f);
+        gBuffer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    	for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::OPAQUE])
         {
-            renderPrimitiveMap[MaterialAlphaMode::OPAQUE][i].Draw();
+            rp.Draw();
         }
         for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::MASK])
         {
             rp.Draw();
         }
-        for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::BLEND])
-        {
-            rp.Draw();
-        }
+        
+        glContext.ClearColor(0.f, 0.f, 0.f, 0.f);
+        glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        quad->material->textureMap["tB"] = gColor.get();
+        quad->material->textureMap["tP"] = gPosition.get();
+        quad->material->textureMap["tN"] = gNormal.get();
+        quad->material->shader->Use();
+        quad->material->SetUniform();
+        quad->Draw();
     }
     
 };

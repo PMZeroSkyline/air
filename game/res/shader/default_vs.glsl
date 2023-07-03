@@ -1,13 +1,18 @@
 #version 330 core
+// layout (location = 0) in vec3 POSITION;
+// layout (location = 1) in vec3 NORMAL;
+// layout (location = 2) in vec4 TANGENT;
+// layout (location = 3) in vec2 TEXCOORD_0;
+// layout (location = 4) in vec2 TEXCOORD_1;
+// layout (location = 5) in vec2 TEXCOORD_2;
+// layout (location = 6) in vec2 TEXCOORD_3;
+// layout (location = 7) in vec4 JOINTS_0;
+// layout (location = 8) in vec4 WEIGHTS_0;
 layout (location = 0) in vec3 POSITION;
 layout (location = 1) in vec3 NORMAL;
-layout (location = 2) in vec4 TANGENT;
-layout (location = 3) in vec2 TEXCOORD_0;
-layout (location = 4) in vec2 TEXCOORD_1;
-layout (location = 5) in vec2 TEXCOORD_2;
-layout (location = 6) in vec2 TEXCOORD_3;
-layout (location = 7) in vec4 JOINTS_0;
-layout (location = 8) in vec4 WEIGHTS_0;
+layout (location = 2) in vec2 TEXCOORD_0;
+layout (location = 3) in vec4 JOINTS_0;
+layout (location = 4) in vec4 WEIGHTS_0;
 
 uniform mat4 M;
 uniform mat4 V;

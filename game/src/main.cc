@@ -39,11 +39,11 @@ int main(int argc, char** argv)
 	world->ResetWorldMatrix();
 
 	Render render;
+	render.Load(world.get());
 	
 	while (window.IsOpen())
 	{
 		window.Tick();
-		render.Load(world.get());
 		render.Draw();
 		world->ResetWorldMatrix();
 		world->Tick();

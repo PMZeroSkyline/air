@@ -15,6 +15,7 @@
 #include <functional>
 #include <algorithm>
 #include <sstream>
+#include <random>
 using std::cout;
 using std::endl;
 using std::begin;
@@ -50,7 +51,8 @@ namespace fs = std::filesystem;
 using std::initializer_list;
 using std::function;
 using std::sort;
-
+using std::uniform_real_distribution;
+using std::default_random_engine;
 
 #define IsSharedType(sp, type) auto& r = *sp.get(); typeid(r) == typeid(type)
 #define IsType(p, type) typeid(*p) == typeid(type)

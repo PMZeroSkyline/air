@@ -29,7 +29,7 @@ public:
         for (int i = 0; i < images.size(); i++)
         {
             shared_ptr<Image>& image = images[i];
-            glTextureCube.Image2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, image->width, image->height, image->channel, image->data, image->hdrData, isGenMipmap);
+            glTextureCube.Image2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, 0, image->width, image->height, 0, image->channel, image->data, image->hdrData, isGenMipmap);
         }
     }
     void Load(const vector<string> paths)

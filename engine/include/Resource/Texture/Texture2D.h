@@ -16,7 +16,7 @@ public:
     }
     void SetupImage2D(bool isGenMipmap = true)
     {
-        glTexture2D.Image2D(image->width, image->height, image->channel, image->data, image->hdrData, isGenMipmap);
+        glTexture2D.Image2D(glTexture2D.GetTarget(), 0, image->width, image->height, 0, image->channel, image->data, image->hdrData, isGenMipmap);
     }
 };
 

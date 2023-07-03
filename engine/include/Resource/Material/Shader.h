@@ -75,7 +75,7 @@ public:
 };
 WeakMap<Shader> shaderWeakMap;
 
-shared_ptr<Shader> MakeShaderFromPresetDir(const string& name)
+shared_ptr<Shader> MakeShader(const string& name = "gbuffer")
 {
     shared_ptr<Shader> shader = shaderWeakMap.Get(name);
     if (!shader)

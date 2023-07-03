@@ -175,7 +175,7 @@ shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Text
     const gltf::Material* gMaterial = &GLTF.materials[index];
     shared_ptr<Material> material = make_shared<Material>();
     material->name = gMaterial->name;
-    material->shader = MakeShaderFromPresetDir("default");
+    material->shader = MakeShader();
     material->alphaMode =   gMaterial->alphaMode == "OPAQUE" ? MaterialAlphaMode::OPAQUE : 
                             gMaterial->alphaMode == "MASK" ? MaterialAlphaMode::MASK : 
                             gMaterial->alphaMode == "BLEND" ? MaterialAlphaMode::BLEND : MaterialAlphaMode::OPAQUE;
@@ -303,7 +303,7 @@ shared_ptr<Mesh> LoadMesh(const gltf::glTF& GLTF, const string& dir, vector<shar
         else
         {
             primitive->material = make_shared<Material>();
-            primitive->material->shader = MakeShaderFromPresetDir("default");
+            primitive->material->shader = MakeShader();
         }
         primitive->SetupGLPrimitive();
     }
