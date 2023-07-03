@@ -23,52 +23,67 @@ public:
         fsShader.Compile(fsStr.c_str(), "fs compile failed : " + fsPath + " : \n");
         glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + "," + fsPath + " : \n");
     }
-    void Use()
+    void Use() const
     {
-        glUseProgram(glProgram.id);
+        if (glContext.programID != glProgram.id)
+        {
+            glUseProgram(glProgram.id);
+            glContext.programID = glProgram.id;
+        }
     }
     void SetBool(const string &name, bool value) const
     {         
+        Use();
         glUniform1i(glGetUniformLocation(glProgram.id, name.c_str()), (int)value); 
     }
     void SetInt(const string &name, int value) const
     { 
+        Use();
         glUniform1i(glGetUniformLocation(glProgram.id, name.c_str()), value); 
     }
     void SetFloat(const string &name, float value) const
     { 
+        Use();
         glUniform1f(glGetUniformLocation(glProgram.id, name.c_str()), value); 
     }
     void SetVec2(const string &name, const vec2 &value) const
     { 
+        Use();
         glUniform2fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, &value[0]); 
     }
     void SetVec2(const string &name, float x, float y) const
     { 
+        Use();
         glUniform2f(glGetUniformLocation(glProgram.id, name.c_str()), x, y); 
     }
     void SetVec3(const string &name, const vec3 &value) const
     { 
+        Use();
         glUniform3fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, &value[0]); 
     }
     void SetVec3(const string &name, float x, float y, float z) const
     { 
+        Use();
         glUniform3f(glGetUniformLocation(glProgram.id, name.c_str()), x, y, z); 
     }
     void SetVec4(const string &name, const vec4 &value) const
     { 
+        Use();
         glUniform4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, &value[0]); 
     }
     void SetVec4(const string &name, float x, float y, float z, float w) const
     { 
+        Use();
         glUniform4f(glGetUniformLocation(glProgram.id, name.c_str()), x, y, z, w); 
     }
     void SetMat4(const string &name, const mat4 &mat) const
     {
+        Use();
         glUniformMatrix4fv(glGetUniformLocation(glProgram.id, name.c_str()), 1, GL_TRUE, &mat[0][0]);
     }
     void BindUniformBlock(const string& shaderUniformBlockName, GLuint uniformBlockIndex)
     {
+        Use();
         unsigned int shaderBlockIndex = glGetUniformBlockIndex(glProgram.id, shaderUniformBlockName.c_str());
         glUniformBlockBinding(glProgram.id, uniformBlockIndex, shaderBlockIndex);
     }

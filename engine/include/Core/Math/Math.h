@@ -35,14 +35,30 @@ void NormalOrientedHemisphere(int count, vector<vec3>& out)
     {
         float scale = (float)i / (float)count;
         scale = lerp(.1f, 1.f, scale * scale);
-        vec3 v(d(e) * 2.0f - 1.0f, d(e) * 2.0f - 1.0f, d(e));
-        out[i] = v.normalize() * d(e) * scale;;
+        vec3 v(d(e)*2.f-1.f, d(e)*2.f-1.f, d(e));
+        out[i] = v.normalize() * d(e) * scale;
     }
+}
+void RandomKernel2D(int count, vector<vec3>& out)
+{
+    uniform_real_distribution<float> d(0.f, 1.f);
+    default_random_engine e;
+    out.resize(count);
+    for (unsigned int i = 0; i < count; i++)
+    {
+        out[i] = vec3(d(e)*2.f-1.f, d(e)*2.f-1.f, 0.f);
+    }  
 }
 vector<vec3> NormalOrientedHemisphere(int count)
 {
     vector<vec3> out;
     NormalOrientedHemisphere(count, out);
+    return out;
+}
+vector<vec3> RandomKernel2D(int count)
+{
+    vector<vec3> out;
+    RandomKernel2D(count, out);
     return out;
 }
 

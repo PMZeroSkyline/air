@@ -9,7 +9,7 @@
 
 #include "Resource/Texture/TextureCube.h"
 
-class RenderInput
+class RenderUniform
 {
 public:
     CameraComponent* cameraComponent = nullptr;
@@ -35,7 +35,7 @@ public:
     SkinInstance* skinInstance = nullptr;
     Material* material = nullptr;
 
-    RenderInput* input = nullptr;
+    RenderUniform* uniform = nullptr;
 
     
 	
@@ -44,11 +44,11 @@ public:
         shared_ptr<Shader> s = material->shader;
     	s->Use();
     	s->SetMat4("M", *worldMatrix);
-    	s->SetMat4("V", input->V);
-    	s->SetMat4("P", input->P);
+    	s->SetMat4("V", uniform->V);
+    	s->SetMat4("P", uniform->P);
 
-        s->SetVec3("viewPos", input->viewPos);
-        s->SetVec3("lightDir", input->lightDir);
+        s->SetVec3("viewPos", uniform->viewPos);
+        s->SetVec3("lightDir", uniform->lightDir);
     	s->SetBool("bSkin", skinInstance ? true : false);
     	if (skinInstance)
     	{
@@ -70,11 +70,11 @@ public:
     }
 };
 
-void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& renderPrimitiveMap, RenderInput& input)
+void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& renderPrimitiveMap, RenderUniform& uniform)
 {
-    input.cameraComponent = nullptr;
+    uniform.cameraComponent = nullptr;
     renderPrimitiveMap.clear();
-    root->RForEachNode<Actor>([&renderPrimitiveMap, &input](Actor* actor){
+    root->RForEachNode<Actor>([&renderPrimitiveMap, &uniform](Actor* actor){
         MeshComponent* mc = actor->GetComponent<MeshComponent>();
         if (mc)
         {
@@ -87,7 +87,7 @@ void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& r
                 rp.meshPrimitive = meshPrimitive.get();
                 rp.material = meshPrimitive->material.get();
                 rp.skinInstance = sc ? sc->skinInstance : nullptr;
-                rp.input = &input;
+                rp.uniform = &uniform;
                 if (owner)
                 {
                     rp.worldMatrix = &owner->worldMatrix;
@@ -99,28 +99,22 @@ void RenderQuery(Actor* root, map<MaterialAlphaMode, vector<RenderPrimitive>>& r
                 renderPrimitiveMap[rp.material->alphaMode].push_back(rp);
             }
         }
-        if (!input.cameraComponent)
+        if (!uniform.cameraComponent)
         {
             CameraComponent* cameraComponent = actor->GetComponent<CameraComponent>();
             if (cameraComponent)
             {
-                input.cameraComponent = cameraComponent;
+                uniform.cameraComponent = cameraComponent;
             }
         }
     });
 }
-shared_ptr<GLTexture2D> MakeUByteNearestTex(ivec2 size)
+shared_ptr<GLTexture2D> MakeTexture(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE, const void *pixels = NULL, GLint border = 0)
 {
     shared_ptr<GLTexture2D> t = make_shared<GLTexture2D>();
-    t->TexImage2D(t->GetTarget(), 0, GL_RGBA, size.x, size.y, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+    t->TexImage2D(t->GetTarget(), 0, internalformat, width, height, 0, format, type, pixels);
     t->Filters(GL_NEAREST, GL_NEAREST);
-    return t;
-}
-shared_ptr<GLTexture2D> MakeFloatNearestTex(ivec2 size)
-{
-    shared_ptr<GLTexture2D> t = make_shared<GLTexture2D>();
-    t->TexImage2D(t->GetTarget(), 0, GL_RGBA16F, size.x, size.y, 0, GL_RGBA, GL_FLOAT, NULL);
-    t->Filters(GL_NEAREST, GL_NEAREST);
+    t->WrapST(GL_REPEAT, GL_REPEAT);
     return t;
 }
 class Render
@@ -128,7 +122,7 @@ class Render
 public:
     Window* window = GetCurrentWindowContext();
     map<MaterialAlphaMode, vector<RenderPrimitive>> renderPrimitiveMap;
-    RenderInput input;
+    RenderUniform uniform;
 
     shared_ptr<GLTexture2D> gColor;
     shared_ptr<GLTexture2D> gPosition;
@@ -136,29 +130,41 @@ public:
     GLRenderBuffer gDepth;
     GLFrameBuffer gBuffer;
 
+    // SSAO
+    shared_ptr<GLTexture2D> tNoise;
+    shared_ptr<GLTexture2D> tSSAO;
+    GLFrameBuffer ssaoBuffer;
+    shared_ptr<Material> mSSAO;
+
+
     shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive(MakeMaterial("screen"));
 
     Render()
     {
-        ivec2 size = window->GetFrameBufferSize();
-        gPosition = MakeFloatNearestTex(size);
-        gNormal = MakeFloatNearestTex(size);
-        gColor = MakeUByteNearestTex(size);
+        ivec2 s = window->GetFrameBufferSize();
+        gPosition = MakeTexture(s.x, s.y, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+        gNormal = MakeTexture(s.x, s.y, GL_RGBA16F, GL_RGBA, GL_FLOAT);
+        gColor = MakeTexture(s.x, s.y, GL_RGBA16F, GL_RGBA, GL_FLOAT);
         gBuffer.DrawColorBuffers(3);
-        gDepth.Storage(GL_DEPTH_COMPONENT, size.x, size.y);
+        gDepth.Storage(GL_DEPTH_COMPONENT, s.x, s.y);
         gBuffer.Texture2D(GL_COLOR_ATTACHMENT0, gPosition->id);
         gBuffer.Texture2D(GL_COLOR_ATTACHMENT1, gNormal->id);
         gBuffer.Texture2D(GL_COLOR_ATTACHMENT2, gColor->id);
         gBuffer.Renderbuffer(GL_DEPTH_ATTACHMENT, gDepth.id);
-        LOG(gBuffer.IsComplete())
+        
+        vector<vec3> ssaoNoise = RandomKernel2D(16);
+        tNoise = MakeTexture(4, 4, GL_RGBA16F, GL_RGB, GL_FLOAT, &ssaoNoise[0]);
+        tSSAO = MakeTexture(s.x, s.y, GL_RED, GL_RED, GL_FLOAT);
+        ssaoBuffer.Texture2D(GL_COLOR_ATTACHMENT0, tSSAO->id);
+        mSSAO = MakeMaterial("ssao");
     }
     void Load(Actor* root)
     {
-        RenderQuery(root, renderPrimitiveMap, input);
+        RenderQuery(root, renderPrimitiveMap, uniform);
     }
     void Draw()
     {
-        input.Reset();
+        uniform.Reset();
         
         gBuffer.ClearColor(0.f, 0.f, 0.f, 0.f);
         gBuffer.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -170,15 +176,25 @@ public:
         {
             rp.Draw();
         }
-        
         glContext.ClearColor(0.f, 0.f, 0.f, 0.f);
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-        quad->material->textureMap["tB"] = gColor.get();
-        quad->material->textureMap["tP"] = gPosition.get();
-        quad->material->textureMap["tN"] = gNormal.get();
-        quad->material->shader->Use();
-        quad->material->SetUniform();
+        //ssaoBuffer.Clear(GL_COLOR_BUFFER_BIT);
+        mSSAO->textureMap["tNoise"] = tNoise.get();
+        mSSAO->textureMap["tP"] = gPosition.get();
+        mSSAO->textureMap["tN"] = gNormal.get();
+        mSSAO->shader->SetMat4("P", uniform.P);
+        mSSAO->shader->SetFloat("time", window->time);
+        mSSAO->SetUniform();
         quad->Draw();
+        
+        // glContext.ClearColor(0.f, 0.f, 0.f, 0.f);
+        // glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        // quad->material->textureMap["tB"] = gColor.get();
+        // quad->material->textureMap["tP"] = gPosition.get();
+        // quad->material->textureMap["tN"] = gNormal.get();
+        // quad->material->shader->Use();
+        // quad->material->SetUniform();
+        // quad->Draw();
     }
     
 };

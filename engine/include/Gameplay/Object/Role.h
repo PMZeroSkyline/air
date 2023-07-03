@@ -210,8 +210,8 @@ public:
         shared_ptr<Capsule> sCapsule = make_shared<Capsule>();
         cCollision->shape = sCapsule;
 
-        sModel->Load("game/res/Model/People/Aurelia/Aurelia.gltf");
-        // sModel->Load("game/res/Model/People/S09/S09.gltf");
+        // sModel->Load("game/res/Model/People/Aurelia/Aurelia.gltf");
+        sModel->Load("game/res/Model/People/S09/S09.gltf");
         sModel->FieldExpand();
         //cPlayer->animInsts = &sModel->animationInstances;
         

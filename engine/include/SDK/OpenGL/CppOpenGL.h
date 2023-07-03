@@ -21,12 +21,14 @@ public:
     bool cullFace = false;
     GLenum frontAndBackFacePolygonMode = GL_FILL;
 
-	unsigned int textureID = -1;
-	unsigned int vertexArrayID = -1;
-	unsigned int arrayBufferID = -1;
-	unsigned int elementArrayBufferID = -1;
-	unsigned int frameBufferID = 0;
-	unsigned int renderBufferID = -1;
+	GLuint textureID = -1;
+	GLuint vertexArrayID = -1;
+	GLuint arrayBufferID = -1;
+	GLuint elementArrayBufferID = -1;
+	GLuint frameBufferID = 0;
+	GLuint renderBufferID = -1;
+
+	GLuint programID = -1;
 
 	void BindFrameBuffer()
 	{
@@ -122,7 +124,7 @@ GLContext glContext;
 class GLShader
 {
 public:
-	unsigned int id=-1;
+	GLuint id=-1;
 	GLShader(GLenum t)
 	{
 		id = glCreateShader(t);
@@ -150,7 +152,7 @@ public:
 class GLProgram
 {
 public:
-	unsigned int id=-1;
+	GLuint id=-1;
 	GLProgram()
 	{
 		id = glCreateProgram();
@@ -159,7 +161,7 @@ public:
 	{
 		glDeleteProgram(id);
 	}
-	bool Link(unsigned int a, unsigned int b, const string& error)
+	bool Link(GLuint a, GLuint b, const string& error)
 	{
 		glAttachShader(id, a);
 		glAttachShader(id, b);
@@ -179,7 +181,7 @@ public:
 class GLTexture
 {
 public:
-	unsigned int id = -1;
+	GLuint id = -1;
 	virtual GLenum GetTarget() = 0;
 	GLTexture()
 	{
@@ -283,7 +285,7 @@ public:
 class GLVertexArray
 {
 public:
-	unsigned int id;
+	GLuint id;
 	GLVertexArray()
 	{
 		glGenVertexArrays(1, &id);
@@ -308,7 +310,7 @@ public:
 class GLBuffer
 {
 public:
-	unsigned int id;
+	GLuint id;
 	GLBuffer()
 	{
 		glGenBuffers(1, &id);
@@ -456,7 +458,7 @@ public:
 class GLFrameBuffer
 {
 public:
-	unsigned int id;
+	GLuint id;
 	GLFrameBuffer()
 	{
 		glGenFramebuffers(1, &id);
@@ -492,15 +494,15 @@ public:
 		Bind();
 		glFramebufferRenderbuffer(GL_FRAMEBUFFER, attachment, GL_RENDERBUFFER, renderbuffer);
 	}
-	void DrawBuffers(vector<unsigned int>& attachments)
+	void DrawBuffers(vector<GLuint>& attachments)
 	{
 		Bind();
 		glDrawBuffers(attachments.size(), &(attachments[0]));
 	}
-	void DrawColorBuffers(unsigned int size)
+	void DrawColorBuffers(GLuint size)
 	{
 		Bind();
-		vector<unsigned int> attachments;
+		vector<GLuint> attachments;
 		attachments.resize(size);
 		for (int i = 0; i < size; i++)
 		{
@@ -532,7 +534,7 @@ public:
 class GLRenderBuffer
 {
 public:
-	unsigned int id;
+	GLuint id;
 	GLRenderBuffer()
 	{
 		glGenRenderbuffers(1, &id);

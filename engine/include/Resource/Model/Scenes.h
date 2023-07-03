@@ -344,7 +344,6 @@ public:
         {
             LoadScene(scenes[i], GLTF, i);
         }
-        
         for (int i = 0; i < GLTF.textures.size(); i++)
         {
             texture2Ds[i] = LoadTexture2D(GLTF, dir, i);
@@ -357,7 +356,6 @@ public:
         {
             meshs[i] = LoadMesh(GLTF, dir, materials, i);
         }
-
         for (int i = 0; i < GLTF.nodes.size(); i++)
         {
             LoadSceneNode(nodes[i], GLTF, i);
