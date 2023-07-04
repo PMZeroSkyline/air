@@ -33,8 +33,8 @@ int main(int argc, char** argv)
 	// GenSandbox(world.get());
 	Actor* aScene = world->AddChild<Actor>();
 	ScenesComponent* cScenes = aScene->AddComponent<ScenesComponent>();
-	//cScenes->Load("game\\res\\Model\\Architecture\\Warzone\\kb3d_warzone-native.gltf");
-	//cScenes->FieldExpand();
+	cScenes->Load("game/res/Model/Architecture/Warzone/kb3d_warzone-native.gltf");
+	cScenes->FieldExpand();
 	aScene->isTick = false;
 
 	Role* role = world->AddChild<Role>();

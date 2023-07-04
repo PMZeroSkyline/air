@@ -21,8 +21,6 @@ public:
     // Params
     float alphaCutoff = 0.5f;
     map<string, GLTexture*> textureMap;
-    map<string, mat4> matrixMap;
-    map<string, vector<mat4>> matricesMap;
 
     // Render Context
     MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;

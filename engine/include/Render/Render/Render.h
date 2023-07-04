@@ -136,7 +136,7 @@ public:
     GLFrameBuffer ssaoBuffer;
     shared_ptr<Material> mSSAO;
 
-
+    vector<vec3> randomSphere;
     shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive(MakeMaterial("screen"));
 
     Render()
@@ -157,6 +157,7 @@ public:
         tSSAO = MakeTexture(s.x, s.y, GL_RED, GL_RED, GL_FLOAT);
         ssaoBuffer.Texture2D(GL_COLOR_ATTACHMENT0, tSSAO->id);
         mSSAO = MakeMaterial("ssao");
+        randomSphere = RandomSphere(64);
     }
     void Load(Actor* root)
     {
@@ -179,11 +180,17 @@ public:
         glContext.ClearColor(0.f, 0.f, 0.f, 0.f);
         glContext.Clear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
         //ssaoBuffer.Clear(GL_COLOR_BUFFER_BIT);
-        mSSAO->textureMap["tNoise"] = tNoise.get();
+    
+        mSSAO->textureMap["tB"] = gColor.get();
         mSSAO->textureMap["tP"] = gPosition.get();
         mSSAO->textureMap["tN"] = gNormal.get();
+        mSSAO->shader->SetMat4("V", uniform.V);
         mSSAO->shader->SetMat4("P", uniform.P);
-        mSSAO->shader->SetFloat("time", window->time);
+        mSSAO->shader->SetVec3("viewPos", uniform.viewPos);
+        for (size_t i = 0; i < randomSphere.size(); i++)
+        {
+            mSSAO->shader->SetVec3("rands["+to_string(i)+"]", randomSphere[i]);
+        }
         mSSAO->SetUniform();
         quad->Draw();
         

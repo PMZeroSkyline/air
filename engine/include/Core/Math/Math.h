@@ -61,5 +61,16 @@ vector<vec3> RandomKernel2D(int count)
     RandomKernel2D(count, out);
     return out;
 }
-
+vector<vec3> RandomSphere(int count)
+{
+    vector<vec3> out;
+    out.resize(count);
+    uniform_real_distribution<float> d(0.f, 1.f);
+    default_random_engine e;
+    for (size_t i = 0; i < count; i++)
+    {
+        out[i] = vec3(d(e), d(e), d(e));
+    }
+    return out;
+}
 #endif
