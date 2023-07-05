@@ -77,6 +77,19 @@ class Render
 public:
     map<MaterialAlphaMode, vector<RenderPrimitive>> renderPrimitiveMap;
 
+    mat4 V;
+    mat4 P;
+    vec3 viewPos;
+    CameraComponent* cCamera = nullptr;
+    
+    mat4 lV;
+    mat4 lP;
+    vec3 lightDir;
+    shared_ptr<Actor> aLight = make_shared<Actor>();
+    CameraComponent* cLight = aLight->AddComponent<CameraComponent>();
+
+    shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
+
     Window* window = GetCurrentWindowContext();
     ivec2 size = window->GetFrameBufferSize();
 
@@ -92,23 +105,8 @@ public:
     shared_ptr<Material> mShadow = MakeMaterial(MakeShader());
 
     bool isSoftSSSM = false;
-    GLFrameBuffer gSSSM;
-    shared_ptr<GLTexture2D> tSSSM =  MakeTexture2D(size.x, size.y, GL_RED, GL_RED, GL_UNSIGNED_BYTE);
-    vector<vec3> randPoints = RandomUnitSphere(64);
+    vector<vec3> randPoints = RandomUnitSphere(512);
 
-    mat4 V;
-    mat4 P;
-    vec3 viewPos;
-    CameraComponent* cCamera = nullptr;
-    
-    mat4 lV;
-    mat4 lP;
-    vec3 lightDir;
-    shared_ptr<Actor> aLight = make_shared<Actor>();
-    CameraComponent* cLight = aLight->AddComponent<CameraComponent>();
-    
-    shared_ptr<MeshPrimitive> quad = MakeQuadMeshPrimitive();
-    shared_ptr<Material> mSSSM = MakeMaterial(MakeShader("sssm"));
     shared_ptr<Material> mScreen = MakeMaterial(MakeShader("screen"));
 
     Render()
@@ -128,8 +126,8 @@ public:
         gShadow.ReadBuffer(GL_NONE);
 
         aLight->localTransform.translation = vec3(0.f, 0.f, 25.f);
-        aLight->localTransform.rotation = EulerToQuat(vec3(-85.f, 0.f, 4.f));
-        aLight->ResetWorldMatrix();
+        aLight->localTransform.rotation = EulerToQuat(vec3(-85.f, 0.f, 0.f));
+        aLight->ResetWorldMatrix(true);
         shared_ptr<OrthographicCamera> shadowCamera = make_shared<OrthographicCamera>();
         shadowCamera->zfar = 50.f;
         shadowCamera->xmag = 25.f;
@@ -148,24 +146,21 @@ public:
     }
     void Draw()
     {
-        
         Actor* aCamera = ((Actor*)cCamera->owner);
         V = RightHandZUpToYUpProjection() * aCamera->worldMatrix.inverse();
         P = cCamera->camera->GetProjectioMatrix();
         viewPos = ToVec3(aCamera->worldMatrix.column(3));
 
-        Actor* aLight = ((Actor*)cLight->owner);
+
         lV = RightHandZUpToYUpProjection() * aLight->worldMatrix.inverse();
         lP = cLight->camera->GetProjectioMatrix();
         lightDir = -aLight->GetRightVector();
 
         glContext.Viewport(0, 0, shadowSize, shadowSize);
         gShadow.Clear(GL_DEPTH_BUFFER_BIT);
-        glContext.SetCullFace(true);
-        glContext.CullFace(GL_FRONT);
         for (auto& rp : renderPrimitiveMap[MaterialAlphaMode::OPAQUE])
         {
-            mShadow->SetTransformationUniform(*rp.worldMatrix, lV,lP);
+            mShadow->SetTransformationUniform(*rp.worldMatrix, lV, lP);
             SetSkinUniform(mShadow->shader, rp.skinInstance, rp.parentWorldMatrix);
             mShadow->SetMaterialAlphaModeUniform();
             rp.meshPrimitive->Draw();
@@ -177,7 +172,6 @@ public:
             mShadow->SetMaterialAlphaModeUniform();
             rp.meshPrimitive->Draw();
         }
-        glContext.CullFace(GL_BACK);
         glContext.Viewport(0, 0, size.x, size.y);
         
         gBuffer.ClearColor(0.f, 0.f, 0.f, 0.f);
@@ -209,12 +203,12 @@ public:
         mScreen->textureMap["tN"] = tNormal.get();
         mScreen->textureMap["tS"] = tShadow.get();
         mScreen->textureMap["tD"] = tDepth.get();
+        mScreen->SetTexturesUniform();
         mScreen->vec3sMap["randPoints"] = &randPoints;
+        mScreen->SetVec3sUniform();
         mScreen->shader->SetMat4("lVP", lP * lV);
         mScreen->shader->SetVec3("lightDir", lightDir);
         mScreen->shader->SetBool("isUseZeroSkylineVolumeShadow", isSoftSSSM);
-        mScreen->SetTexturesUniform();
-        mScreen->SetVec3sUniform();
         quad->Draw();
         
         // glContext.ClearColor(0.f, 0.f, 0.f, 0.f);

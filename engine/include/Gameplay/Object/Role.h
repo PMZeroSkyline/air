@@ -198,7 +198,7 @@ public:
 
     Role()
     {
-        aCam->localTransform.translation = vec3(-3.14f, 0.f, 0.f);
+        aCam->localTransform.translation = vec3(-1.5f, 0.f, 0.f);
         aCam->localTransform.rotation = EulerToQuat(0.f, 0.f, -90.f);
         aCamArm->localTransform.translation = vec3(0.f, 0.f, 1.25f);
         aCamArm->localTransform.rotation = EulerToQuat(0.f, 0.f, 0.f);
