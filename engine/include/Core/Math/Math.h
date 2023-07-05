@@ -61,15 +61,28 @@ vector<vec3> RandomKernel2D(int count)
     RandomKernel2D(count, out);
     return out;
 }
-vector<vec3> RandomSphere(int count)
+vector<vec3> RandomUnitSphere(int count)
 {
     vector<vec3> out;
-    out.resize(count);
-    uniform_real_distribution<float> d(0.f, 1.f);
+    uniform_real_distribution<float> d(-1.f, 1.f);
     default_random_engine e;
-    for (size_t i = 0; i < count; i++)
+    while (out.size() != count)
     {
-        out[i] = vec3(d(e), d(e), d(e));
+        vec3 v = vec3(d(e), d(e), d(e));
+        if (v.length() <= 1.f)
+        {
+            out.push_back(v);
+        }
+    }
+    return out;
+}
+vector<vec3> Pow(const vector<vec3>& in, float power)
+{
+    vector<vec3> out;
+    out.resize(in.size());
+    for (int i = 0; i < in.size(); i++)
+    {
+        out[i] = Pow(in[i], power);
     }
     return out;
 }

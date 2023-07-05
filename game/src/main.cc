@@ -33,22 +33,23 @@ int main(int argc, char** argv)
 	// GenSandbox(world.get());
 	Actor* aScene = world->AddChild<Actor>();
 	ScenesComponent* cScenes = aScene->AddComponent<ScenesComponent>();
-	cScenes->Load("game/res/Model/Architecture/Warzone/kb3d_warzone-native.gltf");
+	cScenes->Load("game/res/Model/Architecture/Sponza/scene.gltf");
 	cScenes->FieldExpand();
-	aScene->isTick = false;
 
 	Role* role = world->AddChild<Role>();
+	aScene->localTransform.rotation = EulerToQuat(90.f, 0.f, 0.f);
 	world->ResetWorldMatrix();
 
 	Render render;
-	render.Load(world.get());
+	
 	
 	while (window.IsOpen())
 	{
 		window.Tick();
-		render.Draw();
 		world->ResetWorldMatrix();
 		world->Tick();
+		render.Load(world.get());
+		render.Draw();
 		
 		if (window.keys[KEY::ESCAPE].pressDown)
 		{

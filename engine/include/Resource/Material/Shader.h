@@ -17,8 +17,10 @@ public:
         name = "vs:" + vsPath + ",fs:" + fsPath;
         GLShader vsShader(GL_VERTEX_SHADER), fsShader(GL_FRAGMENT_SHADER);
         string vsStr, fsStr;
-        vsStr = PreprocessorFile(vsPath);
-        fsStr = PreprocessorFile(fsPath);
+        // vsStr = PreprocessorFile(vsPath);
+        // fsStr = PreprocessorFile(fsPath);
+        vsStr = StringFromFile(vsPath);
+        fsStr = StringFromFile(fsPath);
         vsShader.Compile(vsStr.c_str(), "vs compile failed : " + vsPath + " : \n");
         fsShader.Compile(fsStr.c_str(), "fs compile failed : " + fsPath + " : \n");
         glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + "," + fsPath + " : \n");

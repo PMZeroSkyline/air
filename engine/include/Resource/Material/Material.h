@@ -21,25 +21,28 @@ public:
     // Params
     float alphaCutoff = 0.5f;
     map<string, GLTexture*> textureMap;
+    map<string, vector<vec3>*> vec3sMap;
 
     // Render Context
     MaterialAlphaMode alphaMode = MaterialAlphaMode::OPAQUE;
     GLenum sfactor = GL_SRC_ALPHA, dfactor = GL_ONE_MINUS_SRC_ALPHA;
-    bool depthTest = true;
-    bool depthMask = true;
+    bool isDepthTest = true;
+    bool isDepthMask = true;
     bool doubleSided = false;
+    GLenum cullFaceMode = GL_BACK;
     GLenum faceMode = GL_FILL;
 
     void ResetRenderContext()
     {
         glContext.SetBlend(alphaMode == MaterialAlphaMode::BLEND);
-        glContext.SetBlendFunc(sfactor, dfactor);
+        glContext.BlendFunc(sfactor, dfactor);
         glContext.SetCullFace(!doubleSided);
-        glContext.SetDepthMask(depthMask);
-        glContext.SetDepthTest(depthTest);
-        glContext.SetPolygon(faceMode);
+        glContext.DepthMask(isDepthMask);
+        glContext.SetDepthTest(isDepthTest);
+        glContext.Polygon(faceMode);
+        glContext.CullFace(cullFaceMode);
     }
-    void SetUniform()
+    void SetTexturesUniform()
     {        
         int textureUnit = 0;
         for (auto const& pair : textureMap)
@@ -49,12 +52,32 @@ public:
             textureUnit++;
         }
     }
+    void SetTransformationUniform(const mat4& M, const mat4& V, const mat4& P)
+    {
+        shader->SetMat4("M", M);
+        shader->SetMat4("V", V);
+        shader->SetMat4("P", P);
+    }
+    void SetMaterialAlphaModeUniform()
+    {
+        shader->SetInt("isMask", alphaMode == MaterialAlphaMode::MASK);
+    }
+    void SetVec3sUniform()
+    {
+        for (const auto& pair : vec3sMap)
+        {
+            for (int i = 0; i < pair.second->size(); i++)
+            {
+                shader->SetVec3(pair.first+"["+to_string(i)+"]", (*pair.second)[i]);
+            }
+        }
+    }
 };
 
-shared_ptr<Material> MakeMaterial(const string& shaderName)
+shared_ptr<Material> MakeMaterial(shared_ptr<Shader> shader)
 {
     shared_ptr<Material> material = make_shared<Material>();
-    material->shader = MakeShader(shaderName);
+    material->shader = shader;
     return material;
 }
 #endif

@@ -8,12 +8,12 @@ in V2F
     vec4 worldPos;
     vec3 worldNormal;
 } i;
-uniform sampler2D tB;
-uniform bool bMask;
+uniform sampler2D tC;
+uniform bool isMask;
 void main()
 {   
-    vec4 color = texture(tB, i.uv);
-    if (bMask)
+    vec4 color = texture(tC, i.uv);
+    if (isMask)
         if (color.a < .5f)
             discard;
     gPosition = i.worldPos;

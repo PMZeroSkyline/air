@@ -13,12 +13,13 @@ class GLContext
 {
 public:
 
-    bool blend = false;
+    bool isBlend = false;
 	GLenum sBlendFactor = GL_ONE;
 	GLenum dBlendFactor = GL_ZERO;
-    bool depthTest = false;
-    bool depthMask = false;
-    bool cullFace = false;
+    bool isDepthTest = false;
+    bool isDepthMask = false;
+    bool isCullFace = false;
+	GLenum cullFaceMode = GL_BACK;
     GLenum frontAndBackFacePolygonMode = GL_FILL;
 
 	GLuint textureID = -1;
@@ -38,6 +39,10 @@ public:
 			frameBufferID = 0;
 		}
 	}
+	void Viewport(GLint x, GLint y, GLsizei width, GLsizei height)
+	{
+		glViewport(x, y, width, height);
+	}
 	void ClearColor(float x, float y, float z, float w)
 	{
 		BindFrameBuffer();
@@ -48,9 +53,17 @@ public:
 		BindFrameBuffer();
 		glClear(mask);
 	}
+	void CullFace(GLenum mode)
+	{
+		if (cullFaceMode != mode)
+		{
+			glCullFace(mode);
+			cullFaceMode = mode;
+		}
+	}
 	void SetCullFace(bool isEnable)
 	{
-		if (cullFace != isEnable)
+		if (isCullFace != isEnable)
 		{
 			if (isEnable)
 			{
@@ -60,12 +73,12 @@ public:
 			{
 				glDisable(GL_CULL_FACE);
 			}
-			cullFace = isEnable;
+			isCullFace = isEnable;
 		}
 	}
 	void SetBlend(bool isEnable)
 	{
-		if (blend != isEnable)
+		if (isBlend != isEnable)
 		{
 			if (isEnable)
 			{
@@ -75,10 +88,10 @@ public:
 			{
 				glDisable(GL_BLEND);
 			}
-			blend = isEnable;
+			isBlend = isEnable;
 		}
 	}
-	void SetPolygon(GLenum mode)
+	void Polygon(GLenum mode)
 	{
 		if (frontAndBackFacePolygonMode != mode)
 		{
@@ -88,7 +101,7 @@ public:
 	}
 	void SetDepthTest(bool isEnable)
 	{
-		if (depthTest != isEnable)
+		if (isDepthTest != isEnable)
 		{
 			if (isEnable)
 			{
@@ -98,18 +111,18 @@ public:
 			{
 				glDisable(GL_DEPTH_TEST);
 			}
-			depthTest = isEnable;
+			isDepthTest = isEnable;
 		}
 	}
-	void SetDepthMask(bool isEnable)
+	void DepthMask(bool isEnable)
 	{
-		if (depthMask != isEnable)
+		if (isDepthMask != isEnable)
 		{
 			glDepthMask(isEnable);
-			depthMask = isEnable;
+			isDepthMask = isEnable;
 		}
 	}
-	void SetBlendFunc(GLenum sfactor, GLenum dfactor)
+	void BlendFunc(GLenum sfactor, GLenum dfactor)
 	{
 		if (sBlendFactor != sfactor || dBlendFactor != dfactor)
 		{
@@ -265,6 +278,10 @@ public:
 		glActiveTexture(GL_TEXTURE0 + index);
 		Bind();
 	}
+	void BorderColor(const GLfloat *params)
+	{
+		glTexParameterfv(GL_TEXTURE_2D, GL_TEXTURE_BORDER_COLOR, params);  
+	}
 };
 class GLTexture2D : public GLTexture
 {
@@ -274,6 +291,14 @@ public:
 		return GL_TEXTURE_2D;
 	}
 };
+shared_ptr<GLTexture2D> MakeTexture2D(GLsizei width, GLsizei height, GLint internalformat = GL_RGBA, GLenum format = GL_RGBA, GLenum type = GL_UNSIGNED_BYTE, const void *pixels = NULL, GLint border = 0)
+{
+    shared_ptr<GLTexture2D> t = make_shared<GLTexture2D>();
+    t->TexImage2D(t->GetTarget(), 0, internalformat, width, height, 0, format, type, pixels);
+    t->Filters(GL_NEAREST, GL_NEAREST);
+    t->WrapST(GL_REPEAT, GL_REPEAT);
+    return t;
+}
 class GLTextureCube : public GLTexture
 {
 public:
@@ -479,7 +504,7 @@ public:
 			glContext.frameBufferID = id;
 		}
 	}
-	bool IsComplete()
+	bool CheckComplete()
 	{
 		Bind();
 		return glCheckFramebufferStatus(GL_FRAMEBUFFER) == GL_FRAMEBUFFER_COMPLETE;

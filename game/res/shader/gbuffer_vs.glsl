@@ -9,7 +9,7 @@ uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
 
-uniform bool bSkin;
+uniform bool isSkin;
 uniform mat4 J[128];
 
 out V2F
@@ -23,7 +23,7 @@ out V2F
 void main()
 {
     mat4 Model;
-    if (bSkin)
+    if (isSkin)
     {
         mat4 S = 
             WEIGHTS_0[0] * J[int(JOINTS_0[0])] + 

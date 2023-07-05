@@ -57,7 +57,7 @@ public:
 		name = path;
 		fs::path filePath = path;
 		string ext = filePath.extension().string();
-		if (ext == ".png" || ext == ".jpg")
+		if (ext == ".png" || ext == ".jpg" || ext == ".jpeg")
 		{
 			data = stbi_load(path.c_str(), &width, &height, &channel, 0);
 			if (!data)

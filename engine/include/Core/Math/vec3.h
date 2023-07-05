@@ -238,7 +238,15 @@ vec3t<T> NormalizeEulerAngle(const vec3t<T>& e)
 		NormalizeAxis(e.z)
 	);
 }
-
+template<typename T>
+vec3t<T> Pow(const vec3t<T>& v, float power)
+{
+	return vec3t<T>(
+		pow(v.x, power),
+		pow(v.y, power),
+		pow(v.z, power)
+	);
+}
 
 using u8vec3 = vec3t<unsigned char>;
 using u16vec3 = vec3t<unsigned short>;

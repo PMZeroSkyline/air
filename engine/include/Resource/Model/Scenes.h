@@ -184,7 +184,7 @@ shared_ptr<Material> LoadMaterial(const gltf::glTF& GLTF, vector<shared_ptr<Text
     
     if (gMaterial->pbrMetallicRoughness.baseColorTexture.index != -1)
     {
-        material->textureMap["tB"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
+        material->textureMap["tC"] = &(texture2Ds[gMaterial->pbrMetallicRoughness.baseColorTexture.index]->glTexture2D);
     }
     return material;
 }

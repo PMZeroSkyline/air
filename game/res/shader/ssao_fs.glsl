@@ -10,30 +10,23 @@ uniform sampler2D tB;
 uniform sampler2D tN;
 uniform sampler2D tP;
 
+// uniform mat4 M;
 uniform mat4 V;
 uniform mat4 P;
 uniform vec3 viewPos;
-uniform vec3 rands[64];
-const vec2 scale = vec2(1.0f / 800.f, 1.0f / 600.f);
+uniform mat4 lV;
+uniform mat4 lP;
+uniform vec3 lightDir;
+
+// uniform bool isSkin;
+// uniform bool isMask;
 void main()
 {   
     vec3 col = texture(tB, i.uv).xyz;
     vec3 pos = texture(tP, i.uv).xyz;
-    vec4 viewPos = V * vec4(pos, 1.f);
-    float count = 0;
-    float d = .01f;
-    for (int i = 0; i != 64; i++)
-    {
-        vec3 offsetPos = pos + rands[i] * .05f;
-        
-        if (offsetPos.y > pos.y)
-        {
-            count += d;
-        }
-    }
-    FragColor = vec4(pow(count, 5.f));
-    // FragColor = vec4(1.f) - vec4(distance(newPos, pos));
-    // FragColor = vec4(1.f) * dot(normal, normalize(viewPos - pos));
-    // FragColor = texture(tN, i.uv);
-    // FragColor = vec4(newCol, 1.f);
+    vec3 normal = texture(tN, i.uv).xyz;
+
+    float nl = dot(normal, lightDir);
+    FragColor = vec4(1.f);
+    
 }

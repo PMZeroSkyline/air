@@ -11,8 +11,11 @@ in V2F
     vec3 worldNormal;
 } i;
 
-uniform sampler2D tB;
-uniform bool bMask;
+uniform sampler2D tC;
+uniform bool isMask;
+
+uniform mat4 V;
+uniform mat4 P;
 
 void main()
 {   
@@ -20,8 +23,8 @@ void main()
     // vec3 worldNormal = normalize(i.worldNormal);
     // float nl = dot(worldNormal, normalize(vec3(1.f)));
 
-    vec4 color = texture(tB, i.uv);
-    if (bMask)
+    vec4 color = texture(tC, i.uv);
+    if (isMask)
         if (color.a < .5f)
             discard;
 

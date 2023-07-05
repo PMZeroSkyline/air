@@ -17,15 +17,5 @@ void main()
     vec3 col = texture(tB, i.uv).xyz;
     vec3 pos = texture(tP, i.uv).xyz;
     vec4 viewPos = V * vec4(pos, 1.f);
-    float count = 0;
-    float d = .01f;
-    for (int i = 0; i != 64; i++)
-    {
-        vec3 offsetPos = pos + rands[i] * .05f;
-        if (offsetPos.y > pos.y)
-        {
-            count += d;
-        }
-    }
-    FragColor = vec4(pow(count, 5.f));
+    FragColor = vec4(col, 1.f);
 }
