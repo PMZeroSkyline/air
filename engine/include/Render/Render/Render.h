@@ -99,13 +99,13 @@ public:
     shared_ptr<GLTexture2D> tNormal = MakeTexture2D(size.x, size.y, GL_RGBA16F, GL_RGBA, GL_FLOAT);
     shared_ptr<GLTexture> tDepth = MakeTexture2D(size.x, size.y, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
 
-    int shadowSize = 2048;
+    int shadowSize = 1024;
     GLFrameBuffer gShadow;
     shared_ptr<GLTexture2D> tShadow = MakeTexture2D(shadowSize, shadowSize, GL_DEPTH_COMPONENT, GL_DEPTH_COMPONENT, GL_FLOAT);
     shared_ptr<Material> mShadow = MakeMaterial(MakeShader());
 
     bool isSoftSSSM = false;
-    vector<vec3> randPoints = RandomUnitSphere(512);
+    vector<vec3> randPoints = RandomUnitSphere(64);
 
     shared_ptr<Material> mScreen = MakeMaterial(MakeShader("screen"));
 
@@ -133,6 +133,8 @@ public:
         shadowCamera->xmag = 25.f;
         shadowCamera->ymag = 25.f;
         cLight->camera = shadowCamera;
+
+        
     }
     void Load(Actor* root)
     {
@@ -143,6 +145,10 @@ public:
         {
             isSoftSSSM = !isSoftSSSM;
         }
+
+        
+
+        
     }
     void Draw()
     {
@@ -207,6 +213,7 @@ public:
         mScreen->vec3sMap["randPoints"] = &randPoints;
         mScreen->SetVec3sUniform();
         mScreen->shader->SetMat4("lVP", lP * lV);
+        mScreen->shader->SetMat4("VP", P * V);
         mScreen->shader->SetVec3("lightDir", lightDir);
         mScreen->shader->SetBool("isUseZeroSkylineVolumeShadow", isSoftSSSM);
         quad->Draw();

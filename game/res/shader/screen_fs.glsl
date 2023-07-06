@@ -4,21 +4,22 @@ in V2F
 {
     vec2 uv;
 } i;
-
 // Gbuffer
 uniform sampler2D tC;
 uniform sampler2D tN;
 uniform sampler2D tP;
 uniform sampler2D tD;
-
-#define SAMPLE_NUM 512
+// SSSM
+#define SAMPLE_NUM 64
 uniform mat4 lVP;
 uniform vec3 lightDir;
 uniform sampler2D tS;
 uniform vec3 randPoints[SAMPLE_NUM];
-uniform bool isUseZeroSkylineVolumeShadow;
+// 
+uniform mat4 VP;
 
-float SoftShadow(vec3 position)
+
+float ScreenSpaceDirectionOcclusion(vec3 position)
 {
     float light = 0;
     for (int i = 0; i != SAMPLE_NUM; i++)
@@ -34,12 +35,34 @@ float SoftShadow(vec3 position)
     light = clamp(light * 2.f, 0.f, 1.f);
     return light;
 }
+vec3 ScreenSpaceGlobalIllumination(vec3 position, vec3 normal)
+{
+    vec3 light = vec3(0.f);
 
+    for (int i = 0; i != SAMPLE_NUM; i++)
+    {
+        vec3 v = randPoints[i];
+        // v *= pow(length(v), 2.f);
+        vec4 fragPos = VP * vec4(position + v, 1.f);
+        vec3 ndc01 = fragPos.xyz / fragPos.w * .5f + .5f;
+        vec3 scatterColor = texture(tC, ndc01.xy).rgb; 
+        vec3 scatterNormal = texture(tN, ndc01.xy).rgb; 
+        vec3 scatterPos = texture(tP, ndc01.xy).rgb; 
+        float ndn = dot(normal, scatterNormal);
+        // light += scatterColor * vec3(clamp(1.f-ndn, 0.f, 1.f));
+        light += vec3(distance(scatterPos, position) * 0.1f);
+    }
+    light /= SAMPLE_NUM;
+    // light = clamp(light * 2.f, 0.f, 1.f);
+    return light;
+}
 void main()
 {   
     vec3 position = texture(tP, i.uv).xyz;
-    vec3 color = texture(tC, i.uv).xyz;
-    float shadow = SoftShadow(position);
-    FragColor = vec4(color * mix(.1f, 1.f, shadow), 1.f);
+    vec3 normal = texture(tN, i.uv).xyz;
+    vec3 pure_color = texture(tC, i.uv).xyz;
+    float occlusion = ScreenSpaceDirectionOcclusion(position);
+    vec3 color = ScreenSpaceGlobalIllumination(position, normal);
+    FragColor = vec4(color, 1.f);
     
 }
