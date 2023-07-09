@@ -33,7 +33,7 @@ int main(int argc, char** argv)
 	// GenSandbox(world.get());
 	Actor* aScene = world->AddChild<Actor>();
 	ScenesComponent* cScenes = aScene->AddComponent<ScenesComponent>();
-	cScenes->Load("game/res/Model/Architecture/Sponza/scene.gltf");
+	cScenes->Load("game/asset/Model/Architecture/Sponza/scene.gltf");
 	cScenes->FieldExpand();
 
 	Role* role = world->AddChild<Role>();

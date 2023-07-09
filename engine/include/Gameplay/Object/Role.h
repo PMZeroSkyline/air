@@ -211,7 +211,7 @@ public:
         cCollision->shape = sCapsule;
 
         // sModel->Load("game/res/Model/People/Aurelia/Aurelia.gltf");
-        sModel->Load("game/res/Model/People/S09/S09.gltf");
+        sModel->Load("game/asset/Model/People/S09/S09.gltf");
         sModel->FieldExpand();
         //cPlayer->animInsts = &sModel->animationInstances;
         

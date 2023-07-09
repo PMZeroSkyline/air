@@ -3,7 +3,7 @@
 
 #include "SDK/STL/STL.h"
 #include "Core/Parse/StringParse.h"
-#include "Platform/File/BinFileRead.h"
+#include "Platform/File/ReadFile.h"
 #include "Platform/File/FileDirectory.h"
 
 string PreprocessorFile(string path)

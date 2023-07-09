@@ -49,11 +49,11 @@ vec3 ScreenSpaceGlobalIllumination(vec3 position, vec3 normal)
         vec3 scatterNormal = texture(tN, ndc01.xy).rgb; 
         vec3 scatterPos = texture(tP, ndc01.xy).rgb; 
         float ndn = dot(normal, scatterNormal);
-        // light += scatterColor * vec3(clamp(1.f-ndn, 0.f, 1.f));
-        light += vec3(distance(scatterPos, position) * 0.1f);
+        light += scatterColor * vec3(clamp(1.f-ndn, 0.f, 1.f));
+        // light += vec3(distance(scatterPos, position) * 0.1f);
     }
     light /= SAMPLE_NUM;
-    // light = clamp(light * 2.f, 0.f, 1.f);
+    light = clamp(light * 2.f, 0.f, 1.f);
     return light;
 }
 void main()
@@ -61,8 +61,8 @@ void main()
     vec3 position = texture(tP, i.uv).xyz;
     vec3 normal = texture(tN, i.uv).xyz;
     vec3 pure_color = texture(tC, i.uv).xyz;
-    float occlusion = ScreenSpaceDirectionOcclusion(position);
-    vec3 color = ScreenSpaceGlobalIllumination(position, normal);
-    FragColor = vec4(color, 1.f);
+    // float occlusion = ScreenSpaceDirectionOcclusion(position);
+    // vec3 color = ScreenSpaceGlobalIllumination(position, normal);
+    FragColor = vec4(pure_color, 1.f);
     
 }

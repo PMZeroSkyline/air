@@ -2,11 +2,11 @@
 #define SHADER_H
 
 #include "SDK/STL/STL.h"
-#include "Platform/File/BinFileRead.h"
+#include "Platform/File/ReadFile.h"
 #include "SDK/OpenGL/CppOpenGL.h"
 #include "Core/Math/Math.h"
 #include "Core/Container/WeakMap.h"
-#include "Core/RTTI/Preprocessor.h"
+// #include "Core/RTTI/Preprocessor.h"
 class Shader
 {
 public:
@@ -19,8 +19,8 @@ public:
         string vsStr, fsStr;
         // vsStr = PreprocessorFile(vsPath);
         // fsStr = PreprocessorFile(fsPath);
-        vsStr = StringFromFile(vsPath);
-        fsStr = StringFromFile(fsPath);
+        StringFromFile(vsPath, vsStr);
+        StringFromFile(fsPath, fsStr);
         vsShader.Compile(vsStr.c_str(), "vs compile failed : " + vsPath + " : \n");
         fsShader.Compile(fsStr.c_str(), "fs compile failed : " + fsPath + " : \n");
         glProgram.Link(vsShader.id, fsShader.id, "link failed : " + vsPath + "," + fsPath + " : \n");
@@ -97,7 +97,7 @@ shared_ptr<Shader> MakeShader(const string& name = "gbuffer")
     shared_ptr<Shader> shader = shaderWeakMap.Get(name);
     if (!shader)
     {
-        string dir = "game/res/Shader/";
+        string dir = "game/asset/Shader/";
         shader = make_shared<Shader>();
         shader->Load(dir + name + "_vs.glsl", dir + name + "_fs.glsl");
         shaderWeakMap.Set(name, shader);

@@ -313,9 +313,9 @@ struct glTF
 	glTF(const Asset &_asset) : asset(_asset){}
 };
 
-glTF Load(const string &path)
+glTF Load(const string &gltfContext)
 {
-	json GLTF = json::parse(ifstream(path));
+	json GLTF = json::parse(gltfContext);
 	json ASSET = GLTF["asset"];
 	string version = ASSET["version"];
 	Asset asset(version);

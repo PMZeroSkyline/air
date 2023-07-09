@@ -13,7 +13,7 @@
 #include "Resource/Skin/Skin.h"
 #include "Resource/Skin/Animation.h"
 #include "Core/Container/WeakMap.h"
-#include "Platform/File/BinFileRead.h"
+#include "Platform/File/ReadFile.h"
 
 void LoadScene(Scene& scene, const gltf::glTF& GLTF, int index)
 {
@@ -328,7 +328,9 @@ public:
         path = _path;
         size_t found = path.find_last_of("/\\");
         dir = path.substr(0, found != string::npos ? found + 1 : 0);
-        gltf::glTF GLTF = gltf::Load(path);
+        string gltfContext;
+        StringFromFile(_path, gltfContext);
+        gltf::glTF GLTF = gltf::Load(gltfContext);
 
         sceneID = GLTF.scene;
          
