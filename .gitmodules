@@ -7,6 +7,3 @@
 [submodule "third/json"]
 	path = third/json
 	url = https://github.com/nlohmann/json.git
-[submodule "third/glfw"]
-	path = third/glfw
-	url = https://github.com/glfw/glfw.git
