@@ -40,7 +40,6 @@ int main(int argc, char** argv)
 	aScene->localTransform.rotation = EulerToQuat(90.f, 0.f, 0.f);
 	world->ResetWorldMatrix();
 
-	
 	Render render;
 	render.Load(world.get());
 	

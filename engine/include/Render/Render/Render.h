@@ -106,6 +106,9 @@ public:
 
     bool isSoftSSSM = false;
     vector<vec3> randPoints = RandomUnitSphere(64);
+    vector<vec3> noisePoints = RandomUnitSphere(16);
+    shared_ptr<GLTexture2D> tNoise = MakeTexture2D(4, 4, GL_RGBA16F, GL_RGB, GL_FLOAT, &noisePoints[0]);
+
 
     shared_ptr<Material> mScreen = MakeMaterial(MakeShader("screen"));
 
@@ -209,11 +212,13 @@ public:
         mScreen->textureMap["tN"] = tNormal.get();
         mScreen->textureMap["tS"] = tShadow.get();
         mScreen->textureMap["tD"] = tDepth.get();
+        mScreen->textureMap["tNoise"] = tNoise.get();
         mScreen->SetTexturesUniform();
         mScreen->vec3sMap["randPoints"] = &randPoints;
         mScreen->SetVec3sUniform();
         mScreen->shader->SetMat4("lVP", lP * lV);
         mScreen->shader->SetMat4("VP", P * V);
+        mScreen->shader->SetMat4("P", P);
         mScreen->shader->SetVec3("lightDir", lightDir);
         mScreen->shader->SetBool("isUseZeroSkylineVolumeShadow", isSoftSSSM);
         quad->Draw();

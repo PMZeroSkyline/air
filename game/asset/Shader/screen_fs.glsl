@@ -17,7 +17,9 @@ uniform sampler2D tS;
 uniform vec3 randPoints[SAMPLE_NUM];
 // 
 uniform mat4 VP;
-
+uniform mat4 P;
+uniform sampler2D tNoise;
+const vec2 noiseScale = vec2(800.0/4.0, 600.0/4.0);
 
 float ScreenSpaceDirectionOcclusion(vec3 position)
 {
@@ -56,13 +58,26 @@ vec3 ScreenSpaceGlobalIllumination(vec3 position, vec3 normal)
     light = clamp(light * 2.f, 0.f, 1.f);
     return light;
 }
+vec3 normal_from_depth(float depth, vec2 texcoords) {
+  
+  const vec2 offset1 = vec2(0.0,0.001);
+  const vec2 offset2 = vec2(0.001,0.0);
+  
+  float depth1 = texture(tD, texcoords + offset1).r;
+  float depth2 = texture(tD, texcoords + offset2).r;
+  
+  vec3 p1 = vec3(offset1, depth1 - depth);
+  vec3 p2 = vec3(offset2, depth2 - depth);
+  
+  vec3 normal = cross(p1, p2);
+  normal.z = -normal.z;
+  
+  return normalize(normal);
+}
+
 void main()
 {   
-    vec3 position = texture(tP, i.uv).xyz;
-    vec3 normal = texture(tN, i.uv).xyz;
-    vec3 pure_color = texture(tC, i.uv).xyz;
-    // float occlusion = ScreenSpaceDirectionOcclusion(position);
-    // vec3 color = ScreenSpaceGlobalIllumination(position, normal);
-    FragColor = vec4(pure_color, 1.f);
+    vec3 col = texture(tC, i.uv).xyz;
+    FragColor = vec4(col, 1.f);
     
 }

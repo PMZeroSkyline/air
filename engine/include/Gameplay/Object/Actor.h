@@ -26,8 +26,8 @@ public:
 	}
 	void SetWorldMatrix(const mat4& m)
 	{
-		mat4 IW = parent ? ((Actor*)parent)->worldMatrix.inverse() : mat4();
-		mat4 localMatrix = IW * m;
+		// mat4 IW = parent ? ((Actor*)parent)->worldMatrix.inverse() : mat4();
+		mat4 localMatrix = parent ? ((Actor*)parent)->worldMatrix.inverse() * m : m;
 		localTransform = Transform(localMatrix);
 		ResetWorldMatrix(true);
 	}
